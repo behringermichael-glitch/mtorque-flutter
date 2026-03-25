@@ -15,13 +15,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navDashboard => 'Dashboard';
 
   @override
-  String get navStrength => 'Strength';
+  String get navStrength => 'Kraft';
 
   @override
-  String get navEndurance => 'Endurance';
+  String get navEndurance => 'Ausdauer';
 
   @override
-  String get navStats => 'Stats';
+  String get navStats => 'Statistik';
 
   @override
   String get navSettings => 'Settings';
@@ -36,15 +36,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get strengthPlaceholderDescription =>
-      'Strength-Platzhalter für die 1:1-Migration.';
+      'Kraft-Platzhalter für die 1:1-Migration.';
 
   @override
   String get endurancePlaceholderDescription =>
-      'Endurance-Platzhalter für die 1:1-Migration.';
+      'Ausdauer-Platzhalter für die 1:1-Migration.';
 
   @override
   String get statsPlaceholderDescription =>
-      'Stats-Platzhalter für die 1:1-Migration.';
+      'Statistik-Platzhalter für die 1:1-Migration.';
 
   @override
   String get settingsPlaceholderDescription =>

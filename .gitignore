@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+lib/l10n/generated/
+android/local.properties
+Thumbs.db
+.env
+.env.*
