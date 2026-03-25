@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appName": "mTORQUE",
+  "navDashboard": "Dashboard",
+  "navStrength": "Strength",
+  "navEndurance": "Endurance",
+  "navStats": "Stats",
+  "navSettings": "Settings",
+  "modulePlaceholderReady": "Structure is ready for feature migration.",
+  "dashboardPlaceholderDescription": "Dashboard module placeholder for 1:1 migration.",
+  "strengthPlaceholderDescription": "Strength module placeholder for 1:1 migration.",
+  "endurancePlaceholderDescription": "Endurance module placeholder for 1:1 migration.",
+  "statsPlaceholderDescription": "Statistics module placeholder for 1:1 migration.",
+  "settingsPlaceholderDescription": "Settings module placeholder for 1:1 migration."
+}
