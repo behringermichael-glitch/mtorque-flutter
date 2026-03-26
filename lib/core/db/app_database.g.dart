@@ -15,19 +15,15 @@ class $RunSessionsTable extends RunSessions
     'id',
     aliasedName,
     false,
-    hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
   );
   static const VerificationMeta _startEpochMsMeta = const VerificationMeta(
     'startEpochMs',
   );
   @override
   late final GeneratedColumn<int> startEpochMs = GeneratedColumn<int>(
-    'start_epoch_ms',
+    'startEpochMs',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -38,7 +34,7 @@ class $RunSessionsTable extends RunSessions
   );
   @override
   late final GeneratedColumn<int> endEpochMs = GeneratedColumn<int>(
-    'end_epoch_ms',
+    'endEpochMs',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -49,7 +45,7 @@ class $RunSessionsTable extends RunSessions
   );
   @override
   late final GeneratedColumn<double> totalDistanceM = GeneratedColumn<double>(
-    'total_distance_m',
+    'totalDistanceM',
     aliasedName,
     false,
     type: DriftSqlType.double,
@@ -61,7 +57,7 @@ class $RunSessionsTable extends RunSessions
   );
   @override
   late final GeneratedColumn<int> totalDurationMs = GeneratedColumn<int>(
-    'total_duration_ms',
+    'totalDurationMs',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -71,7 +67,7 @@ class $RunSessionsTable extends RunSessions
   static const VerificationMeta _avgHrMeta = const VerificationMeta('avgHr');
   @override
   late final GeneratedColumn<int> avgHr = GeneratedColumn<int>(
-    'avg_hr',
+    'avgHr',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -80,7 +76,7 @@ class $RunSessionsTable extends RunSessions
   static const VerificationMeta _maxHrMeta = const VerificationMeta('maxHr');
   @override
   late final GeneratedColumn<int> maxHr = GeneratedColumn<int>(
-    'max_hr',
+    'maxHr',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -280,54 +276,51 @@ class $RunSessionsTable extends RunSessions
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('start_epoch_ms')) {
+    if (data.containsKey('startEpochMs')) {
       context.handle(
         _startEpochMsMeta,
         startEpochMs.isAcceptableOrUnknown(
-          data['start_epoch_ms']!,
+          data['startEpochMs']!,
           _startEpochMsMeta,
         ),
       );
     } else if (isInserting) {
       context.missing(_startEpochMsMeta);
     }
-    if (data.containsKey('end_epoch_ms')) {
+    if (data.containsKey('endEpochMs')) {
       context.handle(
         _endEpochMsMeta,
-        endEpochMs.isAcceptableOrUnknown(
-          data['end_epoch_ms']!,
-          _endEpochMsMeta,
-        ),
+        endEpochMs.isAcceptableOrUnknown(data['endEpochMs']!, _endEpochMsMeta),
       );
     }
-    if (data.containsKey('total_distance_m')) {
+    if (data.containsKey('totalDistanceM')) {
       context.handle(
         _totalDistanceMMeta,
         totalDistanceM.isAcceptableOrUnknown(
-          data['total_distance_m']!,
+          data['totalDistanceM']!,
           _totalDistanceMMeta,
         ),
       );
     }
-    if (data.containsKey('total_duration_ms')) {
+    if (data.containsKey('totalDurationMs')) {
       context.handle(
         _totalDurationMsMeta,
         totalDurationMs.isAcceptableOrUnknown(
-          data['total_duration_ms']!,
+          data['totalDurationMs']!,
           _totalDurationMsMeta,
         ),
       );
     }
-    if (data.containsKey('avg_hr')) {
+    if (data.containsKey('avgHr')) {
       context.handle(
         _avgHrMeta,
-        avgHr.isAcceptableOrUnknown(data['avg_hr']!, _avgHrMeta),
+        avgHr.isAcceptableOrUnknown(data['avgHr']!, _avgHrMeta),
       );
     }
-    if (data.containsKey('max_hr')) {
+    if (data.containsKey('maxHr')) {
       context.handle(
         _maxHrMeta,
-        maxHr.isAcceptableOrUnknown(data['max_hr']!, _maxHrMeta),
+        maxHr.isAcceptableOrUnknown(data['maxHr']!, _maxHrMeta),
       );
     }
     if (data.containsKey('elev_gain_m')) {
@@ -438,27 +431,27 @@ class $RunSessionsTable extends RunSessions
       )!,
       startEpochMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}start_epoch_ms'],
+        data['${effectivePrefix}startEpochMs'],
       )!,
       endEpochMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}end_epoch_ms'],
+        data['${effectivePrefix}endEpochMs'],
       ),
       totalDistanceM: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}total_distance_m'],
+        data['${effectivePrefix}totalDistanceM'],
       )!,
       totalDurationMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}total_duration_ms'],
+        data['${effectivePrefix}totalDurationMs'],
       )!,
       avgHr: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}avg_hr'],
+        data['${effectivePrefix}avgHr'],
       ),
       maxHr: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}max_hr'],
+        data['${effectivePrefix}maxHr'],
       ),
       elevGainM: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -574,17 +567,17 @@ class RunSession extends DataClass implements Insertable<RunSession> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['start_epoch_ms'] = Variable<int>(startEpochMs);
+    map['startEpochMs'] = Variable<int>(startEpochMs);
     if (!nullToAbsent || endEpochMs != null) {
-      map['end_epoch_ms'] = Variable<int>(endEpochMs);
+      map['endEpochMs'] = Variable<int>(endEpochMs);
     }
-    map['total_distance_m'] = Variable<double>(totalDistanceM);
-    map['total_duration_ms'] = Variable<int>(totalDurationMs);
+    map['totalDistanceM'] = Variable<double>(totalDistanceM);
+    map['totalDurationMs'] = Variable<int>(totalDurationMs);
     if (!nullToAbsent || avgHr != null) {
-      map['avg_hr'] = Variable<int>(avgHr);
+      map['avgHr'] = Variable<int>(avgHr);
     }
     if (!nullToAbsent || maxHr != null) {
-      map['max_hr'] = Variable<int>(maxHr);
+      map['maxHr'] = Variable<int>(maxHr);
     }
     if (!nullToAbsent || elevGainM != null) {
       map['elev_gain_m'] = Variable<double>(elevGainM);
@@ -993,12 +986,12 @@ class RunSessionsCompanion extends UpdateCompanion<RunSession> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (startEpochMs != null) 'start_epoch_ms': startEpochMs,
-      if (endEpochMs != null) 'end_epoch_ms': endEpochMs,
-      if (totalDistanceM != null) 'total_distance_m': totalDistanceM,
-      if (totalDurationMs != null) 'total_duration_ms': totalDurationMs,
-      if (avgHr != null) 'avg_hr': avgHr,
-      if (maxHr != null) 'max_hr': maxHr,
+      if (startEpochMs != null) 'startEpochMs': startEpochMs,
+      if (endEpochMs != null) 'endEpochMs': endEpochMs,
+      if (totalDistanceM != null) 'totalDistanceM': totalDistanceM,
+      if (totalDurationMs != null) 'totalDurationMs': totalDurationMs,
+      if (avgHr != null) 'avgHr': avgHr,
+      if (maxHr != null) 'maxHr': maxHr,
       if (elevGainM != null) 'elev_gain_m': elevGainM,
       if (notes != null) 'notes': notes,
       if (sport != null) 'sport': sport,
@@ -1072,22 +1065,22 @@ class RunSessionsCompanion extends UpdateCompanion<RunSession> {
       map['id'] = Variable<int>(id.value);
     }
     if (startEpochMs.present) {
-      map['start_epoch_ms'] = Variable<int>(startEpochMs.value);
+      map['startEpochMs'] = Variable<int>(startEpochMs.value);
     }
     if (endEpochMs.present) {
-      map['end_epoch_ms'] = Variable<int>(endEpochMs.value);
+      map['endEpochMs'] = Variable<int>(endEpochMs.value);
     }
     if (totalDistanceM.present) {
-      map['total_distance_m'] = Variable<double>(totalDistanceM.value);
+      map['totalDistanceM'] = Variable<double>(totalDistanceM.value);
     }
     if (totalDurationMs.present) {
-      map['total_duration_ms'] = Variable<int>(totalDurationMs.value);
+      map['totalDurationMs'] = Variable<int>(totalDurationMs.value);
     }
     if (avgHr.present) {
-      map['avg_hr'] = Variable<int>(avgHr.value);
+      map['avgHr'] = Variable<int>(avgHr.value);
     }
     if (maxHr.present) {
-      map['max_hr'] = Variable<int>(maxHr.value);
+      map['maxHr'] = Variable<int>(maxHr.value);
     }
     if (elevGainM.present) {
       map['elev_gain_m'] = Variable<double>(elevGainM.value);
@@ -1175,19 +1168,15 @@ class $RunSamplesTable extends RunSamples
     'sid',
     aliasedName,
     false,
-    hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
   );
   static const VerificationMeta _sessionIdMeta = const VerificationMeta(
     'sessionId',
   );
   @override
   late final GeneratedColumn<int> sessionId = GeneratedColumn<int>(
-    'session_id',
+    'sessionId',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -1201,7 +1190,7 @@ class $RunSamplesTable extends RunSamples
   );
   @override
   late final GeneratedColumn<int> tEpochMs = GeneratedColumn<int>(
-    't_epoch_ms',
+    'tEpochMs',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -1237,7 +1226,7 @@ class $RunSamplesTable extends RunSamples
   static const VerificationMeta _accMMeta = const VerificationMeta('accM');
   @override
   late final GeneratedColumn<double> accM = GeneratedColumn<double>(
-    'acc_m',
+    'accM',
     aliasedName,
     true,
     type: DriftSqlType.double,
@@ -1248,7 +1237,7 @@ class $RunSamplesTable extends RunSamples
   );
   @override
   late final GeneratedColumn<double> speedMps = GeneratedColumn<double>(
-    'speed_mps',
+    'speedMps',
     aliasedName,
     true,
     type: DriftSqlType.double,
@@ -1293,18 +1282,18 @@ class $RunSamplesTable extends RunSamples
         sid.isAcceptableOrUnknown(data['sid']!, _sidMeta),
       );
     }
-    if (data.containsKey('session_id')) {
+    if (data.containsKey('sessionId')) {
       context.handle(
         _sessionIdMeta,
-        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+        sessionId.isAcceptableOrUnknown(data['sessionId']!, _sessionIdMeta),
       );
     } else if (isInserting) {
       context.missing(_sessionIdMeta);
     }
-    if (data.containsKey('t_epoch_ms')) {
+    if (data.containsKey('tEpochMs')) {
       context.handle(
         _tEpochMsMeta,
-        tEpochMs.isAcceptableOrUnknown(data['t_epoch_ms']!, _tEpochMsMeta),
+        tEpochMs.isAcceptableOrUnknown(data['tEpochMs']!, _tEpochMsMeta),
       );
     } else if (isInserting) {
       context.missing(_tEpochMsMeta);
@@ -1328,16 +1317,16 @@ class $RunSamplesTable extends RunSamples
     if (data.containsKey('hr')) {
       context.handle(_hrMeta, hr.isAcceptableOrUnknown(data['hr']!, _hrMeta));
     }
-    if (data.containsKey('acc_m')) {
+    if (data.containsKey('accM')) {
       context.handle(
         _accMMeta,
-        accM.isAcceptableOrUnknown(data['acc_m']!, _accMMeta),
+        accM.isAcceptableOrUnknown(data['accM']!, _accMMeta),
       );
     }
-    if (data.containsKey('speed_mps')) {
+    if (data.containsKey('speedMps')) {
       context.handle(
         _speedMpsMeta,
-        speedMps.isAcceptableOrUnknown(data['speed_mps']!, _speedMpsMeta),
+        speedMps.isAcceptableOrUnknown(data['speedMps']!, _speedMpsMeta),
       );
     }
     if (data.containsKey('elev_m')) {
@@ -1361,11 +1350,11 @@ class $RunSamplesTable extends RunSamples
       )!,
       sessionId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}session_id'],
+        data['${effectivePrefix}sessionId'],
       )!,
       tEpochMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}t_epoch_ms'],
+        data['${effectivePrefix}tEpochMs'],
       )!,
       lat: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -1381,11 +1370,11 @@ class $RunSamplesTable extends RunSamples
       ),
       accM: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}acc_m'],
+        data['${effectivePrefix}accM'],
       ),
       speedMps: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}speed_mps'],
+        data['${effectivePrefix}speedMps'],
       ),
       elevM: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -1425,18 +1414,18 @@ class RunSample extends DataClass implements Insertable<RunSample> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['sid'] = Variable<int>(sid);
-    map['session_id'] = Variable<int>(sessionId);
-    map['t_epoch_ms'] = Variable<int>(tEpochMs);
+    map['sessionId'] = Variable<int>(sessionId);
+    map['tEpochMs'] = Variable<int>(tEpochMs);
     map['lat'] = Variable<double>(lat);
     map['lon'] = Variable<double>(lon);
     if (!nullToAbsent || hr != null) {
       map['hr'] = Variable<int>(hr);
     }
     if (!nullToAbsent || accM != null) {
-      map['acc_m'] = Variable<double>(accM);
+      map['accM'] = Variable<double>(accM);
     }
     if (!nullToAbsent || speedMps != null) {
-      map['speed_mps'] = Variable<double>(speedMps);
+      map['speedMps'] = Variable<double>(speedMps);
     }
     if (!nullToAbsent || elevM != null) {
       map['elev_m'] = Variable<double>(elevM);
@@ -1621,13 +1610,13 @@ class RunSamplesCompanion extends UpdateCompanion<RunSample> {
   }) {
     return RawValuesInsertable({
       if (sid != null) 'sid': sid,
-      if (sessionId != null) 'session_id': sessionId,
-      if (tEpochMs != null) 't_epoch_ms': tEpochMs,
+      if (sessionId != null) 'sessionId': sessionId,
+      if (tEpochMs != null) 'tEpochMs': tEpochMs,
       if (lat != null) 'lat': lat,
       if (lon != null) 'lon': lon,
       if (hr != null) 'hr': hr,
-      if (accM != null) 'acc_m': accM,
-      if (speedMps != null) 'speed_mps': speedMps,
+      if (accM != null) 'accM': accM,
+      if (speedMps != null) 'speedMps': speedMps,
       if (elevM != null) 'elev_m': elevM,
     });
   }
@@ -1663,10 +1652,10 @@ class RunSamplesCompanion extends UpdateCompanion<RunSample> {
       map['sid'] = Variable<int>(sid.value);
     }
     if (sessionId.present) {
-      map['session_id'] = Variable<int>(sessionId.value);
+      map['sessionId'] = Variable<int>(sessionId.value);
     }
     if (tEpochMs.present) {
-      map['t_epoch_ms'] = Variable<int>(tEpochMs.value);
+      map['tEpochMs'] = Variable<int>(tEpochMs.value);
     }
     if (lat.present) {
       map['lat'] = Variable<double>(lat.value);
@@ -1678,10 +1667,10 @@ class RunSamplesCompanion extends UpdateCompanion<RunSample> {
       map['hr'] = Variable<int>(hr.value);
     }
     if (accM.present) {
-      map['acc_m'] = Variable<double>(accM.value);
+      map['accM'] = Variable<double>(accM.value);
     }
     if (speedMps.present) {
-      map['speed_mps'] = Variable<double>(speedMps.value);
+      map['speedMps'] = Variable<double>(speedMps.value);
     }
     if (elevM.present) {
       map['elev_m'] = Variable<double>(elevM.value);
@@ -2946,7 +2935,7 @@ class $DailyStepsTable extends DailySteps
   );
   @override
   late final GeneratedColumn<int> dateEpochDay = GeneratedColumn<int>(
-    'date_epoch_day',
+    'dateEpochDay',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -2975,7 +2964,7 @@ class $DailyStepsTable extends DailySteps
   );
   @override
   late final GeneratedColumn<int> updatedAtMs = GeneratedColumn<int>(
-    'updated_at_ms',
+    'updatedAtMs',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -3001,11 +2990,11 @@ class $DailyStepsTable extends DailySteps
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('date_epoch_day')) {
+    if (data.containsKey('dateEpochDay')) {
       context.handle(
         _dateEpochDayMeta,
         dateEpochDay.isAcceptableOrUnknown(
-          data['date_epoch_day']!,
+          data['dateEpochDay']!,
           _dateEpochDayMeta,
         ),
       );
@@ -3024,11 +3013,11 @@ class $DailyStepsTable extends DailySteps
         source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
       );
     }
-    if (data.containsKey('updated_at_ms')) {
+    if (data.containsKey('updatedAtMs')) {
       context.handle(
         _updatedAtMsMeta,
         updatedAtMs.isAcceptableOrUnknown(
-          data['updated_at_ms']!,
+          data['updatedAtMs']!,
           _updatedAtMsMeta,
         ),
       );
@@ -3044,7 +3033,7 @@ class $DailyStepsTable extends DailySteps
     return DailyStep(
       dateEpochDay: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}date_epoch_day'],
+        data['${effectivePrefix}dateEpochDay'],
       )!,
       steps: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -3056,7 +3045,7 @@ class $DailyStepsTable extends DailySteps
       ),
       updatedAtMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}updated_at_ms'],
+        data['${effectivePrefix}updatedAtMs'],
       )!,
     );
   }
@@ -3081,12 +3070,12 @@ class DailyStep extends DataClass implements Insertable<DailyStep> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['date_epoch_day'] = Variable<int>(dateEpochDay);
+    map['dateEpochDay'] = Variable<int>(dateEpochDay);
     map['steps'] = Variable<int>(steps);
     if (!nullToAbsent || source != null) {
       map['source'] = Variable<String>(source);
     }
-    map['updated_at_ms'] = Variable<int>(updatedAtMs);
+    map['updatedAtMs'] = Variable<int>(updatedAtMs);
     return map;
   }
 
@@ -3195,10 +3184,10 @@ class DailyStepsCompanion extends UpdateCompanion<DailyStep> {
     Expression<int>? updatedAtMs,
   }) {
     return RawValuesInsertable({
-      if (dateEpochDay != null) 'date_epoch_day': dateEpochDay,
+      if (dateEpochDay != null) 'dateEpochDay': dateEpochDay,
       if (steps != null) 'steps': steps,
       if (source != null) 'source': source,
-      if (updatedAtMs != null) 'updated_at_ms': updatedAtMs,
+      if (updatedAtMs != null) 'updatedAtMs': updatedAtMs,
     });
   }
 
@@ -3220,7 +3209,7 @@ class DailyStepsCompanion extends UpdateCompanion<DailyStep> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (dateEpochDay.present) {
-      map['date_epoch_day'] = Variable<int>(dateEpochDay.value);
+      map['dateEpochDay'] = Variable<int>(dateEpochDay.value);
     }
     if (steps.present) {
       map['steps'] = Variable<int>(steps.value);
@@ -3229,7 +3218,7 @@ class DailyStepsCompanion extends UpdateCompanion<DailyStep> {
       map['source'] = Variable<String>(source.value);
     }
     if (updatedAtMs.present) {
-      map['updated_at_ms'] = Variable<int>(updatedAtMs.value);
+      map['updatedAtMs'] = Variable<int>(updatedAtMs.value);
     }
     return map;
   }
@@ -3260,6 +3249,7 @@ class $HrSettingsTable extends HrSettings
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultValue: const Constant(1),
   );
   static const VerificationMeta _modeMeta = const VerificationMeta('mode');
   @override
@@ -3285,7 +3275,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> birthYear = GeneratedColumn<int>(
-    'birth_year',
+    'birthYear',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3296,7 +3286,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> hrRestBpm = GeneratedColumn<int>(
-    'hr_rest_bpm',
+    'hrRestBpm',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3307,7 +3297,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> hrMaxBpm = GeneratedColumn<int>(
-    'hr_max_bpm',
+    'hrMaxBpm',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3318,7 +3308,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> z1Upper = GeneratedColumn<int>(
-    'z1_upper',
+    'z1Upper',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3329,7 +3319,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> z2Upper = GeneratedColumn<int>(
-    'z2_upper',
+    'z2Upper',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3340,7 +3330,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> z3Upper = GeneratedColumn<int>(
-    'z3_upper',
+    'z3Upper',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3351,7 +3341,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> z4Upper = GeneratedColumn<int>(
-    'z4_upper',
+    'z4Upper',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3362,7 +3352,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> z5Upper = GeneratedColumn<int>(
-    'z5_upper',
+    'z5Upper',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -3373,7 +3363,7 @@ class $HrSettingsTable extends HrSettings
   );
   @override
   late final GeneratedColumn<int> updatedAtMs = GeneratedColumn<int>(
-    'updated_at_ms',
+    'updatedAtMs',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -3432,59 +3422,59 @@ class $HrSettingsTable extends HrSettings
         sex.isAcceptableOrUnknown(data['sex']!, _sexMeta),
       );
     }
-    if (data.containsKey('birth_year')) {
+    if (data.containsKey('birthYear')) {
       context.handle(
         _birthYearMeta,
-        birthYear.isAcceptableOrUnknown(data['birth_year']!, _birthYearMeta),
+        birthYear.isAcceptableOrUnknown(data['birthYear']!, _birthYearMeta),
       );
     }
-    if (data.containsKey('hr_rest_bpm')) {
+    if (data.containsKey('hrRestBpm')) {
       context.handle(
         _hrRestBpmMeta,
-        hrRestBpm.isAcceptableOrUnknown(data['hr_rest_bpm']!, _hrRestBpmMeta),
+        hrRestBpm.isAcceptableOrUnknown(data['hrRestBpm']!, _hrRestBpmMeta),
       );
     }
-    if (data.containsKey('hr_max_bpm')) {
+    if (data.containsKey('hrMaxBpm')) {
       context.handle(
         _hrMaxBpmMeta,
-        hrMaxBpm.isAcceptableOrUnknown(data['hr_max_bpm']!, _hrMaxBpmMeta),
+        hrMaxBpm.isAcceptableOrUnknown(data['hrMaxBpm']!, _hrMaxBpmMeta),
       );
     }
-    if (data.containsKey('z1_upper')) {
+    if (data.containsKey('z1Upper')) {
       context.handle(
         _z1UpperMeta,
-        z1Upper.isAcceptableOrUnknown(data['z1_upper']!, _z1UpperMeta),
+        z1Upper.isAcceptableOrUnknown(data['z1Upper']!, _z1UpperMeta),
       );
     }
-    if (data.containsKey('z2_upper')) {
+    if (data.containsKey('z2Upper')) {
       context.handle(
         _z2UpperMeta,
-        z2Upper.isAcceptableOrUnknown(data['z2_upper']!, _z2UpperMeta),
+        z2Upper.isAcceptableOrUnknown(data['z2Upper']!, _z2UpperMeta),
       );
     }
-    if (data.containsKey('z3_upper')) {
+    if (data.containsKey('z3Upper')) {
       context.handle(
         _z3UpperMeta,
-        z3Upper.isAcceptableOrUnknown(data['z3_upper']!, _z3UpperMeta),
+        z3Upper.isAcceptableOrUnknown(data['z3Upper']!, _z3UpperMeta),
       );
     }
-    if (data.containsKey('z4_upper')) {
+    if (data.containsKey('z4Upper')) {
       context.handle(
         _z4UpperMeta,
-        z4Upper.isAcceptableOrUnknown(data['z4_upper']!, _z4UpperMeta),
+        z4Upper.isAcceptableOrUnknown(data['z4Upper']!, _z4UpperMeta),
       );
     }
-    if (data.containsKey('z5_upper')) {
+    if (data.containsKey('z5Upper')) {
       context.handle(
         _z5UpperMeta,
-        z5Upper.isAcceptableOrUnknown(data['z5_upper']!, _z5UpperMeta),
+        z5Upper.isAcceptableOrUnknown(data['z5Upper']!, _z5UpperMeta),
       );
     }
-    if (data.containsKey('updated_at_ms')) {
+    if (data.containsKey('updatedAtMs')) {
       context.handle(
         _updatedAtMsMeta,
         updatedAtMs.isAcceptableOrUnknown(
-          data['updated_at_ms']!,
+          data['updatedAtMs']!,
           _updatedAtMsMeta,
         ),
       );
@@ -3518,39 +3508,39 @@ class $HrSettingsTable extends HrSettings
       ),
       birthYear: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}birth_year'],
+        data['${effectivePrefix}birthYear'],
       ),
       hrRestBpm: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}hr_rest_bpm'],
+        data['${effectivePrefix}hrRestBpm'],
       ),
       hrMaxBpm: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}hr_max_bpm'],
+        data['${effectivePrefix}hrMaxBpm'],
       ),
       z1Upper: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}z1_upper'],
+        data['${effectivePrefix}z1Upper'],
       ),
       z2Upper: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}z2_upper'],
+        data['${effectivePrefix}z2Upper'],
       ),
       z3Upper: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}z3_upper'],
+        data['${effectivePrefix}z3Upper'],
       ),
       z4Upper: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}z4_upper'],
+        data['${effectivePrefix}z4Upper'],
       ),
       z5Upper: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}z5_upper'],
+        data['${effectivePrefix}z5Upper'],
       ),
       updatedAtMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}updated_at_ms'],
+        data['${effectivePrefix}updatedAtMs'],
       )!,
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -3603,30 +3593,30 @@ class HrSetting extends DataClass implements Insertable<HrSetting> {
       map['sex'] = Variable<String>(sex);
     }
     if (!nullToAbsent || birthYear != null) {
-      map['birth_year'] = Variable<int>(birthYear);
+      map['birthYear'] = Variable<int>(birthYear);
     }
     if (!nullToAbsent || hrRestBpm != null) {
-      map['hr_rest_bpm'] = Variable<int>(hrRestBpm);
+      map['hrRestBpm'] = Variable<int>(hrRestBpm);
     }
     if (!nullToAbsent || hrMaxBpm != null) {
-      map['hr_max_bpm'] = Variable<int>(hrMaxBpm);
+      map['hrMaxBpm'] = Variable<int>(hrMaxBpm);
     }
     if (!nullToAbsent || z1Upper != null) {
-      map['z1_upper'] = Variable<int>(z1Upper);
+      map['z1Upper'] = Variable<int>(z1Upper);
     }
     if (!nullToAbsent || z2Upper != null) {
-      map['z2_upper'] = Variable<int>(z2Upper);
+      map['z2Upper'] = Variable<int>(z2Upper);
     }
     if (!nullToAbsent || z3Upper != null) {
-      map['z3_upper'] = Variable<int>(z3Upper);
+      map['z3Upper'] = Variable<int>(z3Upper);
     }
     if (!nullToAbsent || z4Upper != null) {
-      map['z4_upper'] = Variable<int>(z4Upper);
+      map['z4Upper'] = Variable<int>(z4Upper);
     }
     if (!nullToAbsent || z5Upper != null) {
-      map['z5_upper'] = Variable<int>(z5Upper);
+      map['z5Upper'] = Variable<int>(z5Upper);
     }
-    map['updated_at_ms'] = Variable<int>(updatedAtMs);
+    map['updatedAtMs'] = Variable<int>(updatedAtMs);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -3877,15 +3867,15 @@ class HrSettingsCompanion extends UpdateCompanion<HrSetting> {
       if (id != null) 'id': id,
       if (mode != null) 'mode': mode,
       if (sex != null) 'sex': sex,
-      if (birthYear != null) 'birth_year': birthYear,
-      if (hrRestBpm != null) 'hr_rest_bpm': hrRestBpm,
-      if (hrMaxBpm != null) 'hr_max_bpm': hrMaxBpm,
-      if (z1Upper != null) 'z1_upper': z1Upper,
-      if (z2Upper != null) 'z2_upper': z2Upper,
-      if (z3Upper != null) 'z3_upper': z3Upper,
-      if (z4Upper != null) 'z4_upper': z4Upper,
-      if (z5Upper != null) 'z5_upper': z5Upper,
-      if (updatedAtMs != null) 'updated_at_ms': updatedAtMs,
+      if (birthYear != null) 'birthYear': birthYear,
+      if (hrRestBpm != null) 'hrRestBpm': hrRestBpm,
+      if (hrMaxBpm != null) 'hrMaxBpm': hrMaxBpm,
+      if (z1Upper != null) 'z1Upper': z1Upper,
+      if (z2Upper != null) 'z2Upper': z2Upper,
+      if (z3Upper != null) 'z3Upper': z3Upper,
+      if (z4Upper != null) 'z4Upper': z4Upper,
+      if (z5Upper != null) 'z5Upper': z5Upper,
+      if (updatedAtMs != null) 'updatedAtMs': updatedAtMs,
       if (notes != null) 'notes': notes,
     });
   }
@@ -3935,31 +3925,31 @@ class HrSettingsCompanion extends UpdateCompanion<HrSetting> {
       map['sex'] = Variable<String>(sex.value);
     }
     if (birthYear.present) {
-      map['birth_year'] = Variable<int>(birthYear.value);
+      map['birthYear'] = Variable<int>(birthYear.value);
     }
     if (hrRestBpm.present) {
-      map['hr_rest_bpm'] = Variable<int>(hrRestBpm.value);
+      map['hrRestBpm'] = Variable<int>(hrRestBpm.value);
     }
     if (hrMaxBpm.present) {
-      map['hr_max_bpm'] = Variable<int>(hrMaxBpm.value);
+      map['hrMaxBpm'] = Variable<int>(hrMaxBpm.value);
     }
     if (z1Upper.present) {
-      map['z1_upper'] = Variable<int>(z1Upper.value);
+      map['z1Upper'] = Variable<int>(z1Upper.value);
     }
     if (z2Upper.present) {
-      map['z2_upper'] = Variable<int>(z2Upper.value);
+      map['z2Upper'] = Variable<int>(z2Upper.value);
     }
     if (z3Upper.present) {
-      map['z3_upper'] = Variable<int>(z3Upper.value);
+      map['z3Upper'] = Variable<int>(z3Upper.value);
     }
     if (z4Upper.present) {
-      map['z4_upper'] = Variable<int>(z4Upper.value);
+      map['z4Upper'] = Variable<int>(z4Upper.value);
     }
     if (z5Upper.present) {
-      map['z5_upper'] = Variable<int>(z5Upper.value);
+      map['z5Upper'] = Variable<int>(z5Upper.value);
     }
     if (updatedAtMs.present) {
-      map['updated_at_ms'] = Variable<int>(updatedAtMs.value);
+      map['updatedAtMs'] = Variable<int>(updatedAtMs.value);
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
@@ -4002,13 +3992,14 @@ class $UserProfilesTable extends UserProfiles
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultValue: const Constant(1),
   );
   static const VerificationMeta _birthDateEpochDayMeta = const VerificationMeta(
     'birthDateEpochDay',
   );
   @override
   late final GeneratedColumn<int> birthDateEpochDay = GeneratedColumn<int>(
-    'birth_date_epoch_day',
+    'birthDateEpochDay',
     aliasedName,
     true,
     type: DriftSqlType.int,
@@ -4028,7 +4019,7 @@ class $UserProfilesTable extends UserProfiles
   );
   @override
   late final GeneratedColumn<double> heightCm = GeneratedColumn<double>(
-    'height_cm',
+    'heightCm',
     aliasedName,
     true,
     type: DriftSqlType.double,
@@ -4039,7 +4030,7 @@ class $UserProfilesTable extends UserProfiles
   );
   @override
   late final GeneratedColumn<double> weightKg = GeneratedColumn<double>(
-    'weight_kg',
+    'weightKg',
     aliasedName,
     true,
     type: DriftSqlType.double,
@@ -4050,7 +4041,7 @@ class $UserProfilesTable extends UserProfiles
   );
   @override
   late final GeneratedColumn<int> updatedAtMs = GeneratedColumn<int>(
-    'updated_at_ms',
+    'updatedAtMs',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -4081,11 +4072,11 @@ class $UserProfilesTable extends UserProfiles
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('birth_date_epoch_day')) {
+    if (data.containsKey('birthDateEpochDay')) {
       context.handle(
         _birthDateEpochDayMeta,
         birthDateEpochDay.isAcceptableOrUnknown(
-          data['birth_date_epoch_day']!,
+          data['birthDateEpochDay']!,
           _birthDateEpochDayMeta,
         ),
       );
@@ -4096,23 +4087,23 @@ class $UserProfilesTable extends UserProfiles
         sex.isAcceptableOrUnknown(data['sex']!, _sexMeta),
       );
     }
-    if (data.containsKey('height_cm')) {
+    if (data.containsKey('heightCm')) {
       context.handle(
         _heightCmMeta,
-        heightCm.isAcceptableOrUnknown(data['height_cm']!, _heightCmMeta),
+        heightCm.isAcceptableOrUnknown(data['heightCm']!, _heightCmMeta),
       );
     }
-    if (data.containsKey('weight_kg')) {
+    if (data.containsKey('weightKg')) {
       context.handle(
         _weightKgMeta,
-        weightKg.isAcceptableOrUnknown(data['weight_kg']!, _weightKgMeta),
+        weightKg.isAcceptableOrUnknown(data['weightKg']!, _weightKgMeta),
       );
     }
-    if (data.containsKey('updated_at_ms')) {
+    if (data.containsKey('updatedAtMs')) {
       context.handle(
         _updatedAtMsMeta,
         updatedAtMs.isAcceptableOrUnknown(
-          data['updated_at_ms']!,
+          data['updatedAtMs']!,
           _updatedAtMsMeta,
         ),
       );
@@ -4132,7 +4123,7 @@ class $UserProfilesTable extends UserProfiles
       )!,
       birthDateEpochDay: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}birth_date_epoch_day'],
+        data['${effectivePrefix}birthDateEpochDay'],
       ),
       sex: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -4140,15 +4131,15 @@ class $UserProfilesTable extends UserProfiles
       ),
       heightCm: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}height_cm'],
+        data['${effectivePrefix}heightCm'],
       ),
       weightKg: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
-        data['${effectivePrefix}weight_kg'],
+        data['${effectivePrefix}weightKg'],
       ),
       updatedAtMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}updated_at_ms'],
+        data['${effectivePrefix}updatedAtMs'],
       )!,
     );
   }
@@ -4179,18 +4170,18 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     if (!nullToAbsent || birthDateEpochDay != null) {
-      map['birth_date_epoch_day'] = Variable<int>(birthDateEpochDay);
+      map['birthDateEpochDay'] = Variable<int>(birthDateEpochDay);
     }
     if (!nullToAbsent || sex != null) {
       map['sex'] = Variable<String>(sex);
     }
     if (!nullToAbsent || heightCm != null) {
-      map['height_cm'] = Variable<double>(heightCm);
+      map['heightCm'] = Variable<double>(heightCm);
     }
     if (!nullToAbsent || weightKg != null) {
-      map['weight_kg'] = Variable<double>(weightKg);
+      map['weightKg'] = Variable<double>(weightKg);
     }
-    map['updated_at_ms'] = Variable<int>(updatedAtMs);
+    map['updatedAtMs'] = Variable<int>(updatedAtMs);
     return map;
   }
 
@@ -4331,11 +4322,11 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (birthDateEpochDay != null) 'birth_date_epoch_day': birthDateEpochDay,
+      if (birthDateEpochDay != null) 'birthDateEpochDay': birthDateEpochDay,
       if (sex != null) 'sex': sex,
-      if (heightCm != null) 'height_cm': heightCm,
-      if (weightKg != null) 'weight_kg': weightKg,
-      if (updatedAtMs != null) 'updated_at_ms': updatedAtMs,
+      if (heightCm != null) 'heightCm': heightCm,
+      if (weightKg != null) 'weightKg': weightKg,
+      if (updatedAtMs != null) 'updatedAtMs': updatedAtMs,
     });
   }
 
@@ -4364,19 +4355,19 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       map['id'] = Variable<int>(id.value);
     }
     if (birthDateEpochDay.present) {
-      map['birth_date_epoch_day'] = Variable<int>(birthDateEpochDay.value);
+      map['birthDateEpochDay'] = Variable<int>(birthDateEpochDay.value);
     }
     if (sex.present) {
       map['sex'] = Variable<String>(sex.value);
     }
     if (heightCm.present) {
-      map['height_cm'] = Variable<double>(heightCm.value);
+      map['heightCm'] = Variable<double>(heightCm.value);
     }
     if (weightKg.present) {
-      map['weight_kg'] = Variable<double>(weightKg.value);
+      map['weightKg'] = Variable<double>(weightKg.value);
     }
     if (updatedAtMs.present) {
-      map['updated_at_ms'] = Variable<int>(updatedAtMs.value);
+      map['updatedAtMs'] = Variable<int>(updatedAtMs.value);
     }
     return map;
   }
@@ -5101,7 +5092,7 @@ final class $$RunSamplesTableReferences
       );
 
   $$RunSessionsTableProcessedTableManager get sessionId {
-    final $_column = $_itemColumn<int>('session_id')!;
+    final $_column = $_itemColumn<int>('sessionId')!;
 
     final manager = $$RunSessionsTableTableManager(
       $_db,
