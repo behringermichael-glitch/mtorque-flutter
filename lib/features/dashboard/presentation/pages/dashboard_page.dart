@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:xml/xml.dart';
 import 'package:mtorque_flutter/core/theme/app_theme.dart';
+import 'package:mtorque_flutter/features/dashboard/data/motivation_quotes.dart';
 import 'package:mtorque_flutter/l10n/generated/app_localizations.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -493,7 +494,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _showMotivationDialog() async {
     final l10n = AppLocalizations.of(context)!;
-    final quote = _dailyQuote(l10n);
+    final quote = dailyMotivationQuote();
 
     await showDialog<void>(
       context: context,
@@ -821,7 +822,7 @@ class _DashboardPageState extends State<DashboardPage> {
     final theme = Theme.of(context);
     final now = DateTime.now();
     final dates = _weekDates(now);
-    final quote = _dailyQuote(l10n);
+    final quote = dailyMotivationQuote();
     final isDark = theme.brightness == Brightness.dark;
     final motivationBackground =
     isDark ? _motivationImageDark : _motivationImageLight;
@@ -848,7 +849,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: _MotivationCard(
                 backgroundAsset: motivationBackground,
                 teaser: l10n.dashboardMotivationTeaser,
-                quote: quote,
+                quote: '“${quote.toUpperCase()}”',
               ),
             ),
             const SizedBox(height: 12),
@@ -1034,7 +1035,7 @@ class _MotivationCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
-        height: 170,
+        height: 160,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -1042,7 +1043,9 @@ class _MotivationCard extends StatelessWidget {
               backgroundAsset,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return Container(color: theme.colorScheme.surfaceContainerHighest);
+                return Container(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                );
               },
             ),
             Container(
@@ -1058,13 +1061,14 @@ class _MotivationCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    teaser,
+                    teaser.toUpperCase(),
                     textAlign: TextAlign.center,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: Colors.white,
@@ -1073,12 +1077,11 @@ class _MotivationCard extends StatelessWidget {
                       fontSize: 12,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
                   Expanded(
                     child: Center(
-                      child: _AutoSizeQuoteText(
+                      child: _AdaptiveQuoteText(
                         quote: quote,
-                        maxLines: 4,
                       ),
                     ),
                   ),
@@ -1092,14 +1095,81 @@ class _MotivationCard extends StatelessWidget {
   }
 }
 
+class _AdaptiveQuoteText extends StatelessWidget {
+  const _AdaptiveQuoteText({
+    required this.quote,
+  });
+
+  final String quote;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const maxFontSize = 26.0;
+        const minFontSize = 16.0;
+        const step = 1.0;
+        const maxLines = 3;
+
+        double fontSize = maxFontSize;
+
+        TextPainter buildPainter(double size) {
+          return TextPainter(
+            text: TextSpan(
+              text: quote,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: size,
+                height: 1.02,
+              ),
+            ),
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.ltr,
+            maxLines: maxLines,
+          )..layout(maxWidth: constraints.maxWidth);
+        }
+
+        var painter = buildPainter(fontSize);
+
+        while ((painter.didExceedMaxLines ||
+            painter.height > constraints.maxHeight) &&
+            fontSize > minFontSize) {
+          fontSize -= step;
+          painter = buildPainter(fontSize);
+        }
+
+        return Text(
+          quote,
+          textAlign: TextAlign.center,
+          maxLines: maxLines,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            fontSize: fontSize,
+            height: 1.02,
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _AutoSizeQuoteText extends StatelessWidget {
   const _AutoSizeQuoteText({
     required this.quote,
-    this.maxLines = 4,
+    this.maxLines = 3,
+    this.maxFontSize = 26,
+    this.minFontSize = 16,
   });
 
   final String quote;
   final int maxLines;
+  final double maxFontSize;
+  final double minFontSize;
 
   @override
   Widget build(BuildContext context) {
