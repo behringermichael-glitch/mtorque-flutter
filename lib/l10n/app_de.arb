@@ -6,10 +6,103 @@
   "navEndurance": "Ausdauer",
   "navStats": "Statistik",
   "navSettings": "Settings",
-  "modulePlaceholderReady": "Die Struktur ist für die Feature-Migration vorbereitet.",
-  "dashboardPlaceholderDescription": "Dashboard-Platzhalter für die 1:1-Migration.",
   "strengthPlaceholderDescription": "Kraft-Platzhalter für die 1:1-Migration.",
   "endurancePlaceholderDescription": "Ausdauer-Platzhalter für die 1:1-Migration.",
   "statsPlaceholderDescription": "Statistik-Platzhalter für die 1:1-Migration.",
-  "settingsPlaceholderDescription": "Settings-Platzhalter für die 1:1-Migration."
+  "settingsPlaceholderDescription": "Settings-Platzhalter für die 1:1-Migration.",
+  "weekdayMonShort": "Mo.",
+  "weekdayTueShort": "Di.",
+  "weekdayWedShort": "Mi.",
+  "weekdayThuShort": "Do.",
+  "weekdayFriShort": "Fr.",
+  "weekdaySatShort": "Sa.",
+  "weekdaySunShort": "So.",
+  "dashboardWeekOverviewHint": "Tippen für mehr Infos",
+  "dashboardWeekLegendTitle": "Wochenübersicht – Legende",
+  "dashboardWeekLegendIntro": "Die Punkte unter den Wochentagen zeigen an, ob du an diesem Tag Kraft, Ausdauer oder beides trainiert hast.",
+  "dashboardWeekLegendStrength": "Krafttraining",
+  "dashboardWeekLegendEndurance": "Ausdauertraining",
+  "dashboardWeekLegendBoth": "Kraft + Ausdauer",
+  "dashboardWeekLegendNone": "Kein Training",
+  "dashboardMotivationTeaser": "Brauchst du einen Schubs? Hier ist dein Spruch des Tages.",
+  "dashboardQuoteOne": "WIRF DAS HANDTUCH NIE. NUTZE ES, UM DEN SCHWEISS ABZUWISCHEN. UND MACH WEITER.",
+  "dashboardQuoteTwo": "Disziplin bedeutet, das zu wählen, was du wirklich willst, statt das, was du gerade willst.",
+  "dashboardQuoteThree": "Kleine Schritte, konsequent umgesetzt, werden zu großen Ergebnissen.",
+  "dashboardQuoteFour": "Motivation startet dich. Routine trägt dich weiter.",
+  "dashboardQuoteFive": "Dein zukünftiges Ich wird dir für die heutige Einheit danken.",
+  "dashboardShareQuoteDialogTitle": "Motivation teilen",
+  "dashboardShareQuoteDialogMessage": "Teile dieses Motivationszitat mit einer Freundin oder einem Freund.",
+  "dashboardShareQuoteActionShare": "Teilen",
+  "dashboardShareQuoteIntro": "Ein Freund denkt, du solltest trainieren.",
+  "dashboardShareQuoteCopied": "Motivation in die Zwischenablage kopiert.",
+  "goalStrengthTitle": "Kraftziel festlegen",
+  "goalEnduranceTitle": "Ausdauerziel festlegen",
+  "goalUnitsSessions": "Einheiten",
+  "goalUnitsSets": "Sätze",
+  "goalUnitsDistance": "Distanz",
+  "goalUnitsDuration": "Dauer",
+  "goalUnitsKm": "km",
+  "goalUnitsMin": "min",
+  "goalUnitsDistanceShort": "km",
+  "goalUnitsDurationShort": "min",
+  "goalInvalidNumber": "Bitte gib eine gültige Zahl > 0 ein.",
+  "dashboardTapToEdit": "Tippen zum Bearbeiten",
+  "dashboardStepsTitle": "Schritte",
+  "dashboardStepsGoalDialogTitle": "Schrittziel bearbeiten",
+  "dashboardStepsGoalDialogMessage": "Lege dein tägliches Schrittziel fest.",
+  "dashboardStepsGoalInputHint": "Schritte pro Tag",
+  "dashboardStepsGoalInvalid": "Bitte gib eine gültige Zahl ein.",
+  "dashboardStepsGoalFormat": "Ziel: {value}",
+  "@dashboardStepsGoalFormat": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardStreaksTitle": "Streaks",
+  "dashboardStreaksHint": "Tippen für mehr Infos",
+  "dashboardMonthsShort": "{value} m",
+  "@dashboardMonthsShort": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "streakInfoTitle": "Stern-Belohnungen",
+  "streakInfoDescription": "Für jeden Monat, in dem du dein persönliches Kraft- oder Ausdauerziel erreichst, bekommst du einen Stern. Diese Ziele kannst du in den entsprechenden Dashboard-Kacheln anpassen.",
+  "streakLevel1Title": "Erste Anpassung",
+  "streakLevel1Months": "(1 Monat)",
+  "streakLevel2Title": "Stabile Gewohnheitsbildung",
+  "streakLevel2Months": "(2 Monate)",
+  "streakLevel3Title": "Konsolidierungsphase",
+  "streakLevel3Months": "(3 Monate)",
+  "streakLevel4Title": "Langfristige Konstanz",
+  "streakLevel4Months": "(4 Monate)",
+  "streakLevel5Title": "Hohe Trainingsadhärenz",
+  "streakLevel5Months": "(5 Monate)",
+  "dashboardQuickStartTitle": "Schnellstart",
+  "dashboardQuickStartStrengthSubtitle": "Starte deine nächste Krafteinheit.",
+  "dashboardQuickStartEnduranceSubtitle": "Öffne Ausdauer mit Fallback-Kachel.",
+  "dashboardGymKnowledgeTitle": "GYM-Knowledge",
+  "dashboardGymKnowledgeSubtitle": "Evidenzbasierte Inhalte und praktische Impulse.",
+  "dashboardYoutubeItemOneTitle": "Muskelermüdung erklärt",
+  "dashboardYoutubeItemOneSubtitle": "Grundlagen aus der Leistungsphysiologie.",
+  "dashboardYoutubeItemTwoTitle": "Repeated Bout Effect",
+  "dashboardYoutubeItemTwoSubtitle": "Warum dasselbe Training später weniger schmerzt.",
+  "dashboardShareQuoteWatermark": "mTORQUE App",
+  "dashboardShareQuoteMessage": "Ein Freund denkt, du solltest trainieren.\n\n“{quote}”\n\nHol dir mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque",
+  "@dashboardShareQuoteMessage": {
+    "placeholders": {
+      "quote": {
+        "type": "String"
+       }
+     }
+    },
+  "dashboardShareQuoteFailed": "Teilen fehlgeschlagen.",
+  "dashboardYoutubeLoading": "Videos werden geladen…",
+  "dashboardYoutubeUnavailable": "Zurzeit sind keine Videos verfügbar.",
+  "dashboardYoutubeTapToOpen": "Tippen zum Öffnen auf YouTube.",
+  "dashboardYoutubeOpenFailed": "YouTube konnte nicht geöffnet werden."
 }

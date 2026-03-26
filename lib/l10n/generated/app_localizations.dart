@@ -134,18 +134,6 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get navSettings;
 
-  /// No description provided for @modulePlaceholderReady.
-  ///
-  /// In en, this message translates to:
-  /// **'Structure is ready for feature migration.'**
-  String get modulePlaceholderReady;
-
-  /// No description provided for @dashboardPlaceholderDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Dashboard module placeholder for 1:1 migration.'**
-  String get dashboardPlaceholderDescription;
-
   /// No description provided for @strengthPlaceholderDescription.
   ///
   /// In en, this message translates to:
@@ -169,6 +157,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings module placeholder for 1:1 migration.'**
   String get settingsPlaceholderDescription;
+
+  /// No description provided for @weekdayMonShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Mo.'**
+  String get weekdayMonShort;
+
+  /// No description provided for @weekdayTueShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Tu.'**
+  String get weekdayTueShort;
+
+  /// No description provided for @weekdayWedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'We.'**
+  String get weekdayWedShort;
+
+  /// No description provided for @weekdayThuShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Th.'**
+  String get weekdayThuShort;
+
+  /// No description provided for @weekdayFriShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Fr.'**
+  String get weekdayFriShort;
+
+  /// No description provided for @weekdaySatShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sa.'**
+  String get weekdaySatShort;
+
+  /// No description provided for @weekdaySunShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Su.'**
+  String get weekdaySunShort;
+
+  /// No description provided for @dashboardWeekOverviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap for more info'**
+  String get dashboardWeekOverviewHint;
+
+  /// No description provided for @dashboardWeekLegendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Week overview – legend'**
+  String get dashboardWeekLegendTitle;
+
+  /// No description provided for @dashboardWeekLegendIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The dots below the weekdays indicate whether you trained strength, endurance, or both on that day.'**
+  String get dashboardWeekLegendIntro;
+
+  /// No description provided for @dashboardWeekLegendStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength training'**
+  String get dashboardWeekLegendStrength;
+
+  /// No description provided for @dashboardWeekLegendEndurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Endurance training'**
+  String get dashboardWeekLegendEndurance;
+
+  /// No description provided for @dashboardWeekLegendBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength + endurance'**
+  String get dashboardWeekLegendBoth;
+
+  /// No description provided for @dashboardWeekLegendNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No training'**
+  String get dashboardWeekLegendNone;
+
+  /// No description provided for @dashboardMotivationTeaser.
+  ///
+  /// In en, this message translates to:
+  /// **'Need a push? Here’s today’s quote.'**
+  String get dashboardMotivationTeaser;
+
+  /// No description provided for @dashboardQuoteOne.
+  ///
+  /// In en, this message translates to:
+  /// **'NEVER THROW IN THE TOWEL. USE IT TO WIPE OFF THE SWEAT. THEN KEEP GOING.'**
+  String get dashboardQuoteOne;
+
+  /// No description provided for @dashboardQuoteTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Discipline is choosing what you want most over what you want now.'**
+  String get dashboardQuoteTwo;
+
+  /// No description provided for @dashboardQuoteThree.
+  ///
+  /// In en, this message translates to:
+  /// **'Small steps done consistently become big results.'**
+  String get dashboardQuoteThree;
+
+  /// No description provided for @dashboardQuoteFour.
+  ///
+  /// In en, this message translates to:
+  /// **'Motivation starts you. Routine carries you.'**
+  String get dashboardQuoteFour;
+
+  /// No description provided for @dashboardQuoteFive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your future self will thank you for today’s effort.'**
+  String get dashboardQuoteFive;
+
+  /// No description provided for @dashboardShareQuoteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share motivation'**
+  String get dashboardShareQuoteDialogTitle;
+
+  /// No description provided for @dashboardShareQuoteDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this motivational quote with a friend.'**
+  String get dashboardShareQuoteDialogMessage;
+
+  /// No description provided for @dashboardShareQuoteActionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get dashboardShareQuoteActionShare;
+
+  /// No description provided for @dashboardShareQuoteIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'A friend thinks you should train.'**
+  String get dashboardShareQuoteIntro;
+
+  /// No description provided for @dashboardShareQuoteCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Motivation copied to clipboard.'**
+  String get dashboardShareQuoteCopied;
+
+  /// No description provided for @goalStrengthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set strength goal'**
+  String get goalStrengthTitle;
+
+  /// No description provided for @goalEnduranceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set endurance goal'**
+  String get goalEnduranceTitle;
+
+  /// No description provided for @goalUnitsSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get goalUnitsSessions;
+
+  /// No description provided for @goalUnitsSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get goalUnitsSets;
+
+  /// No description provided for @goalUnitsDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get goalUnitsDistance;
+
+  /// No description provided for @goalUnitsDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get goalUnitsDuration;
+
+  /// No description provided for @goalUnitsKm.
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get goalUnitsKm;
+
+  /// No description provided for @goalUnitsMin.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get goalUnitsMin;
+
+  /// No description provided for @goalUnitsDistanceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get goalUnitsDistanceShort;
+
+  /// No description provided for @goalUnitsDurationShort.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get goalUnitsDurationShort;
+
+  /// No description provided for @goalInvalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number > 0.'**
+  String get goalInvalidNumber;
+
+  /// No description provided for @dashboardTapToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to edit'**
+  String get dashboardTapToEdit;
+
+  /// No description provided for @dashboardStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get dashboardStepsTitle;
+
+  /// No description provided for @dashboardStepsGoalDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit step goal'**
+  String get dashboardStepsGoalDialogTitle;
+
+  /// No description provided for @dashboardStepsGoalDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your daily step target.'**
+  String get dashboardStepsGoalDialogMessage;
+
+  /// No description provided for @dashboardStepsGoalInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps per day'**
+  String get dashboardStepsGoalInputHint;
+
+  /// No description provided for @dashboardStepsGoalInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number.'**
+  String get dashboardStepsGoalInvalid;
+
+  /// No description provided for @dashboardStepsGoalFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal: {value}'**
+  String dashboardStepsGoalFormat(int value);
+
+  /// No description provided for @dashboardStreaksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaks'**
+  String get dashboardStreaksTitle;
+
+  /// No description provided for @dashboardStreaksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap for more info'**
+  String get dashboardStreaksHint;
+
+  /// No description provided for @dashboardMonthsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} m'**
+  String dashboardMonthsShort(int value);
+
+  /// No description provided for @streakInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Rewards'**
+  String get streakInfoTitle;
+
+  /// No description provided for @streakInfoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For every month in which you achieve your personal strength or endurance goals, you earn a star. You can adjust these goals in the corresponding dashboard tiles.'**
+  String get streakInfoDescription;
+
+  /// No description provided for @streakLevel1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Adaptation'**
+  String get streakLevel1Title;
+
+  /// No description provided for @streakLevel1Months.
+  ///
+  /// In en, this message translates to:
+  /// **'(1 month)'**
+  String get streakLevel1Months;
+
+  /// No description provided for @streakLevel2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stable Habit Formation'**
+  String get streakLevel2Title;
+
+  /// No description provided for @streakLevel2Months.
+  ///
+  /// In en, this message translates to:
+  /// **'(2 months)'**
+  String get streakLevel2Months;
+
+  /// No description provided for @streakLevel3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidation Phase'**
+  String get streakLevel3Title;
+
+  /// No description provided for @streakLevel3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'(3 months)'**
+  String get streakLevel3Months;
+
+  /// No description provided for @streakLevel4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-Term Consistency'**
+  String get streakLevel4Title;
+
+  /// No description provided for @streakLevel4Months.
+  ///
+  /// In en, this message translates to:
+  /// **'(4 months)'**
+  String get streakLevel4Months;
+
+  /// No description provided for @streakLevel5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'High-Performance Adherence'**
+  String get streakLevel5Title;
+
+  /// No description provided for @streakLevel5Months.
+  ///
+  /// In en, this message translates to:
+  /// **'(5 months)'**
+  String get streakLevel5Months;
+
+  /// No description provided for @dashboardQuickStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick start'**
+  String get dashboardQuickStartTitle;
+
+  /// No description provided for @dashboardQuickStartStrengthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your next strength session.'**
+  String get dashboardQuickStartStrengthSubtitle;
+
+  /// No description provided for @dashboardQuickStartEnduranceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open endurance with fallback tile.'**
+  String get dashboardQuickStartEnduranceSubtitle;
+
+  /// No description provided for @dashboardGymKnowledgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'GYM-Knowledge'**
+  String get dashboardGymKnowledgeTitle;
+
+  /// No description provided for @dashboardGymKnowledgeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence-based content and practical insights.'**
+  String get dashboardGymKnowledgeSubtitle;
+
+  /// No description provided for @dashboardYoutubeItemOneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Muscle fatigue explained'**
+  String get dashboardYoutubeItemOneTitle;
+
+  /// No description provided for @dashboardYoutubeItemOneSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Foundations from exercise physiology.'**
+  String get dashboardYoutubeItemOneSubtitle;
+
+  /// No description provided for @dashboardYoutubeItemTwoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated Bout Effect'**
+  String get dashboardYoutubeItemTwoTitle;
+
+  /// No description provided for @dashboardYoutubeItemTwoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why the same training hurts less later.'**
+  String get dashboardYoutubeItemTwoSubtitle;
+
+  /// No description provided for @dashboardShareQuoteWatermark.
+  ///
+  /// In en, this message translates to:
+  /// **'mTORQUE App'**
+  String get dashboardShareQuoteWatermark;
+
+  /// No description provided for @dashboardShareQuoteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A friend thinks you should train.\n\n“{quote}”\n\nGet mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque'**
+  String dashboardShareQuoteMessage(String quote);
+
+  /// No description provided for @dashboardShareQuoteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing failed.'**
+  String get dashboardShareQuoteFailed;
+
+  /// No description provided for @dashboardYoutubeLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading videos…'**
+  String get dashboardYoutubeLoading;
+
+  /// No description provided for @dashboardYoutubeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No videos available right now.'**
+  String get dashboardYoutubeUnavailable;
+
+  /// No description provided for @dashboardYoutubeTapToOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open on YouTube.'**
+  String get dashboardYoutubeTapToOpen;
+
+  /// No description provided for @dashboardYoutubeOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open YouTube.'**
+  String get dashboardYoutubeOpenFailed;
 }
 
 class _AppLocalizationsDelegate

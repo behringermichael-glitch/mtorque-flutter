@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mtorque_flutter/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:mtorque_flutter/l10n/generated/app_localizations.dart';
 
 class StatsPage extends StatelessWidget {
@@ -10,10 +9,32 @@ class StatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ModulePlaceholderPage(
-      title: AppLocalizations.of(context)!.navStats,
-      description: AppLocalizations.of(context)!.statsPlaceholderDescription,
-      icon: Icons.bar_chart,
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.appName),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.navStats,
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.statsPlaceholderDescription,
+                style: theme.textTheme.bodyLarge,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

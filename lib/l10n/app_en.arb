@@ -6,10 +6,103 @@
   "navEndurance": "Endurance",
   "navStats": "Stats",
   "navSettings": "Settings",
-  "modulePlaceholderReady": "Structure is ready for feature migration.",
-  "dashboardPlaceholderDescription": "Dashboard module placeholder for 1:1 migration.",
   "strengthPlaceholderDescription": "Strength module placeholder for 1:1 migration.",
   "endurancePlaceholderDescription": "Endurance module placeholder for 1:1 migration.",
   "statsPlaceholderDescription": "Statistics module placeholder for 1:1 migration.",
-  "settingsPlaceholderDescription": "Settings module placeholder for 1:1 migration."
+  "settingsPlaceholderDescription": "Settings module placeholder for 1:1 migration.",
+  "weekdayMonShort": "Mo.",
+  "weekdayTueShort": "Tu.",
+  "weekdayWedShort": "We.",
+  "weekdayThuShort": "Th.",
+  "weekdayFriShort": "Fr.",
+  "weekdaySatShort": "Sa.",
+  "weekdaySunShort": "Su.",
+  "dashboardWeekOverviewHint": "Tap for more info",
+  "dashboardWeekLegendTitle": "Week overview – legend",
+  "dashboardWeekLegendIntro": "The dots below the weekdays indicate whether you trained strength, endurance, or both on that day.",
+  "dashboardWeekLegendStrength": "Strength training",
+  "dashboardWeekLegendEndurance": "Endurance training",
+  "dashboardWeekLegendBoth": "Strength + endurance",
+  "dashboardWeekLegendNone": "No training",
+  "dashboardMotivationTeaser": "Need a push? Here’s today’s quote.",
+  "dashboardQuoteOne": "NEVER THROW IN THE TOWEL. USE IT TO WIPE OFF THE SWEAT. THEN KEEP GOING.",
+  "dashboardQuoteTwo": "Discipline is choosing what you want most over what you want now.",
+  "dashboardQuoteThree": "Small steps done consistently become big results.",
+  "dashboardQuoteFour": "Motivation starts you. Routine carries you.",
+  "dashboardQuoteFive": "Your future self will thank you for today’s effort.",
+  "dashboardShareQuoteDialogTitle": "Share motivation",
+  "dashboardShareQuoteDialogMessage": "Share this motivational quote with a friend.",
+  "dashboardShareQuoteActionShare": "Share",
+  "dashboardShareQuoteIntro": "A friend thinks you should train.",
+  "dashboardShareQuoteCopied": "Motivation copied to clipboard.",
+  "goalStrengthTitle": "Set strength goal",
+  "goalEnduranceTitle": "Set endurance goal",
+  "goalUnitsSessions": "Sessions",
+  "goalUnitsSets": "Sets",
+  "goalUnitsDistance": "Distance",
+  "goalUnitsDuration": "Duration",
+  "goalUnitsKm": "km",
+  "goalUnitsMin": "min",
+  "goalUnitsDistanceShort": "km",
+  "goalUnitsDurationShort": "min",
+  "goalInvalidNumber": "Please enter a valid number > 0.",
+  "dashboardTapToEdit": "Tap to edit",
+  "dashboardStepsTitle": "Steps",
+  "dashboardStepsGoalDialogTitle": "Edit step goal",
+  "dashboardStepsGoalDialogMessage": "Set your daily step target.",
+  "dashboardStepsGoalInputHint": "Steps per day",
+  "dashboardStepsGoalInvalid": "Please enter a valid number.",
+  "dashboardStepsGoalFormat": "Goal: {value}",
+  "@dashboardStepsGoalFormat": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardStreaksTitle": "Streaks",
+  "dashboardStreaksHint": "Tap for more info",
+  "dashboardMonthsShort": "{value} m",
+  "@dashboardMonthsShort": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "streakInfoTitle": "Star Rewards",
+  "streakInfoDescription": "For every month in which you achieve your personal strength or endurance goals, you earn a star. You can adjust these goals in the corresponding dashboard tiles.",
+  "streakLevel1Title": "Initial Adaptation",
+  "streakLevel1Months": "(1 month)",
+  "streakLevel2Title": "Stable Habit Formation",
+  "streakLevel2Months": "(2 months)",
+  "streakLevel3Title": "Consolidation Phase",
+  "streakLevel3Months": "(3 months)",
+  "streakLevel4Title": "Long-Term Consistency",
+  "streakLevel4Months": "(4 months)",
+  "streakLevel5Title": "High-Performance Adherence",
+  "streakLevel5Months": "(5 months)",
+  "dashboardQuickStartTitle": "Quick start",
+  "dashboardQuickStartStrengthSubtitle": "Start your next strength session.",
+  "dashboardQuickStartEnduranceSubtitle": "Open endurance with fallback tile.",
+  "dashboardGymKnowledgeTitle": "GYM-Knowledge",
+  "dashboardGymKnowledgeSubtitle": "Evidence-based content and practical insights.",
+  "dashboardYoutubeItemOneTitle": "Muscle fatigue explained",
+  "dashboardYoutubeItemOneSubtitle": "Foundations from exercise physiology.",
+  "dashboardYoutubeItemTwoTitle": "Repeated Bout Effect",
+  "dashboardYoutubeItemTwoSubtitle": "Why the same training hurts less later.",
+  "dashboardShareQuoteWatermark": "mTORQUE App",
+  "dashboardShareQuoteMessage": "A friend thinks you should train.\n\n“{quote}”\n\nGet mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque",
+  "@dashboardShareQuoteMessage": {
+    "placeholders": {
+      "quote": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardShareQuoteFailed": "Sharing failed.",
+  "dashboardYoutubeLoading": "Loading videos…",
+  "dashboardYoutubeUnavailable": "No videos available right now.",
+  "dashboardYoutubeTapToOpen": "Tap to open on YouTube.",
+  "dashboardYoutubeOpenFailed": "Could not open YouTube."
 }
