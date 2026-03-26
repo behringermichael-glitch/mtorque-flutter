@@ -1,179 +1,315 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:mtorque_flutter/features/strength/presentation/state/strength_providers.dart';
-import 'package:mtorque_flutter/l10n/generated/app_localizations.dart';
 
-class StrengthPage extends ConsumerWidget {
+import '../../domain/models/set_entry.dart';
+import '../../domain/models/strength_flow_state.dart';
+import '../state/strength_providers.dart';
+import 'exercise_page.dart';
+import 'exercise_picker_sheet.dart';
+
+class StrengthPage extends ConsumerStatefulWidget {
+  static const String routePath = '/strength';
+  static const String routeName = 'strength';
+
   const StrengthPage({super.key});
 
-  static const String routeName = 'strength';
-  static const String routePath = '/strength';
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(strengthFlowControllerProvider);
-    final controller = ref.read(strengthFlowControllerProvider.notifier);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.navStrength),
-      ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: controller.load,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Text(
-                l10n.navStrength,
-                style: theme.textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'DB-first strength foundation is active. This page now reads real local strength data.',
-                style: theme.textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: state.isLoading
-                      ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                      : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _InfoRow(
-                        label: 'Open session',
-                        value: state.hasOpenSession ? 'Yes' : 'No',
-                      ),
-                      _InfoRow(
-                        label: 'Open session id',
-                        value: state.openSessionId?.toString() ?? '—',
-                      ),
-                      _InfoRow(
-                        label: 'Open session start',
-                        value: _formatEpoch(state.openSessionStartEpochMs),
-                      ),
-                      _InfoRow(
-                        label: 'Open session exercises',
-                        value: state.openSessionExerciseCount.toString(),
-                      ),
-                      _InfoRow(
-                        label: 'Open session sets',
-                        value: state.openSessionSetCount.toString(),
-                      ),
-                      _InfoRow(
-                        label: 'Finished sessions',
-                        value: state.finishedSessionCount.toString(),
-                      ),
-                      _InfoRow(
-                        label: 'Last finished session',
-                        value: _formatEpoch(
-                          state.lastFinishedSessionEndEpochMs,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Current migration status',
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'The shared local database is live and the Strength page is already connected to real DB data.',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Important Android parity rule: A strength session must not be created when this page opens. It should only be created when the first complete set is saved.',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: state.hasOpenSession
-                    ? controller.finalizeOpenSession
-                    : null,
-                icon: const Icon(Icons.check_circle_outline),
-                label: const Text('Finalize open session'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: controller.load,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Reload strength overview'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  static String _formatEpoch(int? epochMs) {
-    if (epochMs == null) {
-      return '—';
-    }
-    final date = DateTime.fromMillisecondsSinceEpoch(epochMs);
-    return DateFormat('yyyy-MM-dd HH:mm').format(date);
-  }
+  ConsumerState<StrengthPage> createState() => _StrengthPageState();
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.label,
-    required this.value,
-  });
+class _StrengthPageState extends ConsumerState<StrengthPage> {
+  final PageController _pageController = PageController();
+  bool _initialized = false;
 
-  final String label;
-  final String value;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(strengthFlowControllerProvider.notifier).initialize();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  int _todayEpochDay() {
+    final now = DateTime.now();
+    final utcMidnight = DateTime.utc(now.year, now.month, now.day);
+    return utcMidnight.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final state = ref.watch(strengthFlowControllerProvider);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 170,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+    if (state.isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final draft = state.draftSession;
+    final exercises = draft?.exerciseOrder ?? const <String>[];
+    final totalPages = exercises.length + 1;
+
+    if (_pageController.hasClients &&
+        state.hostView == StrengthHostView.pager &&
+        (_pageController.page?.round() ?? 0) != state.pagerIndex) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_pageController.hasClients) return;
+        final maxPage = totalPages - 1;
+        final target = state.pagerIndex.clamp(0, maxPage < 0 ? 0 : maxPage);
+        _pageController.jumpToPage(target);
+      });
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Strength'),
+        actions: [
+          if (state.hostView == StrengthHostView.pager)
+            IconButton(
+              onPressed: () => _showFinishDialog(context),
+              icon: const Icon(Icons.check),
             ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodyMedium,
+          if (state.hostView == StrengthHostView.pager)
+            IconButton(
+              onPressed: () => _handleClosePressed(),
+              icon: const Icon(Icons.close),
             ),
-          ),
         ],
+      ),
+      floatingActionButton: state.hostView == StrengthHostView.pager
+          ? FloatingActionButton(
+        onPressed: () => _openExercisePicker(context),
+        child: const Icon(Icons.add),
+      )
+          : null,
+      body: SafeArea(
+        child: state.hostView == StrengthHostView.planGrid
+            ? _buildPlanGrid(context, state)
+            : _buildPager(context, state, exercises),
       ),
     );
   }
+
+  Widget _buildPlanGrid(BuildContext context, StrengthFlowState state) {
+    final controller = ref.read(strengthFlowControllerProvider.notifier);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        SizedBox(
+          height: 64,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              controller.startEmptySession(
+                todayEpochDay: _todayEpochDay(),
+              );
+            },
+            icon: const Icon(Icons.add_circle_outline),
+            label: const Text('Start empty plan'),
+          ),
+        ),
+        const SizedBox(height: 16),
+        for (final plan in state.plans)
+          Card(
+            child: ListTile(
+              title: Text(plan.name),
+              onTap: () {
+                controller.loadPlan(
+                  planName: plan.name,
+                  todayEpochDay: _todayEpochDay(),
+                );
+              },
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'delete') {
+                    await controller.deletePlan(plan.name);
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Text('Delete'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPager(
+      BuildContext context,
+      StrengthFlowState state,
+      List<String> exerciseIds,
+      ) {
+    final controller = ref.read(strengthFlowControllerProvider.notifier);
+
+    return Column(
+      children: [
+        if (state.activeDbSessionStart != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _formatDateTime(state.activeDbSessionStart!),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ),
+        Expanded(
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: exerciseIds.length + 1,
+            onPageChanged: controller.updatePagerIndex,
+            itemBuilder: (context, index) {
+              if (index == exerciseIds.length) {
+                return Center(
+                  child: FilledButton.icon(
+                    onPressed: () => _openExercisePicker(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add exercise'),
+                  ),
+                );
+              }
+
+              final exerciseId = exerciseIds[index];
+              return ExercisePage(
+                key: ValueKey('exercise_page_$exerciseId'),
+                exerciseId: exerciseId,
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openExercisePicker(BuildContext context) async {
+    final result = await showModalBottomSheet<List<StrengthExerciseSummary>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const ExercisePickerSheet(),
+    );
+
+    if (result == null || result.isEmpty) return;
+
+    await ref.read(strengthFlowControllerProvider.notifier).addExercises(result);
+  }
+
+  Future<void> _handleClosePressed() async {
+    final state = ref.read(strengthFlowControllerProvider);
+    final draft = state.draftSession;
+
+    if (draft == null) {
+      await ref.read(strengthFlowControllerProvider.notifier).showPlanGrid();
+      return;
+    }
+
+    if (!draft.hasEntries) {
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .discardCurrentSession();
+      return;
+    }
+
+    if (!mounted) return;
+
+    final action = await showDialog<_CloseAction>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Close plan'),
+          content: const Text(
+            'Save and close, discard, or continue editing?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CloseAction.continueEditing),
+              child: const Text('Continue'),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CloseAction.discard),
+              child: const Text('Discard'),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CloseAction.saveAndClose),
+              child: const Text('Save and close'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (action == _CloseAction.discard) {
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .discardCurrentSession();
+    } else if (action == _CloseAction.saveAndClose) {
+      await _showFinishDialog(context);
+    }
+  }
+
+  Future<void> _showFinishDialog(BuildContext context) async {
+    final notesController = TextEditingController();
+
+    final save = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Finish session'),
+          content: TextField(
+            controller: notesController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Notes',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (save == true) {
+      await ref.read(strengthFlowControllerProvider.notifier).finalizeSession(
+        notes: notesController.text.trim().isEmpty
+            ? null
+            : notesController.text.trim(),
+      );
+    }
+  }
+
+  String _formatDateTime(DateTime value) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(value.day)}.${two(value.month)}.${value.year} '
+        '${two(value.hour)}:${two(value.minute)}';
+  }
+}
+
+enum _CloseAction {
+  continueEditing,
+  discard,
+  saveAndClose,
 }

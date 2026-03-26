@@ -1,62 +1,86 @@
+import 'set_entry.dart';
+
+enum StrengthHostView {
+  planGrid,
+  pager,
+}
+
 class StrengthFlowState {
+  final bool isLoading;
+  final StrengthHostView hostView;
+  final StrengthDraftSession? draftSession;
+  final List<StrengthPlanSummary> plans;
+  final List<String>? loadedPlanBaselineIds;
+  final bool keepPagerForEmptyQuickstart;
+  final int pagerIndex;
+  final int? activeDbSessionId;
+  final DateTime? activeDbSessionStart;
+  final String? selectedPlanName;
+
   const StrengthFlowState({
     required this.isLoading,
-    required this.hasOpenSession,
-    required this.openSessionId,
-    required this.openSessionStartEpochMs,
-    required this.openSessionSetCount,
-    required this.openSessionExerciseCount,
-    required this.finishedSessionCount,
-    required this.lastFinishedSessionEndEpochMs,
+    required this.hostView,
+    required this.draftSession,
+    required this.plans,
+    required this.loadedPlanBaselineIds,
+    required this.keepPagerForEmptyQuickstart,
+    required this.pagerIndex,
+    required this.activeDbSessionId,
+    required this.activeDbSessionStart,
+    required this.selectedPlanName,
   });
 
-  const StrengthFlowState.initial()
-      : isLoading = true,
-        hasOpenSession = false,
-        openSessionId = null,
-        openSessionStartEpochMs = null,
-        openSessionSetCount = 0,
-        openSessionExerciseCount = 0,
-        finishedSessionCount = 0,
-        lastFinishedSessionEndEpochMs = null;
-
-  final bool isLoading;
-  final bool hasOpenSession;
-  final int? openSessionId;
-  final int? openSessionStartEpochMs;
-  final int openSessionSetCount;
-  final int openSessionExerciseCount;
-  final int finishedSessionCount;
-  final int? lastFinishedSessionEndEpochMs;
+  factory StrengthFlowState.initial() {
+    return const StrengthFlowState(
+      isLoading: true,
+      hostView: StrengthHostView.planGrid,
+      draftSession: null,
+      plans: [],
+      loadedPlanBaselineIds: null,
+      keepPagerForEmptyQuickstart: false,
+      pagerIndex: 0,
+      activeDbSessionId: null,
+      activeDbSessionStart: null,
+      selectedPlanName: null,
+    );
+  }
 
   StrengthFlowState copyWith({
     bool? isLoading,
-    bool? hasOpenSession,
-    int? openSessionId,
-    int? openSessionStartEpochMs,
-    int? openSessionSetCount,
-    int? openSessionExerciseCount,
-    int? finishedSessionCount,
-    int? lastFinishedSessionEndEpochMs,
-    bool clearOpenSessionId = false,
-    bool clearOpenSessionStartEpochMs = false,
-    bool clearLastFinishedSessionEndEpochMs = false,
+    StrengthHostView? hostView,
+    Object? draftSession = _sentinel,
+    List<StrengthPlanSummary>? plans,
+    Object? loadedPlanBaselineIds = _sentinel,
+    bool? keepPagerForEmptyQuickstart,
+    int? pagerIndex,
+    Object? activeDbSessionId = _sentinel,
+    Object? activeDbSessionStart = _sentinel,
+    Object? selectedPlanName = _sentinel,
   }) {
     return StrengthFlowState(
       isLoading: isLoading ?? this.isLoading,
-      hasOpenSession: hasOpenSession ?? this.hasOpenSession,
-      openSessionId:
-      clearOpenSessionId ? null : (openSessionId ?? this.openSessionId),
-      openSessionStartEpochMs: clearOpenSessionStartEpochMs
-          ? null
-          : (openSessionStartEpochMs ?? this.openSessionStartEpochMs),
-      openSessionSetCount: openSessionSetCount ?? this.openSessionSetCount,
-      openSessionExerciseCount:
-      openSessionExerciseCount ?? this.openSessionExerciseCount,
-      finishedSessionCount: finishedSessionCount ?? this.finishedSessionCount,
-      lastFinishedSessionEndEpochMs: clearLastFinishedSessionEndEpochMs
-          ? null
-          : (lastFinishedSessionEndEpochMs ?? this.lastFinishedSessionEndEpochMs),
+      hostView: hostView ?? this.hostView,
+      draftSession: identical(draftSession, _sentinel)
+          ? this.draftSession
+          : draftSession as StrengthDraftSession?,
+      plans: plans ?? this.plans,
+      loadedPlanBaselineIds: identical(loadedPlanBaselineIds, _sentinel)
+          ? this.loadedPlanBaselineIds
+          : loadedPlanBaselineIds as List<String>?,
+      keepPagerForEmptyQuickstart:
+      keepPagerForEmptyQuickstart ?? this.keepPagerForEmptyQuickstart,
+      pagerIndex: pagerIndex ?? this.pagerIndex,
+      activeDbSessionId: identical(activeDbSessionId, _sentinel)
+          ? this.activeDbSessionId
+          : activeDbSessionId as int?,
+      activeDbSessionStart: identical(activeDbSessionStart, _sentinel)
+          ? this.activeDbSessionStart
+          : activeDbSessionStart as DateTime?,
+      selectedPlanName: identical(selectedPlanName, _sentinel)
+          ? this.selectedPlanName
+          : selectedPlanName as String?,
     );
   }
+
+  static const _sentinel = Object();
 }

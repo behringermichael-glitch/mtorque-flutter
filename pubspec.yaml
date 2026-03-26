@@ -28,6 +28,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.39
   path: ^1.9.1
 
+  shared_preferences: ^2.5.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -42,3 +44,4 @@ flutter:
   assets:
     - assets/images/dashboard/
     - assets/images/exercises/
+    - assets/data/exercises_master.csv
