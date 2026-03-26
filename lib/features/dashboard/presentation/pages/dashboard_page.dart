@@ -1768,76 +1768,126 @@ class _GymKnowledgeCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 10),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Image.asset(
-                    portraitAsset,
-                    width: 92,
-                    height: 150,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 92,
-                        height: 150,
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.person_outline),
-                      );
-                    },
-                  ),
+                Icon(
+                  Icons.menu_book_rounded,
+                  size: 18,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: FutureBuilder<List<_YouTubeVideo>>(
-                    future: youtubeFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            l10n.dashboardYoutubeLoading,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        );
-                      }
-
-                      final videos = snapshot.data ?? const [];
-                      if (videos.isEmpty) {
-                        return Text(
-                          l10n.dashboardYoutubeUnavailable,
-                          style: theme.textTheme.bodySmall,
-                        );
-                      }
-
-                      return Column(
-                        children: [
-                          for (var i = 0; i < videos.length; i++) ...[
-                            _YoutubePreviewTile(
-                              video: videos[i],
-                              onTap: () => onVideoTap(videos[i]),
-                            ),
-                            if (i != videos.length - 1) const SizedBox(height: 8),
-                          ],
-                        ],
-                      );
-                    },
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 10),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final totalWidth = constraints.maxWidth;
+                final portraitWidth = totalWidth * 0.34;
+                final rightWidth = totalWidth - portraitWidth - 10;
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: portraitWidth,
+                      child: FutureBuilder<List<_YouTubeVideo>>(
+                        future: youtubeFuture,
+                        builder: (context, snapshot) {
+                          final videos = snapshot.data ?? const [];
+                          final shownVideos = videos.take(2).toList();
+
+                          // Solange noch keine Videos da sind, Fallback-Höhe
+                          final fallbackHeight = 260.0;
+
+                          double estimatedTileHeight() {
+                            // 16:9 Thumbnail + Titelbereich + Padding
+                            final thumbHeight = rightWidth / (16 / 9);
+                            const titleArea = 44.0;
+                            return thumbHeight + titleArea;
+                          }
+
+                          final tileHeight = estimatedTileHeight();
+                          final totalHeight = shownVideos.length >= 2
+                              ? (tileHeight * 2) + 8
+                              : fallbackHeight;
+
+                          return Container(
+                            height: totalHeight,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1ECE7),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.asset(
+                                portraitAsset,
+                                fit: BoxFit.cover,
+                                alignment: const Alignment(0.0, 0.15),
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(Icons.person_outline, size: 34),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FutureBuilder<List<_YouTubeVideo>>(
+                        future: youtubeFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                l10n.dashboardYoutubeLoading,
+                                style: theme.textTheme.bodySmall,
+                              ),
+                            );
+                          }
+
+                          final videos = snapshot.data ?? const [];
+                          if (videos.isEmpty) {
+                            return Text(
+                              l10n.dashboardYoutubeUnavailable,
+                              style: theme.textTheme.bodySmall,
+                            );
+                          }
+
+                          final shownVideos = videos.take(2).toList();
+
+                          return Column(
+                            children: [
+                              for (var i = 0; i < shownVideos.length; i++) ...[
+                                _YoutubePreviewTile(
+                                  video: shownVideos[i],
+                                  onTap: () => onVideoTap(shownVideos[i]),
+                                ),
+                                if (i != shownVideos.length - 1)
+                                  const SizedBox(height: 8),
+                              ],
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -1858,60 +1908,53 @@ class _YoutubePreviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
 
     return Material(
-      color: theme.brightness == Brightness.dark
-          ? Colors.white.withValues(alpha: 0.04)
-          : Colors.black.withValues(alpha: 0.03),
-      borderRadius: BorderRadius.circular(12),
+      color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Row(
+        child: Ink(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1ECE7),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  video.thumbnailUrl,
-                  width: 96,
-                  height: 54,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 96,
-                      height: 54,
-                      color: AppTheme.enduranceRed.withValues(alpha: 0.12),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.play_arrow_rounded,
-                        color: AppTheme.enduranceRed,
-                      ),
-                    );
-                  },
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Image.network(
+                    video.thumbnailUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.play_circle_fill_rounded,
+                          size: 34,
+                          color: theme.colorScheme.primary,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      video.title,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppLocalizations.of(context)!.dashboardYoutubeTapToOpen,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: Text(
+                  video.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.15,
+                  ),
                 ),
               ),
             ],
