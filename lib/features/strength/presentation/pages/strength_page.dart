@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../state/strength_providers.dart';
@@ -46,6 +47,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(strengthFlowControllerProvider);
 
     if (state.isLoading) {
@@ -71,7 +73,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Strength'),
+        title: Text(l10n.navStrength),
         actions: [
           if (state.hostView == StrengthHostView.pager)
             IconButton(
@@ -85,12 +87,6 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             ),
         ],
       ),
-      floatingActionButton: state.hostView == StrengthHostView.pager
-          ? FloatingActionButton(
-        onPressed: () => _openExercisePicker(context),
-        child: const Icon(Icons.add),
-      )
-          : null,
       body: SafeArea(
         child: state.hostView == StrengthHostView.planGrid
             ? _buildPlanGrid(context, state)
@@ -99,7 +95,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
   }
 
-  Widget _buildPlanGrid(BuildContext context, StrengthFlowState state) {
+  Widget _buildPlanGrid(
+      BuildContext context,
+      StrengthFlowState state,
+      ) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
 
     return ListView(
@@ -114,7 +114,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
               );
             },
             icon: const Icon(Icons.add_circle_outline),
-            label: const Text('Start empty plan'),
+            label: Text(l10n.strengthStartEmptyPlan),
           ),
         ),
         const SizedBox(height: 16),
@@ -134,10 +134,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                     await controller.deletePlan(plan.name);
                   }
                 },
-                itemBuilder: (context) => const [
+                itemBuilder: (context) => [
                   PopupMenuItem<String>(
                     value: 'delete',
-                    child: Text('Delete'),
+                    child: Text(l10n.strengthCommonDelete),
                   ),
                 ],
               ),
@@ -152,7 +152,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       StrengthFlowState state,
       List<String> exerciseIds,
       ) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
+    final showSwipeHint =
+        state.pagerIndex >= 0 && state.pagerIndex < exerciseIds.length;
 
     return Column(
       children: [
@@ -168,27 +171,37 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             ),
           ),
         Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: exerciseIds.length + 1,
-            onPageChanged: controller.updatePagerIndex,
-            itemBuilder: (context, index) {
-              if (index == exerciseIds.length) {
-                return Center(
-                  child: FilledButton.icon(
-                    onPressed: () => _openExercisePicker(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add exercise'),
-                  ),
-                );
-              }
+          child: Stack(
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                itemCount: exerciseIds.length + 1,
+                onPageChanged: controller.updatePagerIndex,
+                itemBuilder: (context, index) {
+                  if (index == exerciseIds.length) {
+                    return Center(
+                      child: FilledButton.icon(
+                        onPressed: () => _openExercisePicker(context),
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.strengthAddExercise),
+                      ),
+                    );
+                  }
 
-              final exerciseId = exerciseIds[index];
-              return ExercisePage(
-                key: ValueKey('exercise_page_$exerciseId'),
-                exerciseId: exerciseId,
-              );
-            },
+                  final exerciseId = exerciseIds[index];
+                  return ExercisePage(
+                    key: ValueKey('exercise_page_$exerciseId'),
+                    exerciseId: exerciseId,
+                  );
+                },
+              ),
+              if (showSwipeHint)
+                IgnorePointer(
+                  child: _PagerSwipeHintOverlay(
+                    topOffset: state.activeDbSessionStart != null ? 198 : 184,
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -208,6 +221,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Future<void> _handleClosePressed() async {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.read(strengthFlowControllerProvider);
     final draft = state.draftSession;
 
@@ -229,25 +243,23 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Close plan'),
-          content: const Text(
-            'Save and close, discard, or continue editing?',
-          ),
+          title: Text(l10n.strengthClosePlanTitle),
+          content: Text(l10n.strengthClosePlanMessage),
           actions: [
             TextButton(
               onPressed: () =>
                   Navigator.of(dialogContext).pop(_CloseAction.continueEditing),
-              child: const Text('Continue'),
+              child: Text(l10n.strengthContinueEditing),
             ),
             TextButton(
               onPressed: () =>
                   Navigator.of(dialogContext).pop(_CloseAction.discard),
-              child: const Text('Discard'),
+              child: Text(l10n.strengthDiscard),
             ),
             FilledButton(
               onPressed: () =>
                   Navigator.of(dialogContext).pop(_CloseAction.saveAndClose),
-              child: const Text('Save and close'),
+              child: Text(l10n.strengthSaveAndClose),
             ),
           ],
         );
@@ -264,28 +276,29 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Future<void> _showFinishDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final notesController = TextEditingController();
 
     final save = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Finish session'),
+          title: Text(l10n.strengthFinishSessionTitle),
           content: TextField(
             controller: notesController,
             maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
+            decoration: InputDecoration(
+              labelText: l10n.strengthNotes,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.strengthCommonCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Save'),
+              child: Text(l10n.strengthCommonSave),
             ),
           ],
         );
@@ -305,6 +318,43 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${two(value.day)}.${two(value.month)}.${value.year} '
         '${two(value.hour)}:${two(value.minute)}';
+  }
+}
+
+class _PagerSwipeHintOverlay extends StatelessWidget {
+  const _PagerSwipeHintOverlay({
+    required this.topOffset,
+  });
+
+  final double topOffset;
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.58);
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: topOffset,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          children: [
+            Icon(Icons.chevron_left, color: color, size: 30),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                height: 1.2,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right, color: color, size: 30),
+          ],
+        ),
+      ),
+    );
   }
 }
 

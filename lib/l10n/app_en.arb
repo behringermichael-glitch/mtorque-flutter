@@ -104,5 +104,76 @@
   "dashboardYoutubeLoading": "Loading videos…",
   "dashboardYoutubeUnavailable": "No videos available right now.",
   "dashboardYoutubeTapToOpen": "Tap to open on YouTube.",
-  "dashboardYoutubeOpenFailed": "Could not open YouTube."
+  "dashboardYoutubeOpenFailed": "Could not open YouTube.",
+
+  "strengthStartEmptyPlan": "Start empty plan",
+  "strengthAddExercise": "Add exercise",
+  "strengthClosePlanTitle": "Close plan",
+  "strengthClosePlanMessage": "Save and close, discard, or continue editing?",
+  "strengthContinueEditing": "Continue",
+  "strengthDiscard": "Discard",
+  "strengthSaveAndClose": "Save and close",
+  "strengthFinishSessionTitle": "Finish session",
+  "strengthNotes": "Notes",
+
+  "strengthCommonCancel": "Cancel",
+  "strengthCommonDelete": "Delete",
+  "strengthCommonSave": "Save",
+  "strengthCommonOk": "OK",
+  "strengthCommonKgLabel": "kg",
+  "strengthCommonRepsShort": "Reps",
+  "strengthCommonDurationShort": "Sec",
+
+  "strengthExerciseAddSetButton": "+ Add set",
+  "strengthExerciseDeleteExerciseTitle": "Delete exercise?",
+  "strengthExerciseDeleteExerciseMessage": "Do you really want to remove this exercise from the session?",
+  "strengthExerciseMarkersTitle": "Additional markers",
+  "strengthExerciseMarkerBfr": "BFR training",
+  "strengthExerciseMarkerChain": "Weight chains",
+  "strengthExerciseMarkerBands": "Resistance bands",
+  "strengthExerciseMarkerSuperSlow": "Super-slow",
+  "strengthExerciseBfrPressureLabel": "BFR pressure",
+  "strengthExerciseBfrValue": "{value}% of occlusion pressure",
+  "@strengthExerciseBfrValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "strengthExerciseChainWeightLabel": "Chain weight",
+  "strengthExerciseChainWeightHint": "e.g. 10",
+  "strengthExerciseBandResistanceLabel": "Band resistance",
+  "strengthExerciseBandResistanceHint": "e.g. 20",
+  "strengthExerciseSuperSlowActiveLabel": "Super-slow active",
+  "strengthExerciseSuperSlowHint": "e.g. 5-5-5 or “very slow”",
+  "strengthExerciseDescriptionTitle": "Exercise description",
+  "strengthExerciseNoDescriptionAvailable": "No description available.",
+  "strengthExercisePrimaryMuscles": "Primary muscles",
+  "strengthExerciseSecondaryMuscles": "Secondary muscles",
+  "strengthExerciseNoMuscleDataAvailable": "No muscle data available.",
+  "strengthExerciseNoStatsData": "No data for this exercise yet.",
+  "strengthExerciseWeightLegend": "Weight",
+  "strengthExerciseRepsLegend": "Repetitions",
+  "strengthExerciseDurationLegend": "Duration",
+  "strengthExerciseWeightAxis": "Weight [kg]",
+  "strengthExerciseRepsAxis": "Repetitions",
+  "strengthExerciseDurationAxis": "Duration [s]",
+  "strengthExerciseOverallChip": "Overall",
+  "strengthExerciseSetChip": "Set {number}",
+  "@strengthExerciseSetChip": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "strengthExerciseTonnageLabel": "{valueTons} t",
+  "@strengthExerciseTonnageLabel": {
+    "placeholders": {
+      "valueTons": {
+        "type": "double"
+      }
+    }
+  }
 }

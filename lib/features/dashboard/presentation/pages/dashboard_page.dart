@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:xml/xml.dart';
 import 'package:mtorque_flutter/core/theme/app_theme.dart';
 import 'package:mtorque_flutter/features/dashboard/data/motivation_quotes.dart';
-import 'package:mtorque_flutter/l10n/generated/app_localizations.dart';
+import 'package:mtorque_flutter/l10n/app_localizations.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

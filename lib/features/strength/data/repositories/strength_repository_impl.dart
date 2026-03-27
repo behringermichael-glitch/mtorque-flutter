@@ -233,6 +233,133 @@ class StrengthRepositoryImpl implements StrengthRepository {
     );
   }
 
+  @override
+  Future<StrengthExerciseDetail?> getExerciseDetail(String exerciseId) async {
+    await _ensureCatalogLoaded();
+    final record = _catalogByIdCache?[exerciseId];
+    if (record == null) return null;
+
+    return StrengthExerciseDetail(
+      id: record.id,
+      label: record.label,
+      isStatic: record.isStatic,
+      instructionDe: record.instructionDe,
+      instructionEn: record.instructionEn,
+      muscles: record.muscles,
+    );
+  }
+
+  @override
+  Future<StrengthExerciseStats> loadExerciseStats({
+    required String exerciseId,
+    required bool isStaticExercise,
+  }) async {
+    await _ensureCatalogLoaded();
+    final record = _catalogByIdCache?[exerciseId];
+
+    final sessions = await _db.strengthSessionDao.recentFinishedSessionsWithSets(
+      limit: 180,
+    );
+
+    final rows = <_StatRow>[];
+
+    for (final session in sessions) {
+      final startEpochMs = session.session.startEpochMs;
+      final date = DateTime.fromMillisecondsSinceEpoch(startEpochMs);
+
+      final matching = session.sets
+          .where(
+            (set) =>
+        set.exerciseId == exerciseId &&
+            set.weightKg > 0 &&
+            (isStaticExercise
+                ? ((set.durationSec ?? 0) > 0)
+                : set.reps > 0),
+      )
+          .toList()
+        ..sort((a, b) => a.setNumber.compareTo(b.setNumber));
+
+      if (matching.isEmpty) continue;
+
+      for (final set in matching) {
+        rows.add(
+          _StatRow(
+            dateKey: DateTime(date.year, date.month, date.day),
+            startEpochMs: startEpochMs,
+            setNumber: set.setNumber,
+            load: set.weightKg,
+            secondValue:
+            isStaticExercise ? (set.durationSec ?? 0).toDouble() : set.reps,
+          ),
+        );
+      }
+    }
+
+    final grouped = <DateTime, List<_StatRow>>{};
+    for (final row in rows) {
+      grouped.putIfAbsent(row.dateKey, () => <_StatRow>[]).add(row);
+    }
+
+    final days = grouped.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    var maxSetNumber = 0;
+    final mappedDays = <StrengthExerciseStatsDay>[];
+
+    for (final entry in days) {
+      final values = entry.value..sort((a, b) => a.setNumber.compareTo(b.setNumber));
+      if (values.isEmpty) continue;
+
+      final totalLoad = values.fold<double>(0, (sum, e) => sum + e.load);
+      final totalSecond =
+      values.fold<double>(0, (sum, e) => sum + e.secondValue);
+      final tonnage = totalLoad * totalSecond;
+
+      final perSetGrouped = <int, List<_StatRow>>{};
+      for (final value in values) {
+        perSetGrouped.putIfAbsent(value.setNumber, () => <_StatRow>[]).add(value);
+      }
+
+      final perSet = <StrengthExerciseStatsSetPoint>[];
+      for (final setEntry in perSetGrouped.entries.toList()
+        ..sort((a, b) => a.key.compareTo(b.key))) {
+        final best = setEntry.value.reduce(
+              (a, b) => a.load >= b.load ? a : b,
+        );
+        perSet.add(
+          StrengthExerciseStatsSetPoint(
+            setNumber: setEntry.key,
+            load: best.load,
+            secondValue: best.secondValue,
+          ),
+        );
+        if (setEntry.key > maxSetNumber) {
+          maxSetNumber = setEntry.key;
+        }
+      }
+
+      mappedDays.add(
+        StrengthExerciseStatsDay(
+          date: entry.key,
+          startEpochMs:
+          values.map((e) => e.startEpochMs).reduce((a, b) => a < b ? a : b),
+          totalLoad: totalLoad,
+          totalSecondValue: totalSecond,
+          tonnage: tonnage,
+          perSet: perSet,
+        ),
+      );
+    }
+
+    return StrengthExerciseStats(
+      exerciseId: exerciseId,
+      exerciseLabel: record?.label ?? exerciseId,
+      isStaticExercise: isStaticExercise,
+      maxSetNumber: maxSetNumber,
+      days: mappedDays,
+    );
+  }
+
   Future<List<_ExerciseCatalogRecord>> _loadExerciseCatalog() async {
     await _ensureCatalogLoaded();
     return _catalogCache ?? const [];
@@ -264,7 +391,7 @@ class StrengthRepositoryImpl implements StrengthRepository {
     final delim = _detectDelimiter(lines.first);
 
     final header1 = _splitCsvLine(lines[0], delim).map((e) => e.trim()).toList();
-    _splitCsvLine(lines[1], delim);
+    final header2 = _splitCsvLine(lines[1], delim).map((e) => e.trim()).toList();
 
     int idx(String name, {int start = 0, int? endExclusive}) {
       final end = endExclusive == null
@@ -309,6 +436,15 @@ class StrengthRepositoryImpl implements StrengthRepository {
       return found >= 0 ? found : 11;
     }();
 
+    final instrDeIdx = idx('Anleitung');
+    final instrEnIdx = idx('Instructions');
+
+    final muscleStartIndex = header1.indexOf('OA') >= 0 ? header1.indexOf('OA') : 20;
+    final muscleNames =
+    muscleStartIndex < header2.length ? header2.sublist(muscleStartIndex) : const <String>[];
+    final muscleGroups =
+    muscleStartIndex < header1.length ? header1.sublist(muscleStartIndex) : const <String>[];
+
     final isDe =
         ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase() == 'de';
 
@@ -329,6 +465,35 @@ class StrengthRepositoryImpl implements StrengthRepository {
       final device = isDe ? _cell(row, idxDevDe) : _cell(row, idxDevEn);
       final variation = isDe ? _cell(row, idxVarDe) : _cell(row, idxVarEn);
 
+      final muscles = <StrengthExerciseMuscleUsage>[];
+      final muscleValueCount = row.length - muscleStartIndex;
+      final loopCount = muscleValueCount < muscleNames.length
+          ? muscleValueCount
+          : muscleNames.length;
+
+      for (var mIndex = 0; mIndex < loopCount; mIndex++) {
+        final value = row[mIndex + muscleStartIndex].trim();
+        if (value != '1' && value != '2') continue;
+
+        final groupCode = muscleGroups[mIndex];
+        final muscleName = muscleNames[mIndex];
+
+        muscles.add(
+          StrengthExerciseMuscleUsage(
+            groupCode: groupCode,
+            groupNameDe: _mapGroupDe(groupCode),
+            groupNameEn: _mapGroupEn(groupCode),
+            muscleName: muscleName,
+            role: value == '2'
+                ? StrengthMuscleRole.primary
+                : StrengthMuscleRole.secondary,
+          ),
+        );
+      }
+
+      final instructionDe = instrDeIdx >= 0 ? _cell(row, instrDeIdx) : '';
+      final instructionEn = instrEnIdx >= 0 ? _cell(row, instrEnIdx) : '';
+
       out.add(
         _ExerciseCatalogRecord(
           id: id,
@@ -342,6 +507,9 @@ class StrengthRepositoryImpl implements StrengthRepository {
             variation: variation,
           ),
           isStatic: setType == 's',
+          instructionDe: instructionDe,
+          instructionEn: instructionEn,
+          muscles: muscles,
         ),
       );
     }
@@ -431,6 +599,56 @@ class StrengthRepositoryImpl implements StrengthRepository {
     }
 
     return result;
+  }
+
+  String _mapGroupDe(String code) {
+    switch (code) {
+      case 'OA':
+        return 'Oberarm';
+      case 'UA':
+        return 'Unterarm';
+      case 'SC':
+        return 'Schulter';
+      case 'BR':
+        return 'Brust';
+      case 'BA':
+        return 'Bauch';
+      case 'RU':
+        return 'Rücken';
+      case 'GE':
+        return 'Gesäß';
+      case 'OS':
+        return 'Oberschenkel';
+      case 'US':
+        return 'Unterschenkel';
+      default:
+        return code;
+    }
+  }
+
+  String _mapGroupEn(String code) {
+    switch (code) {
+      case 'OA':
+        return 'Upper Arm';
+      case 'UA':
+        return 'Forearm';
+      case 'SC':
+        return 'Shoulder';
+      case 'BR':
+        return 'Chest';
+      case 'BA':
+        return 'Abdominals';
+      case 'RU':
+        return 'Back';
+      case 'GE':
+        return 'Glutes';
+      case 'OS':
+        return 'Thigh';
+      case 'US':
+        return 'Lower Leg';
+      default:
+        return code;
+    }
   }
 
   @override
@@ -583,14 +801,6 @@ class StrengthRepositoryImpl implements StrengthRepository {
 }
 
 class _ExerciseCatalogRecord {
-  final String id;
-  final String muscleGroup;
-  final String name;
-  final String device;
-  final String variation;
-  final String label;
-  final bool isStatic;
-
   const _ExerciseCatalogRecord({
     required this.id,
     required this.muscleGroup,
@@ -599,5 +809,35 @@ class _ExerciseCatalogRecord {
     required this.variation,
     required this.label,
     required this.isStatic,
+    required this.instructionDe,
+    required this.instructionEn,
+    required this.muscles,
   });
+
+  final String id;
+  final String muscleGroup;
+  final String name;
+  final String device;
+  final String variation;
+  final String label;
+  final bool isStatic;
+  final String instructionDe;
+  final String instructionEn;
+  final List<StrengthExerciseMuscleUsage> muscles;
+}
+
+class _StatRow {
+  const _StatRow({
+    required this.dateKey,
+    required this.startEpochMs,
+    required this.setNumber,
+    required this.load,
+    required this.secondValue,
+  });
+
+  final DateTime dateKey;
+  final int startEpochMs;
+  final int setNumber;
+  final double load;
+  final double secondValue;
 }

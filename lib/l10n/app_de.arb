@@ -97,12 +97,83 @@
     "placeholders": {
       "quote": {
         "type": "String"
-       }
-     }
-    },
+      }
+    }
+  },
   "dashboardShareQuoteFailed": "Teilen fehlgeschlagen.",
   "dashboardYoutubeLoading": "Videos werden geladen…",
   "dashboardYoutubeUnavailable": "Zurzeit sind keine Videos verfügbar.",
   "dashboardYoutubeTapToOpen": "Tippen zum Öffnen auf YouTube.",
-  "dashboardYoutubeOpenFailed": "YouTube konnte nicht geöffnet werden."
+  "dashboardYoutubeOpenFailed": "YouTube konnte nicht geöffnet werden.",
+
+  "strengthStartEmptyPlan": "Leeren Plan starten",
+  "strengthAddExercise": "Übung hinzufügen",
+  "strengthClosePlanTitle": "Plan schließen",
+  "strengthClosePlanMessage": "Speichern und schließen, verwerfen oder weiter bearbeiten?",
+  "strengthContinueEditing": "Weiter bearbeiten",
+  "strengthDiscard": "Verwerfen",
+  "strengthSaveAndClose": "Speichern & schließen",
+  "strengthFinishSessionTitle": "Session beenden",
+  "strengthNotes": "Notizen",
+
+  "strengthCommonCancel": "Abbrechen",
+  "strengthCommonDelete": "Löschen",
+  "strengthCommonSave": "Speichern",
+  "strengthCommonOk": "OK",
+  "strengthCommonKgLabel": "kg",
+  "strengthCommonRepsShort": "Wdh.",
+  "strengthCommonDurationShort": "Sek.",
+
+  "strengthExerciseAddSetButton": "+ SATZ HINZUFÜGEN",
+  "strengthExerciseDeleteExerciseTitle": "Übung löschen?",
+  "strengthExerciseDeleteExerciseMessage": "Möchtest Du diese Übung wirklich aus der Session entfernen?",
+  "strengthExerciseMarkersTitle": "Zusätzliche Marker",
+  "strengthExerciseMarkerBfr": "BFR-Training",
+  "strengthExerciseMarkerChain": "Gewichtskette",
+  "strengthExerciseMarkerBands": "Widerstandsbänder",
+  "strengthExerciseMarkerSuperSlow": "Super-slow",
+  "strengthExerciseBfrPressureLabel": "BFR-Druck",
+  "strengthExerciseBfrValue": "{value} % des Okklusionsdrucks",
+  "@strengthExerciseBfrValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "strengthExerciseChainWeightLabel": "Kettengewicht",
+  "strengthExerciseChainWeightHint": "z. B. 10",
+  "strengthExerciseBandResistanceLabel": "Band-Widerstand",
+  "strengthExerciseBandResistanceHint": "z. B. 20",
+  "strengthExerciseSuperSlowActiveLabel": "Super-slow aktiv",
+  "strengthExerciseSuperSlowHint": "z. B. 5-5-5 oder „sehr langsam“",
+  "strengthExerciseDescriptionTitle": "Übungsbeschreibung",
+  "strengthExerciseNoDescriptionAvailable": "Keine Beschreibung verfügbar.",
+  "strengthExercisePrimaryMuscles": "Primäre Muskeln",
+  "strengthExerciseSecondaryMuscles": "Weitere Muskelbeteiligung",
+  "strengthExerciseNoMuscleDataAvailable": "Keine Muskeldaten verfügbar.",
+  "strengthExerciseNoStatsData": "Noch keine Daten für diese Übung.",
+  "strengthExerciseWeightLegend": "Gewicht",
+  "strengthExerciseRepsLegend": "Wiederholungen",
+  "strengthExerciseDurationLegend": "Dauer",
+  "strengthExerciseWeightAxis": "Gewicht [kg]",
+  "strengthExerciseRepsAxis": "Wiederholungen",
+  "strengthExerciseDurationAxis": "Dauer [s]",
+  "strengthExerciseOverallChip": "Gesamt",
+  "strengthExerciseSetChip": "Satz {number}",
+  "@strengthExerciseSetChip": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "strengthExerciseTonnageLabel": "{valueTons} t",
+  "@strengthExerciseTonnageLabel": {
+    "placeholders": {
+      "valueTons": {
+        "type": "double"
+      }
+    }
+  }
 }

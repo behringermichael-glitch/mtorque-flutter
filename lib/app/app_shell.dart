@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mtorque_flutter/core/theme/app_theme.dart';
-import 'package:mtorque_flutter/l10n/generated/app_localizations.dart';
+import 'package:mtorque_flutter/l10n/app_localizations.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({

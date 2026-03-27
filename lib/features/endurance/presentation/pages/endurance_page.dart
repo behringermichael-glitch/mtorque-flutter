@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mtorque_flutter/l10n/generated/app_localizations.dart';
+import 'package:mtorque_flutter/l10n/app_localizations.dart';
 
 class EndurancePage extends StatelessWidget {
   const EndurancePage({super.key});

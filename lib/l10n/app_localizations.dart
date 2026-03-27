@@ -18,7 +18,7 @@ import 'app_localizations_en.dart';
 /// `supportedLocales` list. For example:
 ///
 /// ```dart
-/// import 'generated/app_localizations.dart';
+/// import 'l10n/app_localizations.dart';
 ///
 /// return MaterialApp(
 ///   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -62,8 +62,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('de'),
-    Locale('en'),
+    Locale('en')
   ];
 
   /// No description provided for @appName.
@@ -601,10 +598,291 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open YouTube.'**
   String get dashboardYoutubeOpenFailed;
+
+  /// No description provided for @strengthStartEmptyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Start empty plan'**
+  String get strengthStartEmptyPlan;
+
+  /// No description provided for @strengthAddExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercise'**
+  String get strengthAddExercise;
+
+  /// No description provided for @strengthClosePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close plan'**
+  String get strengthClosePlanTitle;
+
+  /// No description provided for @strengthClosePlanMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and close, discard, or continue editing?'**
+  String get strengthClosePlanMessage;
+
+  /// No description provided for @strengthContinueEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get strengthContinueEditing;
+
+  /// No description provided for @strengthDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get strengthDiscard;
+
+  /// No description provided for @strengthSaveAndClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and close'**
+  String get strengthSaveAndClose;
+
+  /// No description provided for @strengthFinishSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish session'**
+  String get strengthFinishSessionTitle;
+
+  /// No description provided for @strengthNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get strengthNotes;
+
+  /// No description provided for @strengthCommonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get strengthCommonCancel;
+
+  /// No description provided for @strengthCommonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get strengthCommonDelete;
+
+  /// No description provided for @strengthCommonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get strengthCommonSave;
+
+  /// No description provided for @strengthCommonOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get strengthCommonOk;
+
+  /// No description provided for @strengthCommonKgLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get strengthCommonKgLabel;
+
+  /// No description provided for @strengthCommonRepsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get strengthCommonRepsShort;
+
+  /// No description provided for @strengthCommonDurationShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sec'**
+  String get strengthCommonDurationShort;
+
+  /// No description provided for @strengthExerciseAddSetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add set'**
+  String get strengthExerciseAddSetButton;
+
+  /// No description provided for @strengthExerciseDeleteExerciseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete exercise?'**
+  String get strengthExerciseDeleteExerciseTitle;
+
+  /// No description provided for @strengthExerciseDeleteExerciseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to remove this exercise from the session?'**
+  String get strengthExerciseDeleteExerciseMessage;
+
+  /// No description provided for @strengthExerciseMarkersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional markers'**
+  String get strengthExerciseMarkersTitle;
+
+  /// No description provided for @strengthExerciseMarkerBfr.
+  ///
+  /// In en, this message translates to:
+  /// **'BFR training'**
+  String get strengthExerciseMarkerBfr;
+
+  /// No description provided for @strengthExerciseMarkerChain.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight chains'**
+  String get strengthExerciseMarkerChain;
+
+  /// No description provided for @strengthExerciseMarkerBands.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance bands'**
+  String get strengthExerciseMarkerBands;
+
+  /// No description provided for @strengthExerciseMarkerSuperSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Super-slow'**
+  String get strengthExerciseMarkerSuperSlow;
+
+  /// No description provided for @strengthExerciseBfrPressureLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'BFR pressure'**
+  String get strengthExerciseBfrPressureLabel;
+
+  /// No description provided for @strengthExerciseBfrValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}% of occlusion pressure'**
+  String strengthExerciseBfrValue(int value);
+
+  /// No description provided for @strengthExerciseChainWeightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chain weight'**
+  String get strengthExerciseChainWeightLabel;
+
+  /// No description provided for @strengthExerciseChainWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 10'**
+  String get strengthExerciseChainWeightHint;
+
+  /// No description provided for @strengthExerciseBandResistanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Band resistance'**
+  String get strengthExerciseBandResistanceLabel;
+
+  /// No description provided for @strengthExerciseBandResistanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 20'**
+  String get strengthExerciseBandResistanceHint;
+
+  /// No description provided for @strengthExerciseSuperSlowActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Super-slow active'**
+  String get strengthExerciseSuperSlowActiveLabel;
+
+  /// No description provided for @strengthExerciseSuperSlowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 5-5-5 or “very slow”'**
+  String get strengthExerciseSuperSlowHint;
+
+  /// No description provided for @strengthExerciseDescriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise description'**
+  String get strengthExerciseDescriptionTitle;
+
+  /// No description provided for @strengthExerciseNoDescriptionAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No description available.'**
+  String get strengthExerciseNoDescriptionAvailable;
+
+  /// No description provided for @strengthExercisePrimaryMuscles.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary muscles'**
+  String get strengthExercisePrimaryMuscles;
+
+  /// No description provided for @strengthExerciseSecondaryMuscles.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary muscles'**
+  String get strengthExerciseSecondaryMuscles;
+
+  /// No description provided for @strengthExerciseNoMuscleDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No muscle data available.'**
+  String get strengthExerciseNoMuscleDataAvailable;
+
+  /// No description provided for @strengthExerciseNoStatsData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for this exercise yet.'**
+  String get strengthExerciseNoStatsData;
+
+  /// No description provided for @strengthExerciseWeightLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get strengthExerciseWeightLegend;
+
+  /// No description provided for @strengthExerciseRepsLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Repetitions'**
+  String get strengthExerciseRepsLegend;
+
+  /// No description provided for @strengthExerciseDurationLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get strengthExerciseDurationLegend;
+
+  /// No description provided for @strengthExerciseWeightAxis.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight [kg]'**
+  String get strengthExerciseWeightAxis;
+
+  /// No description provided for @strengthExerciseRepsAxis.
+  ///
+  /// In en, this message translates to:
+  /// **'Repetitions'**
+  String get strengthExerciseRepsAxis;
+
+  /// No description provided for @strengthExerciseDurationAxis.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration [s]'**
+  String get strengthExerciseDurationAxis;
+
+  /// No description provided for @strengthExerciseOverallChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get strengthExerciseOverallChip;
+
+  /// No description provided for @strengthExerciseSetChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String strengthExerciseSetChip(int number);
+
+  /// No description provided for @strengthExerciseTonnageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{valueTons} t'**
+  String strengthExerciseTonnageLabel(double valueTons);
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -613,26 +891,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['de', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'de':
-      return AppLocalizationsDe();
-    case 'en':
-      return AppLocalizationsEn();
+    case 'de': return AppLocalizationsDe();
+    case 'en': return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }
