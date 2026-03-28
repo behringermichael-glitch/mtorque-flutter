@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -8,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
+import '../../domain/repositories/strength_repository.dart';
 import '../state/strength_flow_controller.dart';
 import '../state/strength_providers.dart';
 import 'exercise_page.dart';
@@ -77,13 +79,15 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: state.hostView == StrengthHostView.pager ? 86 : kToolbarHeight,
+        toolbarHeight:
+        state.hostView == StrengthHostView.pager ? 90 : kToolbarHeight,
         titleSpacing: 16,
         title: state.hostView == StrengthHostView.pager
             ? _SessionHeader(
           title: _sessionTitle(context),
           dateText: _sessionDateText(state),
-          onDateTap: state.draftSession == null ? null : () => _pickSessionDate(context),
+          onDateTap:
+          state.draftSession == null ? null : () => _pickSessionDate(context),
         )
             : Text(AppLocalizations.of(context)!.navStrength),
         actions: [
@@ -97,6 +101,28 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
               onPressed: () => _handleClosePressed(),
               icon: const Icon(Icons.close),
             ),
+          PopupMenuButton<_StrengthMenuAction>(
+            onSelected: (value) => _handleMenuAction(value),
+            itemBuilder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return [
+                if (state.hostView == StrengthHostView.pager)
+                  PopupMenuItem(
+                    value: _StrengthMenuAction.addExercise,
+                    child: Text(l10n.strengthAddExercise),
+                  ),
+                PopupMenuItem(
+                  value: _StrengthMenuAction.startEmpty,
+                  child: Text(l10n.strengthStartEmptyPlan),
+                ),
+                if (state.hostView == StrengthHostView.pager)
+                  PopupMenuItem(
+                    value: _StrengthMenuAction.closePlan,
+                    child: Text(l10n.strengthClosePlanTitle),
+                  ),
+              ];
+            },
+          ),
         ],
       ),
       body: SafeArea(
@@ -167,7 +193,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final showExercisePage = exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
     final showSwipeLeft = showExercisePage && pageIndex > 0;
     final showSwipeRight = showExercisePage && pageIndex < exerciseIds.length;
-    final overlayTop = state.activeDbSessionStart != null ? 200.0 : 186.0;
+    final overlayTop = 196.0;
 
     return Column(
       children: [
@@ -234,7 +260,6 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
 
     if (result == null || result.isEmpty) return;
-
     await ref.read(strengthFlowControllerProvider.notifier).addExercises(result);
   }
 
@@ -257,6 +282,22 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     if (!mounted || picked == null) return;
 
     await ref.read(strengthFlowControllerProvider.notifier).updateDraftDate(picked);
+  }
+
+  Future<void> _handleMenuAction(_StrengthMenuAction action) async {
+    switch (action) {
+      case _StrengthMenuAction.addExercise:
+        await _openExercisePicker(context);
+        return;
+      case _StrengthMenuAction.startEmpty:
+        await ref.read(strengthFlowControllerProvider.notifier).startEmptySession(
+          todayEpochDay: _todayEpochDay(),
+        );
+        return;
+      case _StrengthMenuAction.closePlan:
+        await _handleClosePressed();
+        return;
+    }
   }
 
   Future<void> _handleClosePressed() async {
@@ -339,9 +380,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     if (save == true) {
       await ref.read(strengthFlowControllerProvider.notifier).finalizeSession(
-        notes: notesController.text.trim().isEmpty
-            ? null
-            : notesController.text.trim(),
+        notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
       );
     }
   }
@@ -374,8 +413,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
   String _formatDateTime(DateTime value) {
     String two(int n) => n.toString().padLeft(2, '0');
-    return '${two(value.day)}.${two(value.month)}.${value.year} '
-        '${two(value.hour)}:${two(value.minute)}';
+    return '${two(value.day)}.${two(value.month)}.${value.year} ${two(value.hour)}:${two(value.minute)}';
   }
 }
 
@@ -402,7 +440,7 @@ class _SessionHeader extends StatelessWidget {
         Text(
           title,
           style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: onSurface,
           ),
         ),
@@ -558,7 +596,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
   Duration _total = const Duration(seconds: 60);
   Duration _remaining = const Duration(seconds: 60);
   bool _timerRunning = false;
-  int _lastBeepSec = -999;
+  int _lastSignalSecond = -999;
 
   bool _metronomeRunning = false;
   Duration _metronomeElapsed = Duration.zero;
@@ -588,7 +626,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
           color: panelColor,
           borderRadius: BorderRadius.circular(12),
           child: SizedBox(
-            height: 122,
+            height: 128,
             child: PageView(
               controller: _pageController,
               onPageChanged: (value) {
@@ -606,7 +644,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
                         remaining: _remaining,
                         total: _total,
                         running: _timerRunning,
-                        dangerThresholdSec: 10,
+                        dangerThresholdSec: 3,
                         onTap: _handleTimerClicked,
                       ),
                       const SizedBox(width: 14),
@@ -749,14 +787,14 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
       _timerRunning = true;
       _total = duration;
       _remaining = duration;
-      _lastBeepSec = (duration.inMilliseconds / 1000).ceil();
+      _lastSignalSecond = duration.inSeconds + 1;
     });
 
-    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
-      final next = _remaining - const Duration(milliseconds: 250);
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      final next = _remaining - const Duration(milliseconds: 200);
       if (next <= Duration.zero) {
         timer.cancel();
-        _playDoneBeep();
+        _playDoneAlert();
         setState(() {
           _remaining = Duration.zero;
           _timerRunning = false;
@@ -765,11 +803,13 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
       }
 
       final sec = (next.inMilliseconds / 1000).ceil();
-      if (sec >= 1 && sec <= 4 && sec != _lastBeepSec) {
-        _lastBeepSec = sec;
-        _playBeep();
-      } else if (sec != _lastBeepSec) {
-        _lastBeepSec = sec;
+      if (sec != _lastSignalSecond) {
+        if (sec == 3 || sec == 2) {
+          _playWarningBeep();
+        } else if (sec == 1) {
+          _playFinalSecondAlert();
+        }
+        _lastSignalSecond = sec;
       }
 
       setState(() {
@@ -784,14 +824,14 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
     _timer?.cancel();
     setState(() {
       _timerRunning = true;
-      _lastBeepSec = (_remaining.inMilliseconds / 1000).ceil();
+      _lastSignalSecond = _remaining.inSeconds + 1;
     });
 
-    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
-      final next = _remaining - const Duration(milliseconds: 250);
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      final next = _remaining - const Duration(milliseconds: 200);
       if (next <= Duration.zero) {
         timer.cancel();
-        _playDoneBeep();
+        _playDoneAlert();
         setState(() {
           _remaining = Duration.zero;
           _timerRunning = false;
@@ -800,11 +840,13 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
       }
 
       final sec = (next.inMilliseconds / 1000).ceil();
-      if (sec >= 1 && sec <= 4 && sec != _lastBeepSec) {
-        _lastBeepSec = sec;
-        _playBeep();
-      } else if (sec != _lastBeepSec) {
-        _lastBeepSec = sec;
+      if (sec != _lastSignalSecond) {
+        if (sec == 3 || sec == 2) {
+          _playWarningBeep();
+        } else if (sec == 1) {
+          _playFinalSecondAlert();
+        }
+        _lastSignalSecond = sec;
       }
 
       setState(() {
@@ -905,11 +947,15 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
     return math.max(0, (seconds * 1000).round());
   }
 
-  void _playBeep() {
+  void _playWarningBeep() {
     SystemSound.play(SystemSoundType.click);
   }
 
-  void _playDoneBeep() {
+  void _playFinalSecondAlert() {
+    SystemSound.play(SystemSoundType.alert);
+  }
+
+  void _playDoneAlert() {
     SystemSound.play(SystemSoundType.alert);
   }
 }
@@ -931,38 +977,35 @@ class _TimerDial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final progress = total.inMilliseconds <= 0
-        ? 0.0
-        : (remaining.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0);
     final danger = remaining.inSeconds <= dangerThresholdSec;
+    final elapsedFactor = total.inMilliseconds <= 0
+        ? 1.0
+        : ((total.inMilliseconds - remaining.inMilliseconds) / total.inMilliseconds)
+        .clamp(0.0, 1.0);
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(48),
       child: SizedBox(
-        width: 96,
-        height: 96,
+        width: 98,
+        height: 98,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            SizedBox(
-              width: 96,
-              height: 96,
-              child: CircularProgressIndicator(
-                value: progress,
-                strokeWidth: 6,
-                backgroundColor: cs.onSurface.withValues(alpha: 0.14),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  danger ? Colors.redAccent : cs.primary,
-                ),
+            CustomPaint(
+              size: const Size.square(98),
+              painter: _TimerDialPainter(
+                progress: elapsedFactor,
+                danger: danger,
+                color: Theme.of(context).colorScheme.primary,
+                trackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.14),
               ),
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '${remaining.inSeconds}',
+                  '${(remaining.inMilliseconds / 1000).ceil().clamp(0, 9999)}',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 2),
@@ -973,6 +1016,60 @@ class _TimerDial extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _TimerDialPainter extends CustomPainter {
+  const _TimerDialPainter({
+    required this.progress,
+    required this.danger,
+    required this.color,
+    required this.trackColor,
+  });
+
+  final double progress;
+  final bool danger;
+  final Color color;
+  final Color trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = 6.0;
+    final rect = Rect.fromLTWH(
+      stroke / 2,
+      stroke / 2,
+      size.width - stroke,
+      size.height - stroke,
+    );
+
+    final track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..color = trackColor;
+
+    final arc = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..color = danger ? Colors.redAccent : color;
+
+    canvas.drawArc(rect, -math.pi / 2, 2 * math.pi, false, track);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      2 * math.pi * progress.clamp(0.0, 1.0),
+      false,
+      arc,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _TimerDialPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.danger != danger ||
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }
 
@@ -1149,4 +1246,10 @@ enum _CloseAction {
   continueEditing,
   discard,
   saveAndClose,
+}
+
+enum _StrengthMenuAction {
+  addExercise,
+  startEmpty,
+  closePlan,
 }

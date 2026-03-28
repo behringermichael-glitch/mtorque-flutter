@@ -33,11 +33,21 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
   static const int _modEqual = 4;
 
   Timer? _pendingSync;
+  final Set<int> _focusedRows = <int>{};
 
   @override
   void dispose() {
     _pendingSync?.cancel();
     super.dispose();
+  }
+
+  void _handleRowFocusChanged(int rowIndex, bool isFocused) {
+    final changed = isFocused
+        ? _focusedRows.add(rowIndex)
+        : _focusedRows.remove(rowIndex);
+    if (changed && mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -48,6 +58,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
     final repository = ref.watch(strengthRepositoryProvider);
 
     final draft = flowState.draftSession;
+    final compactHeader = _focusedRows.isNotEmpty;
     final list =
         draft?.setsByExercise[widget.exerciseId] ?? const <SetEntry>[];
 
@@ -68,35 +79,47 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
 
             return Column(
               children: [
-                _ExerciseHeader(
-                  exerciseId: widget.exerciseId,
-                  exerciseName: exerciseName,
-                  showSwipeLeftHint: widget.showSwipeLeftHint,
-                  showSwipeRightHint: widget.showSwipeRightHint,
-                  onInfo: () => _showInfoBottomSheet(
-                    context: context,
-                    repository: repository,
-                    exerciseId: widget.exerciseId,
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  alignment: Alignment.topCenter,
+                  child: compactHeader
+                      ? const SizedBox.shrink()
+                      : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _ExerciseHeader(
+                        exerciseId: widget.exerciseId,
+                        exerciseName: exerciseName,
+                        showSwipeLeftHint: widget.showSwipeLeftHint,
+                        showSwipeRightHint: widget.showSwipeRightHint,
+                        onInfo: () => _showInfoBottomSheet(
+                          context: context,
+                          repository: repository,
+                          exerciseId: widget.exerciseId,
+                        ),
+                        onMuscles: () => _showMusclesBottomSheet(
+                          context: context,
+                          repository: repository,
+                          exerciseId: widget.exerciseId,
+                        ),
+                        onStats: () => _showStatsBottomSheet(
+                          context: context,
+                          repository: repository,
+                          exerciseId: widget.exerciseId,
+                          exerciseName: exerciseName,
+                          isStaticExercise: isStatic,
+                        ),
+                        onDelete: () async {
+                          final confirmed = await _confirmDeleteExercise(context);
+                          if (!mounted || confirmed != true) return;
+                          await flow.removeExercise(widget.exerciseId);
+                        },
+                      ),
+                      const Divider(height: 1),
+                    ],
                   ),
-                  onMuscles: () => _showMusclesBottomSheet(
-                    context: context,
-                    repository: repository,
-                    exerciseId: widget.exerciseId,
-                  ),
-                  onStats: () => _showStatsBottomSheet(
-                    context: context,
-                    repository: repository,
-                    exerciseId: widget.exerciseId,
-                    exerciseName: exerciseName,
-                    isStaticExercise: isStatic,
-                  ),
-                  onDelete: () async {
-                    final confirmed = await _confirmDeleteExercise(context);
-                    if (!mounted || confirmed != true) return;
-                    await flow.removeExercise(widget.exerciseId);
-                  },
                 ),
-                const Divider(height: 1),
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.fromLTRB(14, 2, 14, 8),
@@ -145,6 +168,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                             exerciseName: exerciseName,
                             isStatic: isStatic,
                           );
+                        },
+                        onInputFocusChanged: (isFocused) {
+                          _handleRowFocusChanged(index, isFocused);
                         },
                         onDelete: () async {
                           final updated = [...list]..removeAt(index);
@@ -310,7 +336,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                     Text(
                       l10n.strengthExerciseMarkersTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -517,7 +543,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                           .textTheme
                           .titleLarge
                           ?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -527,7 +553,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                           .textTheme
                           .titleMedium
                           ?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -593,7 +619,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                           .textTheme
                           .titleLarge
                           ?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -721,9 +747,10 @@ class _ExerciseHeader extends StatelessWidget {
                       Text(
                         exerciseName,
                         textAlign: TextAlign.right,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w500,
-                          height: 1.08,
+                          height: 1.02,
+                          fontSize: 24,
                         ),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
@@ -739,7 +766,7 @@ class _ExerciseHeader extends StatelessWidget {
                           ),
                           const SizedBox(width: 18),
                           _HeaderActionIcon(
-                            icon: Icons.spa_outlined,
+                            icon: Icons.fitness_center_outlined,
                             color: iconColor,
                             onTap: onMuscles,
                           ),
@@ -890,6 +917,7 @@ class _SetRow extends StatefulWidget {
     required this.onChanged,
     required this.onOpenMarkers,
     required this.onCompleted,
+    required this.onInputFocusChanged,
     required this.onDelete,
   });
 
@@ -901,6 +929,7 @@ class _SetRow extends StatefulWidget {
   final ValueChanged<SetEntry> onChanged;
   final Future<void> Function() onOpenMarkers;
   final Future<void> Function() onCompleted;
+  final ValueChanged<bool> onInputFocusChanged;
   final VoidCallback onDelete;
 
   @override
@@ -912,6 +941,7 @@ class _SetRowState extends State<_SetRow> {
   late final TextEditingController _secondController;
   late final FocusNode _loadFocusNode;
   late final FocusNode _secondFocusNode;
+  bool _lastAnyFocus = false;
 
   @override
   void initState() {
@@ -941,6 +971,9 @@ class _SetRowState extends State<_SetRow> {
 
   @override
   void dispose() {
+    if (_lastAnyFocus) {
+      widget.onInputFocusChanged(false);
+    }
     _loadFocusNode.removeListener(_handleFocusUpdate);
     _secondFocusNode.removeListener(_handleFocusUpdate);
     _loadController.dispose();
@@ -951,6 +984,11 @@ class _SetRowState extends State<_SetRow> {
   }
 
   void _handleFocusUpdate() {
+    final anyFocus = _loadFocusNode.hasFocus || _secondFocusNode.hasFocus;
+    if (anyFocus != _lastAnyFocus) {
+      _lastAnyFocus = anyFocus;
+      widget.onInputFocusChanged(anyFocus);
+    }
     if (mounted) setState(() {});
   }
 
@@ -987,24 +1025,25 @@ class _SetRowState extends State<_SetRow> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.56);
-    final deleteBg = Theme.of(context).brightness == Brightness.dark
-        ? Theme.of(context).colorScheme.surfaceContainerHighest
-        : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.9);
-    final deleteFg = Theme.of(context).brightness == Brightness.dark
-        ? Theme.of(context).colorScheme.onSurface
-        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.82);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final deleteBg = isDark
+        ? Theme.of(context).colorScheme.surfaceBright
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.78);
+    final deleteFg = isDark
+        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.86)
+        : Theme.of(context).colorScheme.surface;
     final hasMarker = widget.value.mods != 0 || widget.value.superSlowEnabled;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 24,
             child: Text(
               '${widget.index + 1}',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
             ),
           ),
           const SizedBox(width: 10),
@@ -1040,33 +1079,33 @@ class _SetRowState extends State<_SetRow> {
               onSubmitted: (_) => widget.onCompleted(),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           _AllOutIconButton(
             selected: widget.value.allOut,
             onTap: () {
               widget.onChanged(widget.value.copyWith(allOut: !widget.value.allOut));
             },
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           _MarkerButton(
             selected: hasMarker,
             onTap: () => widget.onOpenMarkers(),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           SizedBox(
             width: 42,
-            height: 30,
+            height: 28,
             child: Material(
               color: deleteBg,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               child: InkWell(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 onTap: widget.onDelete,
                 child: Center(
                   child: Text(
                     'x',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                       color: deleteFg,
                     ),
                   ),
@@ -1121,13 +1160,13 @@ class _UnderlineNumberField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 46,
+      height: 40,
       child: TextField(
         controller: controller,
         focusNode: focusNode,
         keyboardType: keyboardType,
         textInputAction: TextInputAction.done,
-        style: Theme.of(context).textTheme.titleMedium,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
         decoration: InputDecoration(
           isDense: true,
           hintText: hintText,
@@ -1138,7 +1177,7 @@ class _UnderlineNumberField extends StatelessWidget {
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: lineColor, width: 1.4),
           ),
-          contentPadding: const EdgeInsets.only(bottom: 8),
+          contentPadding: const EdgeInsets.only(top: 8, bottom: 4),
         ),
         onChanged: onChanged,
         onSubmitted: onSubmitted,
@@ -1158,7 +1197,7 @@ class _AllOutIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = Theme.of(context).colorScheme.primary;
+    final activeColor = const Color(0xFFFF8A00);
     final inactiveColor =
     Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.62);
 
@@ -1166,10 +1205,10 @@ class _AllOutIconButton extends StatelessWidget {
       onTap: onTap,
       radius: 22,
       child: Padding(
-        padding: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.only(top: 2),
         child: Icon(
           Icons.local_fire_department_outlined,
-          size: 30,
+          size: 31,
           color: selected ? activeColor : inactiveColor,
         ),
       ),
@@ -1195,7 +1234,7 @@ class _MarkerButton extends StatelessWidget {
       onTap: onTap,
       radius: 22,
       child: Padding(
-        padding: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.only(top: 1),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
