@@ -122,7 +122,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(14, 2, 14, 8),
+                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
                     itemCount: list.length,
                     itemBuilder: (context, index) {
                       final item = list[index];
@@ -192,7 +192,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                   padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
                   child: SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 40,
                     child: FilledButton(
                       onPressed: () async {
                         final next = [...list, const SetEntry()];
@@ -722,13 +722,13 @@ class _ExerciseHeader extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 148,
-                height: 148,
+                width: 160,
+                height: 160,
                 child: ExerciseAssetImage(
                   exerciseId: exerciseId,
                   fit: BoxFit.contain,
@@ -744,16 +744,25 @@ class _ExerciseHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       const Spacer(),
-                      Text(
-                        exerciseName,
-                        textAlign: TextAlign.right,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          height: 1.02,
-                          fontSize: 24,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final compactFontSize = exerciseName.length > 34
+                              ? 18.0
+                              : exerciseName.length > 24
+                              ? 20.0
+                              : 22.0;
+                          return Text(
+                            exerciseName,
+                            textAlign: TextAlign.right,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              height: 1.02,
+                              fontSize: compactFontSize,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        },
                       ),
                       const Spacer(),
                       Row(
@@ -766,7 +775,7 @@ class _ExerciseHeader extends StatelessWidget {
                           ),
                           const SizedBox(width: 18),
                           _HeaderActionIcon(
-                            icon: Icons.fitness_center_outlined,
+                            icon: Icons.accessibility_new_outlined,
                             color: iconColor,
                             onTap: onMuscles,
                           ),
@@ -794,7 +803,7 @@ class _ExerciseHeader extends StatelessWidget {
         Positioned(
           left: 4,
           right: 4,
-          bottom: -18,
+          bottom: -10,
           child: IgnorePointer(
             child: _SwipeHintIcons(
               showLeft: showSwipeLeftHint,
@@ -890,15 +899,15 @@ class _SwipeHintIconsState extends State<_SwipeHintIcons> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.46);
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         return Row(
           children: [
-            if (widget.showLeft) Transform.translate(offset: Offset(_leftAnimation.value, 0), child: Icon(Icons.chevron_left, color: color, size: 34)) else const SizedBox(width: 34),
+            if (widget.showLeft) Transform.translate(offset: Offset(_leftAnimation.value, 0), child: Icon(Icons.chevron_left, color: color, size: 28)) else const SizedBox(width: 28),
             const Spacer(),
-            if (widget.showRight) Transform.translate(offset: Offset(_rightAnimation.value, 0), child: Icon(Icons.chevron_right, color: color, size: 34)) else const SizedBox(width: 34),
+            if (widget.showRight) Transform.translate(offset: Offset(_rightAnimation.value, 0), child: Icon(Icons.chevron_right, color: color, size: 28)) else const SizedBox(width: 28),
           ],
         );
       },
@@ -1160,7 +1169,7 @@ class _UnderlineNumberField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 50,
       child: TextField(
         controller: controller,
         focusNode: focusNode,

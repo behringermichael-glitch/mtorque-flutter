@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/legacy.dart';
 
-import 'package:flutter/material.dart';
-
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../../domain/repositories/strength_repository.dart';
@@ -54,7 +52,7 @@ class StrengthFlowController extends StateNotifier<StrengthFlowState> {
       keepPagerForEmptyQuickstart: true,
       loadedPlanBaselineIds: null,
       pagerIndex: 0,
-      selectedPlanName: null,
+      selectedPlanName: state.selectedPlanName,
       activeDbSessionId: null,
       activeDbSessionStart: null,
     );
@@ -123,7 +121,6 @@ class StrengthFlowController extends StateNotifier<StrengthFlowState> {
     state = state.copyWith(pagerIndex: index);
   }
 
-
   Future<void> updateDraftDate(DateTime selectedDate) async {
     final draft = state.draftSession;
     if (draft == null) return;
@@ -139,6 +136,23 @@ class StrengthFlowController extends StateNotifier<StrengthFlowState> {
     final updated = draft.copyWith(dateEpochDay: epochDay);
     await _repository.saveDraftSession(updated);
     state = state.copyWith(draftSession: updated);
+  }
+
+  Future<void> renamePlan({
+    required String oldName,
+    required String newName,
+    required bool overwrite,
+  }) async {
+    final ok = await _repository.renamePlan(
+      oldName: oldName,
+      newName: newName,
+      overwrite: overwrite,
+    );
+    if (!ok) return;
+    await refreshPlans();
+    if (state.selectedPlanName == oldName) {
+      state = state.copyWith(selectedPlanName: newName);
+    }
   }
 
   Future<void> addExercises(List<StrengthExerciseSummary> exercises) async {
@@ -282,7 +296,7 @@ class StrengthFlowController extends StateNotifier<StrengthFlowState> {
       pagerIndex: 0,
       activeDbSessionId: null,
       activeDbSessionStart: null,
-      selectedPlanName: null,
+      selectedPlanName: state.selectedPlanName,
     );
   }
 

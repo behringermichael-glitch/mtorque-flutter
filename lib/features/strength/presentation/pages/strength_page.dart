@@ -9,8 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
-import '../../domain/repositories/strength_repository.dart';
-import '../state/strength_flow_controller.dart';
 import '../state/strength_providers.dart';
 import 'exercise_page.dart';
 import 'exercise_picker_sheet.dart';
@@ -78,50 +76,50 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight:
-        state.hostView == StrengthHostView.pager ? 90 : kToolbarHeight,
+      appBar: state.hostView == StrengthHostView.pager
+          ? AppBar(
+        toolbarHeight: 90,
+        backgroundColor: Theme.of(context).cardColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
         titleSpacing: 16,
-        title: state.hostView == StrengthHostView.pager
-            ? _SessionHeader(
+        title: _SessionHeader(
           title: _sessionTitle(context),
           dateText: _sessionDateText(state),
           onDateTap:
           state.draftSession == null ? null : () => _pickSessionDate(context),
-        )
-            : Text(AppLocalizations.of(context)!.navStrength),
+        ),
         actions: [
-          if (state.hostView == StrengthHostView.pager)
-            IconButton(
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: FilledButton(
               onPressed: () => _showFinishDialog(context),
-              icon: const Icon(Icons.check),
-            ),
-          if (state.hostView == StrengthHostView.pager)
-            IconButton(
-              onPressed: () => _handleClosePressed(),
-              icon: const Icon(Icons.close),
-            ),
-          PopupMenuButton<_StrengthMenuAction>(
-            onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) {
-              final l10n = AppLocalizations.of(context)!;
-              return [
-                if (state.hostView == StrengthHostView.pager)
-                  PopupMenuItem(
-                    value: _StrengthMenuAction.addExercise,
-                    child: Text(l10n.strengthAddExercise),
-                  ),
-                PopupMenuItem(
-                  value: _StrengthMenuAction.startEmpty,
-                  child: Text(l10n.strengthStartEmptyPlan),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 46),
+                padding: const EdgeInsets.symmetric(horizontal: 22),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                if (state.hostView == StrengthHostView.pager)
-                  PopupMenuItem(
-                    value: _StrengthMenuAction.closePlan,
-                    child: Text(l10n.strengthClosePlanTitle),
-                  ),
-              ];
-            },
+              ),
+              child: Text(_endLabel(context)),
+            ),
+          ),
+          PopupMenuButton<_StrengthMenuAction>(
+            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+            onSelected: (value) => _handleMenuAction(value),
+            itemBuilder: (context) => _buildMenuItems(context, state),
+          ),
+        ],
+      )
+          : AppBar(
+        title: Text(AppLocalizations.of(context)!.navStrength),
+        actions: [
+          PopupMenuButton<_StrengthMenuAction>(
+            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+            onSelected: (value) => _handleMenuAction(value),
+            itemBuilder: (context) => _buildMenuItems(context, state),
           ),
         ],
       ),
@@ -192,47 +190,34 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final pageIndex = state.pagerIndex.clamp(0, math.max(exerciseIds.length, 0));
     final showExercisePage = exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
     final showSwipeLeft = showExercisePage && pageIndex > 0;
-    final showSwipeRight = showExercisePage && pageIndex < exerciseIds.length;
-    final overlayTop = 196.0;
+    final showSwipeRight = showExercisePage && pageIndex < exerciseIds.length - 1;
 
     return Column(
       children: [
         Expanded(
-          child: Stack(
-            children: [
-              PageView.builder(
-                controller: _pageController,
-                itemCount: exerciseIds.length + 1,
-                onPageChanged: controller.updatePagerIndex,
-                itemBuilder: (context, index) {
-                  if (index == exerciseIds.length) {
-                    return Center(
-                      child: FilledButton.icon(
-                        onPressed: () => _openExercisePicker(context),
-                        icon: const Icon(Icons.add),
-                        label: Text(l10n.strengthAddExercise),
-                      ),
-                    );
-                  }
-
-                  final exerciseId = exerciseIds[index];
-                  return ExercisePage(
-                    key: ValueKey('exercise_page_$exerciseId'),
-                    exerciseId: exerciseId,
-                    showSwipeLeftHint: false,
-                    showSwipeRightHint: false,
-                  );
-                },
-              ),
-              if (showExercisePage)
-                IgnorePointer(
-                  child: _PagerSwipeHintOverlay(
-                    topOffset: overlayTop,
-                    showLeft: showSwipeLeft,
-                    showRight: showSwipeRight,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: exerciseIds.length + 1,
+            onPageChanged: controller.updatePagerIndex,
+            itemBuilder: (context, index) {
+              if (index == exerciseIds.length) {
+                return Center(
+                  child: FilledButton.icon(
+                    onPressed: () => _openExercisePicker(context),
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.strengthAddExercise),
                   ),
-                ),
-            ],
+                );
+              }
+
+              final exerciseId = exerciseIds[index];
+              return ExercisePage(
+                key: ValueKey('exercise_page_$exerciseId'),
+                exerciseId: exerciseId,
+                showSwipeLeftHint: showSwipeLeft && index == pageIndex,
+                showSwipeRightHint: showSwipeRight && index == pageIndex,
+              );
+            },
           ),
         ),
         AnimatedSwitcher(
@@ -253,14 +238,16 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Future<void> _openExercisePicker(BuildContext context) async {
-    final result = await showModalBottomSheet<List<StrengthExerciseSummary>>(
+    final result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => const ExercisePickerSheet(),
     );
 
-    if (result == null || result.isEmpty) return;
-    await ref.read(strengthFlowControllerProvider.notifier).addExercises(result);
+    if (result == null || result is! List || result.isEmpty) return;
+    await ref.read(strengthFlowControllerProvider.notifier).addExercises(
+      List<StrengthExerciseSummary>.from(result),
+    );
   }
 
   Future<void> _pickSessionDate(BuildContext context) async {
@@ -284,20 +271,269 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     await ref.read(strengthFlowControllerProvider.notifier).updateDraftDate(picked);
   }
 
+  List<PopupMenuEntry<_StrengthMenuAction>> _buildMenuItems(
+      BuildContext context,
+      StrengthFlowState state,
+      ) {
+    final items = <PopupMenuEntry<_StrengthMenuAction>>[];
+    final hasDraft = state.draftSession != null;
+    final hasPlanSelection = (state.selectedPlanName ?? '').trim().isNotEmpty;
+
+    if (state.hostView == StrengthHostView.pager) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.addExercise,
+          child: Text(_menuLabel(context, _StrengthMenuAction.addExercise)),
+        ),
+      );
+    }
+    if (hasPlanSelection && hasDraft) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.savePlan,
+          child: Text(_menuLabel(context, _StrengthMenuAction.savePlan)),
+        ),
+      );
+    }
+    if (hasDraft) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.saveAsPlan,
+          child: Text(_menuLabel(context, _StrengthMenuAction.saveAsPlan)),
+        ),
+      );
+    }
+    items.add(
+      PopupMenuItem(
+        value: _StrengthMenuAction.loadPlan,
+        child: Text(_menuLabel(context, _StrengthMenuAction.loadPlan)),
+      ),
+    );
+    if (hasPlanSelection) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.renamePlan,
+          child: Text(_menuLabel(context, _StrengthMenuAction.renamePlan)),
+        ),
+      );
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.deletePlan,
+          child: Text(_menuLabel(context, _StrengthMenuAction.deletePlan)),
+        ),
+      );
+    }
+    items.add(
+      PopupMenuItem(
+        value: _StrengthMenuAction.startEmpty,
+        child: Text(_menuLabel(context, _StrengthMenuAction.startEmpty)),
+      ),
+    );
+    if (state.hostView == StrengthHostView.pager) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.closePlan,
+          child: Text(_menuLabel(context, _StrengthMenuAction.closePlan)),
+        ),
+      );
+    }
+    return items;
+  }
+
   Future<void> _handleMenuAction(_StrengthMenuAction action) async {
+    final state = ref.read(strengthFlowControllerProvider);
+    final controller = ref.read(strengthFlowControllerProvider.notifier);
     switch (action) {
       case _StrengthMenuAction.addExercise:
         await _openExercisePicker(context);
         return;
+      case _StrengthMenuAction.savePlan:
+        final name = state.selectedPlanName;
+        if (name == null || name.trim().isEmpty) return;
+        await controller.savePlanFromCurrent(planName: name, overwrite: true);
+        return;
       case _StrengthMenuAction.startEmpty:
-        await ref.read(strengthFlowControllerProvider.notifier).startEmptySession(
-          todayEpochDay: _todayEpochDay(),
-        );
+        if (!await _confirmReplaceCurrent(context)) return;
+        await controller.startEmptySession(todayEpochDay: _todayEpochDay());
         return;
       case _StrengthMenuAction.closePlan:
         await _handleClosePressed();
         return;
+      case _StrengthMenuAction.saveAsPlan:
+        final name = await _promptForPlanName(context, initialValue: state.selectedPlanName ?? '');
+        if (name == null || name.trim().isEmpty) return;
+        await controller.savePlanFromCurrent(planName: name.trim(), overwrite: false);
+        return;
+      case _StrengthMenuAction.loadPlan:
+        final selected = await _showLoadPlanDialog(context, state);
+        if (selected == null || selected.trim().isEmpty) return;
+        if (!await _confirmReplaceCurrent(context)) return;
+        await controller.loadPlan(planName: selected, todayEpochDay: _todayEpochDay());
+        return;
+      case _StrengthMenuAction.renamePlan:
+        final current = state.selectedPlanName;
+        if (current == null || current.trim().isEmpty) return;
+        final next = await _promptForPlanName(context, initialValue: current);
+        if (next == null || next.trim().isEmpty || next.trim() == current) return;
+        await controller.renamePlan(oldName: current, newName: next.trim(), overwrite: false);
+        return;
+      case _StrengthMenuAction.deletePlan:
+        final current = state.selectedPlanName;
+        if (current == null || current.trim().isEmpty) return;
+        final confirm = await _confirmDeletePlan(context, current);
+        if (confirm == true) {
+          await controller.deletePlan(current);
+        }
+        return;
     }
+  }
+
+  String _menuLabel(BuildContext context, _StrengthMenuAction action) {
+    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    switch (action) {
+      case _StrengthMenuAction.savePlan:
+        return de ? 'Aktuellen Plan speichern' : 'Save current plan';
+      case _StrengthMenuAction.startEmpty:
+        return de ? 'Neue Einheit starten' : 'Start new session';
+      case _StrengthMenuAction.closePlan:
+        return de ? 'Einheit schließen' : 'Close session';
+      case _StrengthMenuAction.saveAsPlan:
+        return de ? 'Als neuen Plan speichern' : 'Save as new plan';
+      case _StrengthMenuAction.loadPlan:
+        return de ? 'Plan laden' : 'Load plan';
+      case _StrengthMenuAction.renamePlan:
+        return de ? 'Plan umbenennen' : 'Rename plan';
+      case _StrengthMenuAction.deletePlan:
+        return de ? 'Plan löschen' : 'Delete plan';
+      case _StrengthMenuAction.addExercise:
+        return de ? 'Übung hinzufügen' : 'Add exercise';
+    }
+  }
+
+  String _endLabel(BuildContext context) {
+    return Localizations.localeOf(context).languageCode.toLowerCase() == 'de'
+        ? 'Beenden'
+        : 'Finish';
+  }
+
+  Future<String?> _promptForPlanName(BuildContext context, {required String initialValue}) async {
+    final controller = TextEditingController(text: initialValue);
+    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(de ? 'Planname' : 'Plan name'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: de ? 'Name eingeben' : 'Enter name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: Text(AppLocalizations.of(context)!.strengthCommonSave),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String?> _showLoadPlanDialog(BuildContext context, StrengthFlowState state) {
+    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(de ? 'Plan laden' : 'Load plan'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: state.plans.isEmpty
+                ? Text(de ? 'Keine Pläne vorhanden.' : 'No plans available.')
+                : ListView.builder(
+              shrinkWrap: true,
+              itemCount: state.plans.length,
+              itemBuilder: (context, index) {
+                final plan = state.plans[index];
+                return ListTile(
+                  title: Text(plan.name),
+                  onTap: () => Navigator.of(dialogContext).pop(plan.name),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _confirmReplaceCurrent(BuildContext context) async {
+    final state = ref.read(strengthFlowControllerProvider);
+    final draft = state.draftSession;
+    if (draft == null || (!draft.hasEntries && draft.exerciseOrder.isEmpty)) {
+      return true;
+    }
+    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(de ? 'Aktuelle Einheit ersetzen?' : 'Replace current session?'),
+          content: Text(de
+              ? 'Die aktuelle Einheit wird dadurch verworfen und ersetzt.'
+              : 'This will discard and replace the current session.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(de ? 'Ersetzen' : 'Replace'),
+            ),
+          ],
+        );
+      },
+    );
+    return result == true;
+  }
+
+  Future<bool?> _confirmDeletePlan(BuildContext context, String planName) {
+    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(de ? 'Plan löschen' : 'Delete plan'),
+          content: Text(de
+              ? 'Soll der Plan "$planName" gelöscht werden?'
+              : 'Delete plan "$planName"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(AppLocalizations.of(context)!.strengthCommonDelete),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _handleClosePressed() async {
@@ -616,17 +852,13 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final panelColor = cs.surface;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: panelColor,
-          borderRadius: BorderRadius.circular(12),
+        Card(
+          margin: EdgeInsets.zero,
           child: SizedBox(
-            height: 128,
+            height: 100,
             child: PageView(
               controller: _pageController,
               onPageChanged: (value) {
@@ -1249,7 +1481,12 @@ enum _CloseAction {
 }
 
 enum _StrengthMenuAction {
-  addExercise,
+  savePlan,
   startEmpty,
   closePlan,
+  saveAsPlan,
+  loadPlan,
+  renamePlan,
+  deletePlan,
+  addExercise,
 }
