@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/legacy.dart';
 
+import 'package:flutter/material.dart';
+
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../../domain/repositories/strength_repository.dart';
@@ -119,6 +121,24 @@ class StrengthFlowController extends StateNotifier<StrengthFlowState> {
 
   Future<void> updatePagerIndex(int index) async {
     state = state.copyWith(pagerIndex: index);
+  }
+
+
+  Future<void> updateDraftDate(DateTime selectedDate) async {
+    final draft = state.draftSession;
+    if (draft == null) return;
+
+    final utcMidnight = DateTime.utc(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+    final epochDay = utcMidnight.millisecondsSinceEpoch ~/
+        Duration.millisecondsPerDay;
+
+    final updated = draft.copyWith(dateEpochDay: epochDay);
+    await _repository.saveDraftSession(updated);
+    state = state.copyWith(draftSession: updated);
   }
 
   Future<void> addExercises(List<StrengthExerciseSummary> exercises) async {

@@ -1,9 +1,14 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
+import '../state/strength_flow_controller.dart';
 import '../state/strength_providers.dart';
 import 'exercise_page.dart';
 import 'exercise_picker_sheet.dart';
@@ -47,7 +52,6 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(strengthFlowControllerProvider);
 
     if (state.isLoading) {
@@ -73,7 +77,15 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.navStrength),
+        toolbarHeight: state.hostView == StrengthHostView.pager ? 86 : kToolbarHeight,
+        titleSpacing: 16,
+        title: state.hostView == StrengthHostView.pager
+            ? _SessionHeader(
+          title: _sessionTitle(context),
+          dateText: _sessionDateText(state),
+          onDateTap: state.draftSession == null ? null : () => _pickSessionDate(context),
+        )
+            : Text(AppLocalizations.of(context)!.navStrength),
         actions: [
           if (state.hostView == StrengthHostView.pager)
             IconButton(
@@ -95,10 +107,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
   }
 
-  Widget _buildPlanGrid(
-      BuildContext context,
-      StrengthFlowState state,
-      ) {
+  Widget _buildPlanGrid(BuildContext context, StrengthFlowState state) {
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
 
@@ -154,22 +163,14 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       ) {
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
-    final showSwipeHint =
-        state.pagerIndex >= 0 && state.pagerIndex < exerciseIds.length;
+    final pageIndex = state.pagerIndex.clamp(0, math.max(exerciseIds.length, 0));
+    final showExercisePage = exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
+    final showSwipeLeft = showExercisePage && pageIndex > 0;
+    final showSwipeRight = showExercisePage && pageIndex < exerciseIds.length;
+    final overlayTop = state.activeDbSessionStart != null ? 200.0 : 186.0;
 
     return Column(
       children: [
-        if (state.activeDbSessionStart != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                _formatDateTime(state.activeDbSessionStart!),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
-          ),
         Expanded(
           child: Stack(
             children: [
@@ -192,16 +193,33 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                   return ExercisePage(
                     key: ValueKey('exercise_page_$exerciseId'),
                     exerciseId: exerciseId,
+                    showSwipeLeftHint: false,
+                    showSwipeRightHint: false,
                   );
                 },
               ),
-              if (showSwipeHint)
+              if (showExercisePage)
                 IgnorePointer(
                   child: _PagerSwipeHintOverlay(
-                    topOffset: state.activeDbSessionStart != null ? 198 : 184,
+                    topOffset: overlayTop,
+                    showLeft: showSwipeLeft,
+                    showRight: showSwipeRight,
                   ),
                 ),
             ],
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          child: showExercisePage
+              ? const Padding(
+            key: ValueKey('timer_panel'),
+            padding: EdgeInsets.fromLTRB(14, 4, 14, 12),
+            child: _TimerMetronomePanel(),
+          )
+              : const SizedBox(
+            key: ValueKey('timer_panel_hidden'),
+            height: 0,
           ),
         ),
       ],
@@ -220,6 +238,27 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     await ref.read(strengthFlowControllerProvider.notifier).addExercises(result);
   }
 
+  Future<void> _pickSessionDate(BuildContext context) async {
+    final state = ref.read(strengthFlowControllerProvider);
+    final draft = state.draftSession;
+    if (draft == null) return;
+
+    final initialDate = DateTime.fromMillisecondsSinceEpoch(
+      draft.dateEpochDay * Duration.millisecondsPerDay,
+      isUtc: true,
+    ).toLocal();
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+    if (!mounted || picked == null) return;
+
+    await ref.read(strengthFlowControllerProvider.notifier).updateDraftDate(picked);
+  }
+
   Future<void> _handleClosePressed() async {
     final l10n = AppLocalizations.of(context)!;
     final state = ref.read(strengthFlowControllerProvider);
@@ -231,9 +270,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     }
 
     if (!draft.hasEntries) {
-      await ref
-          .read(strengthFlowControllerProvider.notifier)
-          .discardCurrentSession();
+      await ref.read(strengthFlowControllerProvider.notifier).discardCurrentSession();
       return;
     }
 
@@ -247,18 +284,15 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           content: Text(l10n.strengthClosePlanMessage),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(_CloseAction.continueEditing),
+              onPressed: () => Navigator.of(dialogContext).pop(_CloseAction.continueEditing),
               child: Text(l10n.strengthContinueEditing),
             ),
             TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(_CloseAction.discard),
+              onPressed: () => Navigator.of(dialogContext).pop(_CloseAction.discard),
               child: Text(l10n.strengthDiscard),
             ),
             FilledButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(_CloseAction.saveAndClose),
+              onPressed: () => Navigator.of(dialogContext).pop(_CloseAction.saveAndClose),
               child: Text(l10n.strengthSaveAndClose),
             ),
           ],
@@ -267,9 +301,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
 
     if (action == _CloseAction.discard) {
-      await ref
-          .read(strengthFlowControllerProvider.notifier)
-          .discardCurrentSession();
+      await ref.read(strengthFlowControllerProvider.notifier).discardCurrentSession();
     } else if (action == _CloseAction.saveAndClose) {
       await _showFinishDialog(context);
     }
@@ -314,6 +346,32 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     }
   }
 
+  String _sessionTitle(BuildContext context) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return languageCode == 'de' ? 'Einheit' : 'Session';
+  }
+
+  String _sessionDateText(StrengthFlowState state) {
+    final start = state.activeDbSessionStart;
+    if (start != null) {
+      return _formatDateTime(start);
+    }
+
+    final draft = state.draftSession;
+    if (draft == null) return '';
+
+    final day = DateTime.fromMillisecondsSinceEpoch(
+      draft.dateEpochDay * Duration.millisecondsPerDay,
+      isUtc: true,
+    ).toLocal();
+    return _formatDate(day);
+  }
+
+  String _formatDate(DateTime value) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(value.day)}.${two(value.month)}.${value.year}';
+  }
+
   String _formatDateTime(DateTime value) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${two(value.day)}.${two(value.month)}.${value.year} '
@@ -321,37 +379,766 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 }
 
-class _PagerSwipeHintOverlay extends StatelessWidget {
-  const _PagerSwipeHintOverlay({
-    required this.topOffset,
+class _SessionHeader extends StatelessWidget {
+  const _SessionHeader({
+    required this.title,
+    required this.dateText,
+    required this.onDateTap,
   });
 
-  final double topOffset;
+  final String title;
+  final String dateText;
+  final VoidCallback? onDateTap;
 
   @override
   Widget build(BuildContext context) {
-    final color =
-    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.58);
+    final textTheme = Theme.of(context).textTheme;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w500,
+            color: onSurface,
+          ),
+        ),
+        const SizedBox(height: 2),
+        InkWell(
+          onTap: onDateTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Text(
+              dateText,
+              style: textTheme.bodyMedium?.copyWith(
+                color: onSurface.withValues(alpha: 0.9),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PagerSwipeHintOverlay extends StatefulWidget {
+  const _PagerSwipeHintOverlay({
+    required this.topOffset,
+    required this.showLeft,
+    required this.showRight,
+  });
+
+  final double topOffset;
+  final bool showLeft;
+  final bool showRight;
+
+  @override
+  State<_PagerSwipeHintOverlay> createState() => _PagerSwipeHintOverlayState();
+}
+
+class _PagerSwipeHintOverlayState extends State<_PagerSwipeHintOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _leftDx;
+  late final Animation<double> _rightDx;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 760),
+    );
+    _leftDx = Tween<double>(begin: 0, end: -10).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _rightDx = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _opacity = Tween<double>(begin: 0.52, end: 0.88).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _animateIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant _PagerSwipeHintOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.showLeft != widget.showLeft ||
+        oldWidget.showRight != widget.showRight) {
+      _animateIfNeeded();
+    }
+  }
+
+  void _animateIfNeeded() {
+    if (!widget.showLeft && !widget.showRight) {
+      _controller.stop();
+      _controller.reset();
+      return;
+    }
+    unawaited(
+      _controller.forward(from: 0).then((_) async {
+        if (!mounted) return;
+        await _controller.reverse();
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor =
+    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.52);
 
     return Positioned(
       left: 0,
       right: 0,
-      top: topOffset,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
+      top: widget.topOffset,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final color = baseColor.withValues(alpha: _opacity.value);
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Row(
+              children: [
+                if (widget.showLeft)
+                  Transform.translate(
+                    offset: Offset(_leftDx.value, 0),
+                    child: Icon(Icons.chevron_left, color: color, size: 34),
+                  )
+                else
+                  const SizedBox(width: 34),
+                const Spacer(),
+                if (widget.showRight)
+                  Transform.translate(
+                    offset: Offset(_rightDx.value, 0),
+                    child: Icon(Icons.chevron_right, color: color, size: 34),
+                  )
+                else
+                  const SizedBox(width: 34),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TimerMetronomePanel extends StatefulWidget {
+  const _TimerMetronomePanel();
+
+  @override
+  State<_TimerMetronomePanel> createState() => _TimerMetronomePanelState();
+}
+
+class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
+  final PageController _pageController = PageController();
+  final TextEditingController _restController = TextEditingController(text: '60');
+  final TextEditingController _conController = TextEditingController(text: '1.5');
+  final TextEditingController _holdTopController = TextEditingController(text: '0');
+  final TextEditingController _eccController = TextEditingController(text: '1.5');
+  final TextEditingController _holdBottomController = TextEditingController(text: '0');
+
+  Timer? _timer;
+  Timer? _metronomeTimer;
+  int _page = 0;
+
+  Duration _total = const Duration(seconds: 60);
+  Duration _remaining = const Duration(seconds: 60);
+  bool _timerRunning = false;
+  int _lastBeepSec = -999;
+
+  bool _metronomeRunning = false;
+  Duration _metronomeElapsed = Duration.zero;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _metronomeTimer?.cancel();
+    _pageController.dispose();
+    _restController.dispose();
+    _conController.dispose();
+    _holdTopController.dispose();
+    _eccController.dispose();
+    _holdBottomController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final panelColor = cs.surface;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Material(
+          color: panelColor,
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            height: 122,
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (value) {
+                setState(() => _page = value);
+                if (value == 0) {
+                  _stopMetronome();
+                }
+              },
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+                  child: Row(
+                    children: [
+                      _TimerDial(
+                        remaining: _remaining,
+                        total: _total,
+                        running: _timerRunning,
+                        dangerThresholdSec: 10,
+                        onTap: _handleTimerClicked,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Timer',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 88,
+                                  child: TextField(
+                                    controller: _restController,
+                                    keyboardType: TextInputType.number,
+                                    textInputAction: TextInputAction.done,
+                                    decoration: const InputDecoration(
+                                      isDense: true,
+                                      hintText: 'sec',
+                                    ),
+                                    onChanged: (_) => _applyTimerInputIfIdle(),
+                                    onSubmitted: (_) => _applyTimerInputIfIdle(),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                OutlinedButton(
+                                  onPressed: _resetTimer,
+                                  child: const Text('Reset'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _MetronomeMaze(
+                          elapsed: _metronomeElapsed,
+                          concentricMs: _phaseMs(_conController.text, 1500),
+                          holdTopMs: _phaseMs(_holdTopController.text, 0),
+                          eccentricMs: _phaseMs(_eccController.text, 1500),
+                          holdBottomMs: _phaseMs(_holdBottomController.text, 0),
+                          running: _metronomeRunning,
+                          onTap: _toggleMetronome,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _TempoRow(controller: _conController, label: 'Conc.', onChanged: _handleTempoChanged),
+                            const SizedBox(height: 6),
+                            _TempoRow(controller: _holdTopController, label: 'Top', onChanged: _handleTempoChanged),
+                            const SizedBox(height: 6),
+                            _TempoRow(controller: _eccController, label: 'Ecc.', onChanged: _handleTempoChanged),
+                            const SizedBox(height: 6),
+                            _TempoRow(controller: _holdBottomController, label: 'Bottom', onChanged: _handleTempoChanged),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chevron_left, color: color, size: 30),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                height: 1.2,
-                color: color,
+            _Dot(
+              active: _page == 0,
+              onTap: () => _pageController.animateToPage(
+                0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.chevron_right, color: color, size: 30),
+            _Dot(
+              active: _page == 1,
+              onTap: () => _pageController.animateToPage(
+                1,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+              ),
+            ),
           ],
+        ),
+      ],
+    );
+  }
+
+  void _applyTimerInputIfIdle() {
+    final seconds = int.tryParse(_restController.text.trim());
+    if (seconds == null || seconds < 1 || seconds > 7200) return;
+    _total = Duration(seconds: seconds);
+    if (!_timerRunning) {
+      setState(() {
+        _remaining = _total;
+      });
+    }
+  }
+
+  void _handleTimerClicked() {
+    if (_timerRunning) {
+      _stopTimer();
+      return;
+    }
+
+    final shouldResume = _remaining > Duration.zero && _remaining < _total;
+    if (shouldResume) {
+      _resumeTimer();
+      return;
+    }
+
+    final seconds = int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
+    _startTimer(Duration(seconds: seconds));
+  }
+
+  void _startTimer(Duration duration) {
+    _pageController.jumpToPage(0);
+    _timer?.cancel();
+    setState(() {
+      _timerRunning = true;
+      _total = duration;
+      _remaining = duration;
+      _lastBeepSec = (duration.inMilliseconds / 1000).ceil();
+    });
+
+    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+      final next = _remaining - const Duration(milliseconds: 250);
+      if (next <= Duration.zero) {
+        timer.cancel();
+        _playDoneBeep();
+        setState(() {
+          _remaining = Duration.zero;
+          _timerRunning = false;
+        });
+        return;
+      }
+
+      final sec = (next.inMilliseconds / 1000).ceil();
+      if (sec >= 1 && sec <= 4 && sec != _lastBeepSec) {
+        _lastBeepSec = sec;
+        _playBeep();
+      } else if (sec != _lastBeepSec) {
+        _lastBeepSec = sec;
+      }
+
+      setState(() {
+        _remaining = next;
+      });
+    });
+  }
+
+  void _resumeTimer() {
+    if (_remaining <= Duration.zero) return;
+    _pageController.jumpToPage(0);
+    _timer?.cancel();
+    setState(() {
+      _timerRunning = true;
+      _lastBeepSec = (_remaining.inMilliseconds / 1000).ceil();
+    });
+
+    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+      final next = _remaining - const Duration(milliseconds: 250);
+      if (next <= Duration.zero) {
+        timer.cancel();
+        _playDoneBeep();
+        setState(() {
+          _remaining = Duration.zero;
+          _timerRunning = false;
+        });
+        return;
+      }
+
+      final sec = (next.inMilliseconds / 1000).ceil();
+      if (sec >= 1 && sec <= 4 && sec != _lastBeepSec) {
+        _lastBeepSec = sec;
+        _playBeep();
+      } else if (sec != _lastBeepSec) {
+        _lastBeepSec = sec;
+      }
+
+      setState(() {
+        _remaining = next;
+      });
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+    setState(() {
+      _timerRunning = false;
+    });
+  }
+
+  void _resetTimer() {
+    _stopTimer();
+    final seconds = int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
+    setState(() {
+      _total = Duration(seconds: seconds);
+      _remaining = _total;
+    });
+  }
+
+  void _toggleMetronome() {
+    if (_metronomeRunning) {
+      _stopMetronome();
+    } else {
+      _startMetronome();
+    }
+  }
+
+  void _startMetronome() {
+    _stopMetronome();
+    setState(() {
+      _metronomeRunning = true;
+      _metronomeElapsed = Duration.zero;
+    });
+
+    var phaseIndex = -1;
+
+    _metronomeTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
+      final elapsed = _metronomeElapsed + const Duration(milliseconds: 40);
+      final phases = <int>[
+        _phaseMs(_conController.text, 1500),
+        _phaseMs(_holdTopController.text, 0),
+        _phaseMs(_eccController.text, 1500),
+        _phaseMs(_holdBottomController.text, 0),
+      ];
+      final cycle = phases.reduce((a, b) => a + b).clamp(1, 1000000);
+      final pos = elapsed.inMilliseconds % cycle;
+
+      var acc = 0;
+      var nextPhase = 0;
+      for (var i = 0; i < phases.length; i++) {
+        acc += phases[i];
+        if (pos < acc) {
+          nextPhase = i;
+          break;
+        }
+      }
+      if (nextPhase != phaseIndex) {
+        phaseIndex = nextPhase;
+        SystemSound.play(SystemSoundType.click);
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _metronomeElapsed = elapsed;
+      });
+    });
+  }
+
+  void _stopMetronome() {
+    _metronomeTimer?.cancel();
+    _metronomeTimer = null;
+    if (!mounted) return;
+    setState(() {
+      _metronomeRunning = false;
+      _metronomeElapsed = Duration.zero;
+    });
+  }
+
+  void _handleTempoChanged(String _) {
+    if (_metronomeRunning) {
+      _startMetronome();
+    } else {
+      setState(() {});
+    }
+  }
+
+  int _phaseMs(String raw, int fallback) {
+    final normalized = raw.trim().replaceAll(',', '.');
+    if (normalized.isEmpty) return fallback;
+    final seconds = double.tryParse(normalized);
+    if (seconds == null) return fallback;
+    return math.max(0, (seconds * 1000).round());
+  }
+
+  void _playBeep() {
+    SystemSound.play(SystemSoundType.click);
+  }
+
+  void _playDoneBeep() {
+    SystemSound.play(SystemSoundType.alert);
+  }
+}
+
+class _TimerDial extends StatelessWidget {
+  const _TimerDial({
+    required this.remaining,
+    required this.total,
+    required this.running,
+    required this.dangerThresholdSec,
+    required this.onTap,
+  });
+
+  final Duration remaining;
+  final Duration total;
+  final bool running;
+  final int dangerThresholdSec;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final progress = total.inMilliseconds <= 0
+        ? 0.0
+        : (remaining.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0);
+    final danger = remaining.inSeconds <= dangerThresholdSec;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(48),
+      child: SizedBox(
+        width: 96,
+        height: 96,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 96,
+              height: 96,
+              child: CircularProgressIndicator(
+                value: progress,
+                strokeWidth: 6,
+                backgroundColor: cs.onSurface.withValues(alpha: 0.14),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  danger ? Colors.redAccent : cs.primary,
+                ),
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${remaining.inSeconds}',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 2),
+                Icon(running ? Icons.pause : Icons.play_arrow, size: 18),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetronomeMaze extends StatelessWidget {
+  const _MetronomeMaze({
+    required this.elapsed,
+    required this.concentricMs,
+    required this.holdTopMs,
+    required this.eccentricMs,
+    required this.holdBottomMs,
+    required this.running,
+    required this.onTap,
+  });
+
+  final Duration elapsed;
+  final int concentricMs;
+  final int holdTopMs;
+  final int eccentricMs;
+  final int holdBottomMs;
+  final bool running;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cycle = math.max(1, concentricMs + holdTopMs + eccentricMs + holdBottomMs);
+    final pos = elapsed.inMilliseconds % cycle;
+
+    double progress;
+    if (pos < concentricMs) {
+      progress = concentricMs == 0 ? 0 : pos / concentricMs;
+    } else if (pos < concentricMs + holdTopMs) {
+      progress = 1;
+    } else if (pos < concentricMs + holdTopMs + eccentricMs) {
+      final local = pos - concentricMs - holdTopMs;
+      progress = eccentricMs == 0 ? 1 : 1 - (local / eccentricMs);
+    } else {
+      progress = 0;
+    }
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: CustomPaint(
+          painter: _MetronomeMazePainter(
+            progress: progress.clamp(0.0, 1.0),
+            color: running ? cs.primary : cs.onSurface.withValues(alpha: 0.38),
+          ),
+          child: Center(
+            child: Text(
+              running ? 'Tap to stop' : 'Tap to start',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetronomeMazePainter extends CustomPainter {
+  const _MetronomeMazePainter({
+    required this.progress,
+    required this.color,
+  });
+
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.28)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    final active = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(size.width * 0.18, size.height * 0.78)
+      ..lineTo(size.width * 0.18, size.height * 0.22)
+      ..lineTo(size.width * 0.82, size.height * 0.22)
+      ..lineTo(size.width * 0.82, size.height * 0.78)
+      ..lineTo(size.width * 0.18, size.height * 0.78);
+
+    canvas.drawPath(path, paint);
+
+    final dotX = size.width * (0.18 + (0.64 * progress));
+    final dotY = size.height * (0.78 - (0.56 * progress));
+    canvas.drawCircle(Offset(dotX, dotY), 7, active);
+  }
+
+  @override
+  bool shouldRepaint(covariant _MetronomeMazePainter oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.color != color;
+  }
+}
+
+class _TempoRow extends StatelessWidget {
+  const _TempoRow({
+    required this.controller,
+    required this.label,
+    required this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 56,
+          child: TextField(
+            controller: controller,
+            textAlign: TextAlign.center,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(isDense: true),
+            onChanged: onChanged,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot({
+    required this.active,
+    required this.onTap,
+  });
+
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurface.withValues(
+      alpha: active ? 0.8 : 0.28,
+    );
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
         ),
       ),
     );

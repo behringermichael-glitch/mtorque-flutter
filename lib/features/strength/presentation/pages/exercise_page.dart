@@ -15,9 +15,13 @@ class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({
     super.key,
     required this.exerciseId,
+    this.showSwipeLeftHint = false,
+    this.showSwipeRightHint = false,
   });
 
   final String exerciseId;
+  final bool showSwipeLeftHint;
+  final bool showSwipeRightHint;
 
   @override
   ConsumerState<ExercisePage> createState() => _ExercisePageState();
@@ -54,118 +58,154 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
         final isStatic = exercise?.isStatic ?? false;
         final exerciseName = exercise?.label ?? widget.exerciseId;
 
-        return Column(
-          children: [
-            _ExerciseHeader(
-              exerciseId: widget.exerciseId,
-              exerciseName: exerciseName,
-              onInfo: () => _showInfoBottomSheet(
-                context: context,
-                repository: repository,
-                exerciseId: widget.exerciseId,
-              ),
-              onMuscles: () => _showMusclesBottomSheet(
-                context: context,
-                repository: repository,
-                exerciseId: widget.exerciseId,
-              ),
-              onStats: () => _showStatsBottomSheet(
-                context: context,
-                repository: repository,
-                exerciseId: widget.exerciseId,
-                exerciseName: exerciseName,
-                isStaticExercise: isStatic,
-              ),
-              onDelete: () async {
-                final confirmed = await _confirmDeleteExercise(context);
-                if (!mounted || confirmed != true) return;
-                await flow.removeExercise(widget.exerciseId);
-              },
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  final item = list[index];
+        return FutureBuilder<StrengthExerciseStats>(
+          future: repository.loadExerciseStats(
+            exerciseId: widget.exerciseId,
+            isStaticExercise: isStatic,
+          ),
+          builder: (context, statsSnapshot) {
+            final suggestions = _buildLastSessionSuggestions(statsSnapshot.data);
 
-                  return _SetRow(
-                    key: ValueKey('set_row_${widget.exerciseId}_$index'),
-                    index: index,
-                    value: item,
-                    isStatic: isStatic,
-                    onChanged: (next) async {
-                      final updated = [...list];
-                      updated[index] = next;
-                      await flow.replaceExerciseSets(
-                        exerciseId: widget.exerciseId,
-                        sets: updated,
-                      );
-                    },
-                    onOpenMarkers: () async {
-                      final updatedEntry = await _showMarkerBottomSheet(
-                        context: context,
-                        initial: item,
-                      );
-                      if (!mounted || updatedEntry == null) return;
-
-                      final updated = [...list];
-                      updated[index] = updatedEntry;
-                      await flow.replaceExerciseSets(
-                        exerciseId: widget.exerciseId,
-                        sets: updated,
-                      );
-                      await _scheduleSync(
-                        flow: flow,
-                        exerciseName: exerciseName,
-                        isStatic: isStatic,
-                      );
-                    },
-                    onCompleted: () async {
-                      await _scheduleSync(
-                        flow: flow,
-                        exerciseName: exerciseName,
-                        isStatic: isStatic,
-                      );
-                    },
-                    onDelete: () async {
-                      final updated = [...list]..removeAt(index);
-                      await flow.replaceExerciseSets(
-                        exerciseId: widget.exerciseId,
-                        sets: updated,
-                      );
-                      await _scheduleSync(
-                        flow: flow,
-                        exerciseName: exerciseName,
-                        isStatic: isStatic,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 18),
-              child: SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: FilledButton(
-                  onPressed: () async {
-                    final next = [...list, const SetEntry()];
-                    await flow.replaceExerciseSets(
-                      exerciseId: widget.exerciseId,
-                      sets: next,
-                    );
+            return Column(
+              children: [
+                _ExerciseHeader(
+                  exerciseId: widget.exerciseId,
+                  exerciseName: exerciseName,
+                  showSwipeLeftHint: widget.showSwipeLeftHint,
+                  showSwipeRightHint: widget.showSwipeRightHint,
+                  onInfo: () => _showInfoBottomSheet(
+                    context: context,
+                    repository: repository,
+                    exerciseId: widget.exerciseId,
+                  ),
+                  onMuscles: () => _showMusclesBottomSheet(
+                    context: context,
+                    repository: repository,
+                    exerciseId: widget.exerciseId,
+                  ),
+                  onStats: () => _showStatsBottomSheet(
+                    context: context,
+                    repository: repository,
+                    exerciseId: widget.exerciseId,
+                    exerciseName: exerciseName,
+                    isStaticExercise: isStatic,
+                  ),
+                  onDelete: () async {
+                    final confirmed = await _confirmDeleteExercise(context);
+                    if (!mounted || confirmed != true) return;
+                    await flow.removeExercise(widget.exerciseId);
                   },
-                  child: Text(l10n.strengthExerciseAddSetButton),
                 ),
-              ),
-            ),
-          ],
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(14, 2, 14, 8),
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      final item = list[index];
+                      final suggestion = suggestions[index + 1];
+
+                      return _SetRow(
+                        key: ValueKey('set_row_${widget.exerciseId}_$index'),
+                        index: index,
+                        value: item,
+                        isStatic: isStatic,
+                        suggestedLoad: suggestion?.$1,
+                        suggestedSecond: suggestion?.$2,
+                        onChanged: (next) async {
+                          final updated = [...list];
+                          updated[index] = next;
+                          await flow.replaceExerciseSets(
+                            exerciseId: widget.exerciseId,
+                            sets: updated,
+                          );
+                        },
+                        onOpenMarkers: () async {
+                          final updatedEntry = await _showMarkerBottomSheet(
+                            context: context,
+                            initial: item,
+                          );
+                          if (!mounted || updatedEntry == null) return;
+
+                          final updated = [...list];
+                          updated[index] = updatedEntry;
+                          await flow.replaceExerciseSets(
+                            exerciseId: widget.exerciseId,
+                            sets: updated,
+                          );
+                          await _scheduleSync(
+                            flow: flow,
+                            exerciseName: exerciseName,
+                            isStatic: isStatic,
+                          );
+                        },
+                        onCompleted: () async {
+                          await _scheduleSync(
+                            flow: flow,
+                            exerciseName: exerciseName,
+                            isStatic: isStatic,
+                          );
+                        },
+                        onDelete: () async {
+                          final updated = [...list]..removeAt(index);
+                          await flow.replaceExerciseSets(
+                            exerciseId: widget.exerciseId,
+                            sets: updated,
+                          );
+                          await _scheduleSync(
+                            flow: flow,
+                            exerciseName: exerciseName,
+                            isStatic: isStatic,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      onPressed: () async {
+                        final next = [...list, const SetEntry()];
+                        await flow.replaceExerciseSets(
+                          exerciseId: widget.exerciseId,
+                          sets: next,
+                        );
+                      },
+                      child: Text(l10n.strengthExerciseAddSetButton),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+  }
+
+
+  Map<int, (double, double)> _buildLastSessionSuggestions(
+      StrengthExerciseStats? stats,
+      ) {
+    if (stats == null || stats.days.isEmpty) {
+      return const <int, (double, double)>{};
+    }
+
+    final sortedDays = [...stats.days]..sort((a, b) => b.date.compareTo(a.date));
+    final latest = sortedDays.firstWhere(
+          (day) => day.perSet.isNotEmpty,
+      orElse: () => sortedDays.first,
+    );
+
+    final map = <int, (double, double)>{};
+    for (final point in latest.perSet) {
+      map[point.setNumber] = (point.load, point.secondValue);
+    }
+    return map;
   }
 
   Future<void> _scheduleSync({
@@ -630,6 +670,8 @@ class _ExerciseHeader extends StatelessWidget {
   const _ExerciseHeader({
     required this.exerciseId,
     required this.exerciseName,
+    required this.showSwipeLeftHint,
+    required this.showSwipeRightHint,
     required this.onInfo,
     required this.onMuscles,
     required this.onStats,
@@ -638,6 +680,8 @@ class _ExerciseHeader extends StatelessWidget {
 
   final String exerciseId;
   final String exerciseName;
+  final bool showSwipeLeftHint;
+  final bool showSwipeRightHint;
   final VoidCallback onInfo;
   final VoidCallback onMuscles;
   final VoidCallback onStats;
@@ -648,74 +692,90 @@ class _ExerciseHeader extends StatelessWidget {
     final iconColor =
     Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.84);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 148,
-            height: 148,
-            child: ExerciseAssetImage(
-              exerciseId: exerciseId,
-              fit: BoxFit.contain,
-              borderRadius: BorderRadius.circular(14),
-              placeholderIcon: Icons.image_not_supported_outlined,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: SizedBox(
-              height: 148,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Spacer(),
-                  Text(
-                    exerciseName,
-                    textAlign: TextAlign.right,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      height: 1.08,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 148,
+                height: 148,
+                child: ExerciseAssetImage(
+                  exerciseId: exerciseId,
+                  fit: BoxFit.contain,
+                  borderRadius: BorderRadius.circular(14),
+                  placeholderIcon: Icons.image_not_supported_outlined,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 148,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      _HeaderActionIcon(
-                        icon: Icons.info_outline,
-                        color: iconColor,
-                        onTap: onInfo,
+                      const Spacer(),
+                      Text(
+                        exerciseName,
+                        textAlign: TextAlign.right,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          height: 1.08,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 18),
-                      _HeaderActionIcon(
-                        icon: Icons.spa_outlined,
-                        color: iconColor,
-                        onTap: onMuscles,
-                      ),
-                      const SizedBox(width: 18),
-                      _HeaderActionIcon(
-                        icon: Icons.bar_chart_outlined,
-                        color: iconColor,
-                        onTap: onStats,
-                      ),
-                      const SizedBox(width: 18),
-                      _HeaderActionIcon(
-                        icon: Icons.delete_outline,
-                        color: iconColor,
-                        onTap: onDelete,
+                      const Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          _HeaderActionIcon(
+                            icon: Icons.info_outline,
+                            color: iconColor,
+                            onTap: onInfo,
+                          ),
+                          const SizedBox(width: 18),
+                          _HeaderActionIcon(
+                            icon: Icons.spa_outlined,
+                            color: iconColor,
+                            onTap: onMuscles,
+                          ),
+                          const SizedBox(width: 18),
+                          _HeaderActionIcon(
+                            icon: Icons.bar_chart_outlined,
+                            color: iconColor,
+                            onTap: onStats,
+                          ),
+                          const SizedBox(width: 18),
+                          _HeaderActionIcon(
+                            icon: Icons.delete_outline,
+                            color: iconColor,
+                            onTap: onDelete,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+        ),
+        Positioned(
+          left: 4,
+          right: 4,
+          bottom: -18,
+          child: IgnorePointer(
+            child: _SwipeHintIcons(
+              showLeft: showSwipeLeftHint,
+              showRight: showSwipeRightHint,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -745,12 +805,88 @@ class _HeaderActionIcon extends StatelessWidget {
   }
 }
 
+class _SwipeHintIcons extends StatefulWidget {
+  const _SwipeHintIcons({
+    required this.showLeft,
+    required this.showRight,
+  });
+
+  final bool showLeft;
+  final bool showRight;
+
+  @override
+  State<_SwipeHintIcons> createState() => _SwipeHintIconsState();
+}
+
+class _SwipeHintIconsState extends State<_SwipeHintIcons> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _leftAnimation;
+  late final Animation<double> _rightAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _leftAnimation = Tween<double>(begin: 0, end: -10).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _rightAnimation = Tween<double>(begin: 0, end: 10).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _startIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SwipeHintIcons oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.showLeft != widget.showLeft || oldWidget.showRight != widget.showRight) {
+      _startIfNeeded();
+    }
+  }
+
+  void _startIfNeeded() {
+    if (!widget.showLeft && !widget.showRight) {
+      _controller.stop();
+      _controller.reset();
+      return;
+    }
+    unawaited(_controller.forward(from: 0).then((_) async {
+      if (!mounted) return;
+      await _controller.reverse();
+    }));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Row(
+          children: [
+            if (widget.showLeft) Transform.translate(offset: Offset(_leftAnimation.value, 0), child: Icon(Icons.chevron_left, color: color, size: 34)) else const SizedBox(width: 34),
+            const Spacer(),
+            if (widget.showRight) Transform.translate(offset: Offset(_rightAnimation.value, 0), child: Icon(Icons.chevron_right, color: color, size: 34)) else const SizedBox(width: 34),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _SetRow extends StatefulWidget {
   const _SetRow({
     super.key,
     required this.index,
     required this.value,
     required this.isStatic,
+    required this.suggestedLoad,
+    required this.suggestedSecond,
     required this.onChanged,
     required this.onOpenMarkers,
     required this.onCompleted,
@@ -760,6 +896,8 @@ class _SetRow extends StatefulWidget {
   final int index;
   final SetEntry value;
   final bool isStatic;
+  final double? suggestedLoad;
+  final double? suggestedSecond;
   final ValueChanged<SetEntry> onChanged;
   final Future<void> Function() onOpenMarkers;
   final Future<void> Function() onCompleted;
@@ -780,12 +918,10 @@ class _SetRowState extends State<_SetRow> {
     super.initState();
     _loadController = TextEditingController(text: formatNumber(widget.value.load));
     _secondController = TextEditingController(
-      text: widget.isStatic
-          ? formatInt(widget.value.durationSec)
-          : formatNumber(widget.value.reps),
+      text: widget.isStatic ? formatInt(widget.value.durationSec) : formatNumber(widget.value.reps),
     );
-    _loadFocusNode = FocusNode();
-    _secondFocusNode = FocusNode();
+    _loadFocusNode = FocusNode()..addListener(_handleFocusUpdate);
+    _secondFocusNode = FocusNode()..addListener(_handleFocusUpdate);
   }
 
   @override
@@ -794,23 +930,19 @@ class _SetRowState extends State<_SetRow> {
 
     if (!_loadFocusNode.hasFocus) {
       final next = formatNumber(widget.value.load);
-      if (_loadController.text != next) {
-        _loadController.text = next;
-      }
+      if (_loadController.text != next) _loadController.text = next;
     }
 
     if (!_secondFocusNode.hasFocus) {
-      final next = widget.isStatic
-          ? formatInt(widget.value.durationSec)
-          : formatNumber(widget.value.reps);
-      if (_secondController.text != next) {
-        _secondController.text = next;
-      }
+      final next = widget.isStatic ? formatInt(widget.value.durationSec) : formatNumber(widget.value.reps);
+      if (_secondController.text != next) _secondController.text = next;
     }
   }
 
   @override
   void dispose() {
+    _loadFocusNode.removeListener(_handleFocusUpdate);
+    _secondFocusNode.removeListener(_handleFocusUpdate);
     _loadController.dispose();
     _secondController.dispose();
     _loadFocusNode.dispose();
@@ -818,30 +950,61 @@ class _SetRowState extends State<_SetRow> {
     super.dispose();
   }
 
+  void _handleFocusUpdate() {
+    if (mounted) setState(() {});
+  }
+
+  bool _loadMatchesSuggestion(String value) {
+    final parsed = tryParseDouble(value);
+    final suggestion = widget.suggestedLoad;
+    if (parsed == null || suggestion == null) return false;
+    return (parsed - suggestion).abs() <= 0.05;
+  }
+
+  String _secondaryHint(AppLocalizations l10n) {
+    final base = widget.isStatic ? l10n.strengthCommonDurationShort : 'Wdh.';
+    if (_secondController.text.trim().isNotEmpty) return base;
+    if (!_secondFocusNode.hasFocus) return base;
+    if (widget.suggestedSecond == null) return base;
+    if (widget.suggestedLoad == null) return base;
+
+    final loadText = _loadController.text.trim();
+    if (loadText.isEmpty || _loadMatchesSuggestion(loadText)) {
+      return widget.isStatic ? formatInt(widget.suggestedSecond?.round()) : formatNumber(widget.suggestedSecond);
+    }
+    return base;
+  }
+
+  String _loadHint(AppLocalizations l10n) {
+    if (_loadController.text.trim().isNotEmpty) return '';
+    if (_loadFocusNode.hasFocus && widget.suggestedLoad != null) {
+      return formatNumber(widget.suggestedLoad);
+    }
+    return l10n.strengthCommonKgLabel;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final labelColor =
-    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72);
-    final lineColor =
-    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.56);
-    final deleteBg = Theme.of(context).colorScheme.surfaceContainerHighest;
-    final deleteFg = Theme.of(context).colorScheme.onSurface;
+    final lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.56);
+    final deleteBg = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.surfaceContainerHighest
+        : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.9);
+    final deleteFg = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.onSurface
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.82);
     final hasMarker = widget.value.mods != 0 || widget.value.superSlowEnabled;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 24,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(
-                '${widget.index + 1}',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+            child: Text(
+              '${widget.index + 1}',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           const SizedBox(width: 10),
@@ -849,17 +1012,12 @@ class _SetRowState extends State<_SetRow> {
             child: _UnderlineNumberField(
               controller: _loadController,
               focusNode: _loadFocusNode,
-              label: l10n.strengthCommonKgLabel,
-              labelColor: labelColor,
+              hintText: _loadHint(l10n),
               lineColor: lineColor,
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               onChanged: (value) {
-                widget.onChanged(
-                  widget.value.copyWith(
-                    load: tryParseDouble(value),
-                  ),
-                );
+                widget.onChanged(widget.value.copyWith(load: tryParseDouble(value)));
+                if (mounted) setState(() {});
               },
               onSubmitted: (_) => widget.onCompleted(),
             ),
@@ -869,63 +1027,49 @@ class _SetRowState extends State<_SetRow> {
             child: _UnderlineNumberField(
               controller: _secondController,
               focusNode: _secondFocusNode,
-              label: widget.isStatic
-                  ? l10n.strengthCommonDurationShort
-                  : l10n.strengthCommonRepsShort,
-              labelColor: labelColor,
+              hintText: _secondaryHint(l10n),
               lineColor: lineColor,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               onChanged: (value) {
                 if (widget.isStatic) {
-                  widget.onChanged(
-                    widget.value.copyWith(
-                      durationSec: int.tryParse(value.trim()),
-                    ),
-                  );
+                  widget.onChanged(widget.value.copyWith(durationSec: int.tryParse(value.trim())));
                 } else {
-                  widget.onChanged(
-                    widget.value.copyWith(
-                      reps: tryParseDouble(value),
-                    ),
-                  );
+                  widget.onChanged(widget.value.copyWith(reps: tryParseDouble(value)));
                 }
               },
               onSubmitted: (_) => widget.onCompleted(),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           _AllOutIconButton(
             selected: widget.value.allOut,
             onTap: () {
-              widget.onChanged(
-                widget.value.copyWith(allOut: !widget.value.allOut),
-              );
+              widget.onChanged(widget.value.copyWith(allOut: !widget.value.allOut));
             },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           _MarkerButton(
             selected: hasMarker,
             onTap: () => widget.onOpenMarkers(),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           SizedBox(
-            width: 46,
-            height: 46,
-            child: FilledButton(
-              onPressed: widget.onDelete,
-              style: FilledButton.styleFrom(
-                backgroundColor: deleteBg,
-                foregroundColor: deleteFg,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                padding: EdgeInsets.zero,
-                elevation: 0,
-              ),
-              child: Text(
-                'x',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+            width: 42,
+            height: 30,
+            child: Material(
+              color: deleteBg,
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: widget.onDelete,
+                child: Center(
+                  child: Text(
+                    'x',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: deleteFg,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -940,10 +1084,7 @@ class _SetRowState extends State<_SetRow> {
     if (value == value.roundToDouble()) {
       return value.toInt().toString();
     }
-    return value
-        .toString()
-        .replaceAll(RegExp(r'0+$'), '')
-        .replaceAll(RegExp(r'\.$'), '');
+    return value.toString().replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   }
 
   static String formatInt(int? value) {
@@ -962,8 +1103,7 @@ class _UnderlineNumberField extends StatelessWidget {
   const _UnderlineNumberField({
     required this.controller,
     required this.focusNode,
-    required this.label,
-    required this.labelColor,
+    required this.hintText,
     required this.lineColor,
     required this.keyboardType,
     required this.onChanged,
@@ -972,8 +1112,7 @@ class _UnderlineNumberField extends StatelessWidget {
 
   final TextEditingController controller;
   final FocusNode focusNode;
-  final String label;
-  final Color labelColor;
+  final String hintText;
   final Color lineColor;
   final TextInputType keyboardType;
   final ValueChanged<String> onChanged;
@@ -982,42 +1121,27 @@ class _UnderlineNumberField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 62,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: labelColor,
-              fontWeight: FontWeight.w400,
-            ),
+      height: 46,
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        keyboardType: keyboardType,
+        textInputAction: TextInputAction.done,
+        style: Theme.of(context).textTheme.titleMedium,
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: hintText,
+          border: const UnderlineInputBorder(),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: lineColor, width: 1.2),
           ),
-          const SizedBox(height: 2),
-          SizedBox(
-            height: 30,
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              keyboardType: keyboardType,
-              textInputAction: TextInputAction.done,
-              style: Theme.of(context).textTheme.titleMedium,
-              decoration: InputDecoration(
-                isDense: true,
-                border: const UnderlineInputBorder(),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: lineColor, width: 1.2),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: lineColor, width: 1.4),
-                ),
-                contentPadding: const EdgeInsets.only(bottom: 4),
-              ),
-              onChanged: onChanged,
-              onSubmitted: onSubmitted,
-            ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: lineColor, width: 1.4),
           ),
-        ],
+          contentPadding: const EdgeInsets.only(bottom: 8),
+        ),
+        onChanged: onChanged,
+        onSubmitted: onSubmitted,
       ),
     );
   }
