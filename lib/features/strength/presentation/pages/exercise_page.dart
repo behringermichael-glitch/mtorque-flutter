@@ -243,7 +243,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                         key: PageStorageKey<String>(
                           'exercise_list_${widget.exerciseId}',
                         ),
-                        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+                        padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
                         itemCount: list.length,
                         cacheExtent: 400,
                         itemBuilder: (context, index) {
@@ -1037,9 +1037,13 @@ class _SetRowState extends State<_SetRow> {
   @override
   void initState() {
     super.initState();
-    _loadController = TextEditingController(text: formatNumber(widget.value.load));
+    _loadController = TextEditingController(
+      text: formatNumber(widget.value.load),
+    );
     _secondController = TextEditingController(
-      text: widget.isStatic ? formatInt(widget.value.durationSec) : formatNumber(widget.value.reps),
+      text: widget.isStatic
+          ? formatInt(widget.value.durationSec)
+          : formatNumber(widget.value.reps),
     );
     _loadFocusNode = FocusNode()..addListener(_handleFocusUpdate);
     _secondFocusNode = FocusNode()..addListener(_handleFocusUpdate);
@@ -1052,12 +1056,18 @@ class _SetRowState extends State<_SetRow> {
 
     if (!_loadFocusNode.hasFocus) {
       final next = formatNumber(widget.value.load);
-      if (_loadController.text != next) _loadController.text = next;
+      if (_loadController.text != next) {
+        _loadController.text = next;
+      }
     }
 
     if (!_secondFocusNode.hasFocus) {
-      final next = widget.isStatic ? formatInt(widget.value.durationSec) : formatNumber(widget.value.reps);
-      if (_secondController.text != next) _secondController.text = next;
+      final next = widget.isStatic
+          ? formatInt(widget.value.durationSec)
+          : formatNumber(widget.value.reps);
+      if (_secondController.text != next) {
+        _secondController.text = next;
+      }
       _lastSecondText = next.trim();
     }
   }
@@ -1082,32 +1092,48 @@ class _SetRowState extends State<_SetRow> {
       _lastAnyFocus = anyFocus;
       widget.onInputFocusChanged(anyFocus);
     }
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   bool _loadMatchesSuggestion(String value) {
     final parsed = tryParseDouble(value);
     final suggestion = widget.suggestedLoad;
-    if (parsed == null || suggestion == null) return false;
+    if (parsed == null || suggestion == null) {
+      return false;
+    }
     return (parsed - suggestion).abs() <= 0.05;
   }
 
   String _secondaryHint(AppLocalizations l10n) {
     final base = widget.isStatic ? l10n.strengthCommonDurationShort : 'Wdh.';
-    if (_secondController.text.trim().isNotEmpty) return base;
-    if (!_secondFocusNode.hasFocus) return base;
-    if (widget.suggestedSecond == null) return base;
-    if (widget.suggestedLoad == null) return base;
+    if (_secondController.text.trim().isNotEmpty) {
+      return base;
+    }
+    if (!_secondFocusNode.hasFocus) {
+      return base;
+    }
+    if (widget.suggestedSecond == null) {
+      return base;
+    }
+    if (widget.suggestedLoad == null) {
+      return base;
+    }
 
     final loadText = _loadController.text.trim();
     if (loadText.isEmpty || _loadMatchesSuggestion(loadText)) {
-      return widget.isStatic ? formatInt(widget.suggestedSecond?.round()) : formatNumber(widget.suggestedSecond);
+      return widget.isStatic
+          ? formatInt(widget.suggestedSecond?.round())
+          : formatNumber(widget.suggestedSecond);
     }
     return base;
   }
 
   String _loadHint(AppLocalizations l10n) {
-    if (_loadController.text.trim().isNotEmpty) return '';
+    if (_loadController.text.trim().isNotEmpty) {
+      return '';
+    }
     if (_loadFocusNode.hasFocus && widget.suggestedLoad != null) {
       return formatNumber(widget.suggestedLoad);
     }
@@ -1117,25 +1143,32 @@ class _SetRowState extends State<_SetRow> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.56);
-    final deleteBg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10);
-    final deleteFg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.84);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final lineColor = onSurface.withValues(alpha: 0.56);
+    final deleteBg = onSurface.withValues(alpha: 0.10);
+    final deleteFg = onSurface.withValues(alpha: 0.84);
     final hasMarker = widget.value.mods != 0 || widget.value.superSlowEnabled;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            width: 24,
+            width: 30,
+            height: 54,
             child: Center(
               child: Text(
                 '${widget.index + 1}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  height: 1.0,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: _UnderlineNumberField(
               controller: _loadController,
@@ -1144,15 +1177,19 @@ class _SetRowState extends State<_SetRow> {
               lineColor: lineColor,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textInputAction: TextInputAction.next,
-              hintColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+              hintColor: onSurface.withValues(alpha: 0.38),
               onChanged: (value) {
-                widget.onChanged(widget.value.copyWith(load: tryParseDouble(value)));
-                if (mounted) setState(() {});
+                widget.onChanged(
+                  widget.value.copyWith(load: tryParseDouble(value)),
+                );
+                if (mounted) {
+                  setState(() {});
+                }
               },
               onSubmitted: (_) => _secondFocusNode.requestFocus(),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: _UnderlineNumberField(
               controller: _secondController,
@@ -1161,51 +1198,62 @@ class _SetRowState extends State<_SetRow> {
               lineColor: lineColor,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textInputAction: TextInputAction.done,
-              hintColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+              hintColor: onSurface.withValues(alpha: 0.38),
               onChanged: (value) {
                 if (widget.isStatic) {
-                  widget.onChanged(widget.value.copyWith(durationSec: int.tryParse(value.trim())));
+                  widget.onChanged(
+                    widget.value.copyWith(
+                      durationSec: int.tryParse(value.trim()),
+                    ),
+                  );
                 } else {
-                  widget.onChanged(widget.value.copyWith(reps: tryParseDouble(value)));
+                  widget.onChanged(
+                    widget.value.copyWith(reps: tryParseDouble(value)),
+                  );
                 }
 
                 final trimmed = value.trim();
-                final shouldStart =
-                    _lastSecondText.isEmpty && trimmed.isNotEmpty;
+                final shouldStart = _lastSecondText.isEmpty && trimmed.isNotEmpty;
                 _lastSecondText = trimmed;
                 if (shouldStart) {
                   widget.onStartRestTimer();
+                }
+
+                if (mounted) {
+                  setState(() {});
                 }
               },
               onSubmitted: (_) => widget.onCompleted(),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 14),
           _AllOutIconButton(
             selected: widget.value.allOut,
             onTap: () {
-              widget.onChanged(widget.value.copyWith(allOut: !widget.value.allOut));
+              widget.onChanged(
+                widget.value.copyWith(allOut: !widget.value.allOut),
+              );
             },
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 12),
           _MarkerButton(
             selected: hasMarker,
             onTap: () => widget.onOpenMarkers(),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 14),
           SizedBox(
-            width: 42,
-            height: 32,
+            width: 44,
+            height: 34,
             child: Center(
               child: Material(
                 color: deleteBg,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                   onTap: widget.onDelete,
                   child: SizedBox(
-                    width: 42,
-                    height: 32,
+                    width: 44,
+                    height: 34,
                     child: Center(
                       child: Icon(
                         Icons.close_rounded,
@@ -1228,7 +1276,10 @@ class _SetRowState extends State<_SetRow> {
     if (value == value.roundToDouble()) {
       return value.toInt().toString();
     }
-    return value.toString().replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return value
+        .toString()
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
   }
 
   static String formatInt(int? value) {
@@ -1268,29 +1319,42 @@ class _UnderlineNumberField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasValue = controller.text.trim().isNotEmpty;
+    final active = focusNode.hasFocus || hasValue;
+    final borderWidth = active ? 1.8 : 1.2;
+    final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+      height: 1.0,
+      fontSize: 18,
+    );
+
     return SizedBox(
-      height: 50,
+      height: 54,
       child: TextField(
         controller: controller,
         focusNode: focusNode,
         keyboardType: keyboardType,
         textInputAction: textInputAction,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
+        style: textStyle,
         decoration: InputDecoration(
           isDense: true,
           hintText: hintText,
-          hintStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-            height: 1.0,
+          hintStyle: textStyle?.copyWith(
             color: hintColor,
           ),
           border: const UnderlineInputBorder(),
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: lineColor, width: 1.2),
+            borderSide: BorderSide(
+              color: lineColor,
+              width: borderWidth,
+            ),
           ),
           focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: lineColor, width: 1.4),
+            borderSide: BorderSide(
+              color: lineColor,
+              width: borderWidth,
+            ),
           ),
-          contentPadding: const EdgeInsets.only(top: 10, bottom: 6),
+          contentPadding: const EdgeInsets.only(top: 16, bottom: 4),
         ),
         onChanged: onChanged,
         onSubmitted: onSubmitted,
