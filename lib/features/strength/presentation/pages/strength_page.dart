@@ -31,9 +31,13 @@ class StrengthPage extends ConsumerStatefulWidget {
 
 class _StrengthPageState extends ConsumerState<StrengthPage> {
   final PageController _pageController = PageController();
+  final GlobalKey _pagerStackKey = GlobalKey();
   final GlobalKey<_TimerMetronomePanelState> _timerPanelKey =
   GlobalKey<_TimerMetronomePanelState>();
   bool _initialized = false;
+  double? _swipeHintTopOffset;
+  int _currentPageIndex = 0;
+  List<String> _lastExerciseOrder = const <String>[];
 
   @override
   void didChangeDependencies() {
@@ -52,6 +56,46 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     super.dispose();
   }
 
+
+  void _handlePagerChanged(int index) {
+    setState(() {
+      _currentPageIndex = index;
+      _swipeHintTopOffset = null;
+    });
+
+    ref.read(strengthFlowControllerProvider.notifier).updatePagerIndex(index);
+  }
+
+  void _handleHeaderDividerGlobalYChanged(double globalY) {
+    if (!mounted) return;
+
+    if (globalY < 0) {
+      if (_swipeHintTopOffset != null) {
+        setState(() {
+          _swipeHintTopOffset = null;
+        });
+      }
+      return;
+    }
+
+    final stackContext = _pagerStackKey.currentContext;
+    if (stackContext == null) return;
+    final renderObject = stackContext.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final localOffset = renderObject.globalToLocal(Offset(0, globalY));
+    final nextTopOffset = localOffset.dy - 12;
+
+    if (_swipeHintTopOffset != null &&
+        (_swipeHintTopOffset! - nextTopOffset).abs() < 0.5) {
+      return;
+    }
+
+    setState(() {
+      _swipeHintTopOffset = nextTopOffset;
+    });
+  }
+
   int _todayEpochDay() {
     final now = DateTime.now();
     final utcMidnight = DateTime.utc(now.year, now.month, now.day);
@@ -59,37 +103,90 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         Duration.millisecondsPerDay;
   }
 
+  bool _sameExerciseOrder(List<String> a, List<String> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(strengthFlowControllerProvider);
+    final isLoading = ref.watch(
+      strengthFlowControllerProvider.select((state) => state.isLoading),
+    );
 
-    if (state.isLoading) {
+    if (isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final draft = state.draftSession;
-    final exercises = draft?.exerciseOrder ?? const <String>[];
+    final hostView = ref.watch(
+      strengthFlowControllerProvider.select((state) => state.hostView),
+    );
+
+    final exercises = ref.watch(
+      strengthFlowControllerProvider.select(
+            (state) => state.draftSession?.exerciseOrder ?? const <String>[],
+      ),
+    );
+
+    final plans = ref.watch(
+      strengthFlowControllerProvider.select((state) => state.plans),
+    );
+
+    final selectedPlanName = ref.watch(
+      strengthFlowControllerProvider.select((state) => state.selectedPlanName),
+    );
+
+    final activeDbSessionStart = ref.watch(
+      strengthFlowControllerProvider.select(
+            (state) => state.activeDbSessionStart,
+      ),
+    );
+
+    final draftDateEpochDay = ref.watch(
+      strengthFlowControllerProvider.select(
+            (state) => state.draftSession?.dateEpochDay,
+      ),
+    );
+
+    final hasDraft = draftDateEpochDay != null;
+    final hasPlanSelection = (selectedPlanName ?? '').trim().isNotEmpty;
+
     final totalPages = exercises.length + 1;
+
+    final orderChanged = !_sameExerciseOrder(_lastExerciseOrder, exercises);
+    if (orderChanged) {
+      _lastExerciseOrder = List<String>.from(exercises);
+      final maxIndex = totalPages - 1;
+      if (_currentPageIndex > maxIndex) {
+        _currentPageIndex = maxIndex < 0 ? 0 : maxIndex;
+      }
+    }
 
     final panelColor = _panelSurfaceColor(context);
     final panelBorderColor =
     Theme.of(context).dividerColor.withValues(alpha: 0.35);
 
-    if (_pageController.hasClients &&
-        state.hostView == StrengthHostView.pager &&
-        (_pageController.page?.round() ?? 0) != state.pagerIndex) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_pageController.hasClients) return;
-        final maxPage = totalPages - 1;
-        final target = state.pagerIndex.clamp(0, maxPage < 0 ? 0 : maxPage);
-        _pageController.jumpToPage(target);
-      });
+    if (_pageController.hasClients && hostView == StrengthHostView.pager) {
+      final maxPage = totalPages - 1;
+      final target = _currentPageIndex.clamp(0, maxPage < 0 ? 0 : maxPage);
+      final currentPage = _pageController.page?.round() ?? _pageController.initialPage;
+
+      if (currentPage != target) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_pageController.hasClients) return;
+          _pageController.jumpToPage(target);
+        });
+      }
     }
 
     return Scaffold(
-      appBar: state.hostView == StrengthHostView.pager
+      appBar: hostView == StrengthHostView.pager
           ? AppBar(
         toolbarHeight: 64,
         backgroundColor: panelColor,
@@ -107,10 +204,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         ),
         title: _SessionHeader(
           title: _sessionTitle(context),
-          dateText: _sessionDateText(state),
-          onDateTap: state.draftSession == null
-              ? null
-              : () => _pickSessionDate(context),
+          dateText: _sessionDateText(
+            activeDbSessionStart: activeDbSessionStart,
+            draftDateEpochDay: draftDateEpochDay,
+          ),
+          onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
         ),
         actions: [
           Padding(
@@ -119,8 +217,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
               onPressed: () => _showFinishDialog(context),
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 38),
-                padding:
-                const EdgeInsets.symmetric(horizontal: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(19),
                 ),
@@ -130,12 +227,15 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             ),
           ),
           PopupMenuButton<_StrengthMenuAction>(
-            tooltip:
-            MaterialLocalizations.of(context).showMenuTooltip,
+            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
             color: panelColor,
             onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) =>
-                _buildMenuItems(context, state),
+            itemBuilder: (context) => _buildMenuItems(
+              context,
+              hostView: hostView,
+              hasDraft: hasDraft,
+              hasPlanSelection: hasPlanSelection,
+            ),
           ),
         ],
       )
@@ -154,12 +254,15 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         title: Text(AppLocalizations.of(context)!.navStrength),
         actions: [
           PopupMenuButton<_StrengthMenuAction>(
-            tooltip:
-            MaterialLocalizations.of(context).showMenuTooltip,
+            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
             color: panelColor,
             onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) =>
-                _buildMenuItems(context, state),
+            itemBuilder: (context) => _buildMenuItems(
+              context,
+              hostView: hostView,
+              hasDraft: hasDraft,
+              hasPlanSelection: hasPlanSelection,
+            ),
           ),
         ],
       ),
@@ -169,15 +272,21 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             _timerPanelKey.currentState?.startRestTimerFromInput();
             return true;
           },
-          child: state.hostView == StrengthHostView.planGrid
-              ? _buildPlanGrid(context, state)
-              : _buildPager(context, state, exercises),
+          child: hostView == StrengthHostView.planGrid
+              ? _buildPlanGrid(context, plans)
+              : _buildPager(
+            context,
+            exerciseIds: exercises,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPlanGrid(BuildContext context, StrengthFlowState state) {
+  Widget _buildPlanGrid(
+      BuildContext context,
+      List<dynamic> plans,
+      ) {
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
 
@@ -197,7 +306,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           ),
         ),
         const SizedBox(height: 16),
-        for (final plan in state.plans)
+        for (final plan in plans)
           Card(
             child: ListTile(
               title: Text(plan.name),
@@ -227,14 +336,12 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Widget _buildPager(
-      BuildContext context,
-      StrengthFlowState state,
-      List<String> exerciseIds,
-      ) {
+      BuildContext context, {
+        required List<String> exerciseIds,
+      }) {
     final l10n = AppLocalizations.of(context)!;
-    final controller = ref.read(strengthFlowControllerProvider.notifier);
     final pageIndex =
-    state.pagerIndex.clamp(0, math.max(exerciseIds.length, 0));
+    _currentPageIndex.clamp(0, math.max(exerciseIds.length, 0));
     final showExercisePage =
         exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
     final showSwipeLeft = showExercisePage && pageIndex > 0;
@@ -244,31 +351,44 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return Column(
       children: [
         Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: exerciseIds.length + 1,
-            onPageChanged: controller.updatePagerIndex,
-            itemBuilder: (context, index) {
-              if (index == exerciseIds.length) {
-                return Center(
-                  child: FilledButton.icon(
-                    onPressed: () => _openExercisePicker(context),
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.strengthAddExercise),
-                  ),
-                );
-              }
+          child: Stack(
+            key: _pagerStackKey,
+            fit: StackFit.expand,
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                itemCount: exerciseIds.length + 1,
+                allowImplicitScrolling: true,
+                onPageChanged: _handlePagerChanged,
+                itemBuilder: (context, index) {
+                  if (index == exerciseIds.length) {
+                    return Center(
+                      child: FilledButton.icon(
+                        onPressed: () => _openExercisePicker(context),
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.strengthAddExercise),
+                      ),
+                    );
+                  }
 
-              final exerciseId = exerciseIds[index];
-              return ExercisePage(
-                key: ValueKey('exercise_page_$exerciseId'),
-                exerciseId: exerciseId,
-                showSwipeLeftHint:
-                showSwipeLeft && index == pageIndex,
-                showSwipeRightHint:
-                showSwipeRight && index == pageIndex,
-              );
-            },
+                  final exerciseId = exerciseIds[index];
+                  return ExercisePage(
+                    key: ValueKey('exercise_page_$exerciseId'),
+                    exerciseId: exerciseId,
+                    onHeaderDividerGlobalYChanged:
+                    index == pageIndex
+                        ? _handleHeaderDividerGlobalYChanged
+                        : null,
+                  );
+                },
+              ),
+              if (showExercisePage && _swipeHintTopOffset != null)
+                _PagerSwipeHintOverlay(
+                  topOffset: _swipeHintTopOffset!,
+                  showLeft: showSwipeLeft,
+                  showRight: showSwipeRight,
+                ),
+            ],
           ),
         ),
         AnimatedSwitcher(
@@ -325,15 +445,14 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   List<PopupMenuEntry<_StrengthMenuAction>> _buildMenuItems(
-      BuildContext context,
-      StrengthFlowState state,
-      ) {
+      BuildContext context, {
+        required StrengthHostView hostView,
+        required bool hasDraft,
+        required bool hasPlanSelection,
+      }) {
     final items = <PopupMenuEntry<_StrengthMenuAction>>[];
-    final hasDraft = state.draftSession != null;
-    final hasPlanSelection =
-        (state.selectedPlanName ?? '').trim().isNotEmpty;
 
-    if (state.hostView == StrengthHostView.pager) {
+    if (hostView == StrengthHostView.pager) {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.addExercise,
@@ -397,7 +516,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         ),
       ),
     );
-    if (state.hostView == StrengthHostView.pager) {
+    if (hostView == StrengthHostView.pager) {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.closePlan,
@@ -781,17 +900,19 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return languageCode == 'de' ? 'Einheit' : 'Session';
   }
 
-  String _sessionDateText(StrengthFlowState state) {
-    final start = state.activeDbSessionStart;
+  String _sessionDateText({
+    required DateTime? activeDbSessionStart,
+    required int? draftDateEpochDay,
+  }) {
+    final start = activeDbSessionStart;
     if (start != null) {
       return _formatDateTime(start);
     }
 
-    final draft = state.draftSession;
-    if (draft == null) return '';
+    if (draftDateEpochDay == null) return '';
 
     final day = DateTime.fromMillisecondsSinceEpoch(
-      draft.dateEpochDay * Duration.millisecondsPerDay,
+      draftDateEpochDay * Duration.millisecondsPerDay,
       isUtc: true,
     ).toLocal();
     return _formatDate(day);

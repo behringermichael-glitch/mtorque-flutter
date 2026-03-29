@@ -19,25 +19,98 @@ class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({
     super.key,
     required this.exerciseId,
-    this.showSwipeLeftHint = false,
-    this.showSwipeRightHint = false,
+    this.onHeaderDividerGlobalYChanged,
   });
 
   final String exerciseId;
-  final bool showSwipeLeftHint;
-  final bool showSwipeRightHint;
+  final ValueChanged<double>? onHeaderDividerGlobalYChanged;
 
   @override
   ConsumerState<ExercisePage> createState() => _ExercisePageState();
 }
 
-class _ExercisePageState extends ConsumerState<ExercisePage> {
+class _ExercisePageState extends ConsumerState<ExercisePage>
+    with AutomaticKeepAliveClientMixin {
   static const int _modBlood = 1;
   static const int _modChain = 2;
   static const int _modEqual = 4;
 
+  final GlobalKey _headerDividerKey = GlobalKey();
+
   Timer? _pendingSync;
   final Set<int> _focusedRows = <int>{};
+
+  late Future<StrengthExerciseSummary?> _exerciseFuture;
+  late Future<StrengthExerciseStats> _statsFuture;
+  bool _headerReportQueued = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _preparePageFutures();
+    _scheduleHeaderDividerReport();
+  }
+
+  @override
+  void didUpdateWidget(covariant ExercisePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.exerciseId != widget.exerciseId) {
+      _focusedRows.clear();
+      _preparePageFutures();
+      _scheduleHeaderDividerReport();
+      return;
+    }
+
+    if (oldWidget.onHeaderDividerGlobalYChanged !=
+        widget.onHeaderDividerGlobalYChanged &&
+        widget.onHeaderDividerGlobalYChanged != null &&
+        _focusedRows.isEmpty) {
+      _scheduleHeaderDividerReport();
+    }
+  }
+
+  void _preparePageFutures() {
+    final repository = ref.read(strengthRepositoryProvider);
+    _exerciseFuture = repository.getExerciseById(widget.exerciseId);
+    _statsFuture = _exerciseFuture.then(
+          (exercise) => repository.loadExerciseStats(
+        exerciseId: widget.exerciseId,
+        isStaticExercise: exercise?.isStatic ?? false,
+      ),
+    );
+  }
+
+  void _scheduleHeaderDividerReport() {
+    if (_headerReportQueued) return;
+    _headerReportQueued = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _headerReportQueued = false;
+      if (!mounted) return;
+
+      final callback = widget.onHeaderDividerGlobalYChanged;
+      if (callback == null) return;
+      if (_focusedRows.isNotEmpty) return;
+
+      final dividerContext = _headerDividerKey.currentContext;
+      if (dividerContext == null) return;
+      final renderObject = dividerContext.findRenderObject();
+      if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+      final globalCenter = renderObject.localToGlobal(
+        Offset(0, renderObject.size.height / 2),
+      );
+      callback(globalCenter.dy);
+    });
+  }
+
+  void _reportHeaderHidden() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.onHeaderDividerGlobalYChanged?.call(-1);
+    });
+  }
 
   @override
   void dispose() {
@@ -45,181 +118,208 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
     super.dispose();
   }
 
+  @override
+  bool get wantKeepAlive => true;
+
   void _handleRowFocusChanged(int rowIndex, bool isFocused) {
+    final wasCompact = _focusedRows.isNotEmpty;
+
     final changed = isFocused
         ? _focusedRows.add(rowIndex)
         : _focusedRows.remove(rowIndex);
-    if (changed && mounted) {
-      setState(() {});
+
+    if (!changed || !mounted) return;
+
+    final isCompact = _focusedRows.isNotEmpty;
+
+    setState(() {});
+
+    if (wasCompact == isCompact) return;
+
+    if (isCompact) {
+      _reportHeaderHidden();
+    } else {
+      _scheduleHeaderDividerReport();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l10n = AppLocalizations.of(context)!;
-    final flowState = ref.watch(strengthFlowControllerProvider);
     final flow = ref.read(strengthFlowControllerProvider.notifier);
-    final repository = ref.watch(strengthRepositoryProvider);
+    final repository = ref.read(strengthRepositoryProvider);
 
-    final draft = flowState.draftSession;
+    final list = ref.watch(
+      strengthFlowControllerProvider.select(
+            (state) => state.draftSession?.setsByExercise[widget.exerciseId] ??
+            const <SetEntry>[],
+      ),
+    );
+
     final compactHeader = _focusedRows.isNotEmpty;
-    final list =
-        draft?.setsByExercise[widget.exerciseId] ?? const <SetEntry>[];
 
-    return FutureBuilder<StrengthExerciseSummary?>(
-      future: repository.getExerciseById(widget.exerciseId),
-      builder: (context, snapshot) {
-        final exercise = snapshot.data;
-        final isStatic = exercise?.isStatic ?? false;
-        final exerciseName = exercise?.label ?? widget.exerciseId;
+    return RepaintBoundary(
+      child: FutureBuilder<StrengthExerciseSummary?>(
+        future: _exerciseFuture,
+        builder: (context, snapshot) {
+          final exercise = snapshot.data;
+          final isStatic = exercise?.isStatic ?? false;
+          final exerciseName = exercise?.label ?? widget.exerciseId;
 
-        return FutureBuilder<StrengthExerciseStats>(
-          future: repository.loadExerciseStats(
-            exerciseId: widget.exerciseId,
-            isStaticExercise: isStatic,
-          ),
-          builder: (context, statsSnapshot) {
-            final suggestions = _buildLastSessionSuggestions(statsSnapshot.data);
+          return FutureBuilder<StrengthExerciseStats>(
+            future: _statsFuture,
+            builder: (context, statsSnapshot) {
+              final suggestions =
+              _buildLastSessionSuggestions(statsSnapshot.data);
 
-            return Column(
-              children: [
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOut,
-                  alignment: Alignment.topCenter,
-                  child: compactHeader
-                      ? const SizedBox.shrink()
-                      : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _ExerciseHeader(
-                        exerciseId: widget.exerciseId,
-                        exerciseName: exerciseName,
-                        showSwipeLeftHint: widget.showSwipeLeftHint,
-                        showSwipeRightHint: widget.showSwipeRightHint,
-                        onInfo: () => _showInfoBottomSheet(
-                          context: context,
-                          repository: repository,
-                          exerciseId: widget.exerciseId,
-                        ),
-                        onMuscles: () => _showMusclesBottomSheet(
-                          context: context,
-                          repository: repository,
-                          exerciseId: widget.exerciseId,
-                        ),
-                        onStats: () => _showStatsBottomSheet(
-                          context: context,
-                          repository: repository,
+              return Column(
+                children: [
+                  Offstage(
+                    offstage: compactHeader,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _ExerciseHeader(
                           exerciseId: widget.exerciseId,
                           exerciseName: exerciseName,
-                          isStaticExercise: isStatic,
-                        ),
-                        onDelete: () async {
-                          final confirmed = await _confirmDeleteExercise(context);
-                          if (!mounted || confirmed != true) return;
-                          await flow.removeExercise(widget.exerciseId);
-                        },
-                      ),
-                      _ExerciseSectionDivider(
-                        showSwipeLeftHint: widget.showSwipeLeftHint,
-                        showSwipeRightHint: widget.showSwipeRightHint,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      final item = list[index];
-                      final suggestion = suggestions[index + 1];
-
-                      return _SetRow(
-                        key: ValueKey('set_row_${widget.exerciseId}_$index'),
-                        index: index,
-                        value: item,
-                        isStatic: isStatic,
-                        suggestedLoad: suggestion?.$1,
-                        suggestedSecond: suggestion?.$2,
-                        onChanged: (next) async {
-                          final updated = [...list];
-                          updated[index] = next;
-                          await flow.replaceExerciseSets(
-                            exerciseId: widget.exerciseId,
-                            sets: updated,
-                          );
-                        },
-                        onOpenMarkers: () async {
-                          final updatedEntry = await _showMarkerBottomSheet(
+                          animateImage: true,
+                          onInfo: () => _showInfoBottomSheet(
                             context: context,
-                            initial: item,
-                          );
-                          if (!mounted || updatedEntry == null) return;
-
-                          final updated = [...list];
-                          updated[index] = updatedEntry;
-                          await flow.replaceExerciseSets(
+                            repository: repository,
                             exerciseId: widget.exerciseId,
-                            sets: updated,
-                          );
-                          await _scheduleSync(
-                            flow: flow,
-                            exerciseName: exerciseName,
-                            isStatic: isStatic,
-                          );
-                        },
-                        onCompleted: () async {
-                          await _scheduleSync(
-                            flow: flow,
-                            exerciseName: exerciseName,
-                            isStatic: isStatic,
-                          );
-                        },
-                        onInputFocusChanged: (isFocused) {
-                          _handleRowFocusChanged(index, isFocused);
-                        },
-                        onDelete: () async {
-                          final updated = [...list]..removeAt(index);
-                          await flow.replaceExerciseSets(
+                          ),
+                          onMuscles: () => _showMusclesBottomSheet(
+                            context: context,
+                            repository: repository,
                             exerciseId: widget.exerciseId,
-                            sets: updated,
-                          );
-                          await _scheduleSync(
-                            flow: flow,
+                          ),
+                          onStats: () => _showStatsBottomSheet(
+                            context: context,
+                            repository: repository,
+                            exerciseId: widget.exerciseId,
                             exerciseName: exerciseName,
-                            isStatic: isStatic,
-                          );
-                        },
-                        onStartRestTimer: () {
-                          const StartRestTimerNotification().dispatch(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child: FilledButton(
-                      onPressed: () async {
-                        final next = [...list, const SetEntry()];
-                        await flow.replaceExerciseSets(
-                          exerciseId: widget.exerciseId,
-                          sets: next,
-                        );
-                      },
-                      child: Text(l10n.strengthExerciseAddSetButton),
+                            isStaticExercise: isStatic,
+                          ),
+                          onDelete: () async {
+                            final confirmed =
+                            await _confirmDeleteExercise(context);
+                            if (!mounted || confirmed != true) return;
+                            await flow.removeExercise(widget.exerciseId);
+                          },
+                        ),
+                        _ExerciseSectionDivider(
+                          dividerKey: _headerDividerKey,
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+                  Expanded(
+                    child: RepaintBoundary(
+                      child: ListView.builder(
+                        key: PageStorageKey<String>(
+                          'exercise_list_${widget.exerciseId}',
+                        ),
+                        padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+                        itemCount: list.length,
+                        cacheExtent: 400,
+                        itemBuilder: (context, index) {
+                          final item = list[index];
+                          final suggestion = suggestions[index + 1];
+
+                          return RepaintBoundary(
+                            child: _SetRow(
+                              key: ValueKey(
+                                'set_row_${widget.exerciseId}_$index',
+                              ),
+                              index: index,
+                              value: item,
+                              isStatic: isStatic,
+                              suggestedLoad: suggestion?.$1,
+                              suggestedSecond: suggestion?.$2,
+                              onChanged: (next) async {
+                                final updated = [...list];
+                                updated[index] = next;
+                                await flow.replaceExerciseSets(
+                                  exerciseId: widget.exerciseId,
+                                  sets: updated,
+                                );
+                              },
+                              onOpenMarkers: () async {
+                                final updatedEntry =
+                                await _showMarkerBottomSheet(
+                                  context: context,
+                                  initial: item,
+                                );
+                                if (!mounted || updatedEntry == null) return;
+
+                                final updated = [...list];
+                                updated[index] = updatedEntry;
+                                await flow.replaceExerciseSets(
+                                  exerciseId: widget.exerciseId,
+                                  sets: updated,
+                                );
+                                await _scheduleSync(
+                                  flow: flow,
+                                  exerciseName: exerciseName,
+                                  isStatic: isStatic,
+                                );
+                              },
+                              onCompleted: () async {
+                                await _scheduleSync(
+                                  flow: flow,
+                                  exerciseName: exerciseName,
+                                  isStatic: isStatic,
+                                );
+                              },
+                              onInputFocusChanged: (isFocused) {
+                                _handleRowFocusChanged(index, isFocused);
+                              },
+                              onDelete: () async {
+                                final updated = [...list]..removeAt(index);
+                                await flow.replaceExerciseSets(
+                                  exerciseId: widget.exerciseId,
+                                  sets: updated,
+                                );
+                                await _scheduleSync(
+                                  flow: flow,
+                                  exerciseName: exerciseName,
+                                  isStatic: isStatic,
+                                );
+                              },
+                              onStartRestTimer: () {
+                                const StartRestTimerNotification()
+                                    .dispatch(context);
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: FilledButton(
+                        onPressed: () async {
+                          final next = [...list, const SetEntry()];
+                          await flow.replaceExerciseSets(
+                            exerciseId: widget.exerciseId,
+                            sets: next,
+                          );
+                        },
+                        child: Text(l10n.strengthExerciseAddSetButton),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -330,7 +430,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                 required bool enabled,
               }) {
                 return AnimatedOpacity(
-                  duration: const Duration(milliseconds: 140),
+                  duration: const Duration(milliseconds: 260),
                   opacity: enabled ? 1 : 0.45,
                   child: IgnorePointer(
                     ignoring: !enabled,
@@ -706,8 +806,7 @@ class _ExerciseHeader extends StatelessWidget {
   const _ExerciseHeader({
     required this.exerciseId,
     required this.exerciseName,
-    required this.showSwipeLeftHint,
-    required this.showSwipeRightHint,
+    required this.animateImage,
     required this.onInfo,
     required this.onMuscles,
     required this.onStats,
@@ -716,8 +815,7 @@ class _ExerciseHeader extends StatelessWidget {
 
   final String exerciseId;
   final String exerciseName;
-  final bool showSwipeLeftHint;
-  final bool showSwipeRightHint;
+  final bool animateImage;
   final VoidCallback onInfo;
   final VoidCallback onMuscles;
   final VoidCallback onStats;
@@ -734,13 +832,16 @@ class _ExerciseHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 160,
-            height: 160,
-            child: ExerciseAssetImage(
-              exerciseId: exerciseId,
-              fit: BoxFit.contain,
-              borderRadius: BorderRadius.circular(14),
-              placeholderIcon: Icons.image_not_supported_outlined,
+            width: 150,
+            height: 150,
+            child: RepaintBoundary(
+              child: ExerciseAssetImage(
+                exerciseId: exerciseId,
+                fit: BoxFit.contain,
+                borderRadius: BorderRadius.circular(14),
+                placeholderIcon: Icons.image_not_supported_outlined,
+                animate: animateImage,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -837,12 +938,10 @@ class _HeaderActionIcon extends StatelessWidget {
 
 class _ExerciseSectionDivider extends StatelessWidget {
   const _ExerciseSectionDivider({
-    required this.showSwipeLeftHint,
-    required this.showSwipeRightHint,
+    required this.dividerKey,
   });
 
-  final bool showSwipeLeftHint;
-  final bool showSwipeRightHint;
+  final GlobalKey dividerKey;
 
   @override
   Widget build(BuildContext context) {
@@ -853,124 +952,17 @@ class _ExerciseSectionDivider extends StatelessWidget {
       height: 24,
       child: Row(
         children: [
-          SizedBox(
-            width: 28,
-            child: Center(
-              child: IgnorePointer(
-                child: _SwipeHintArrow(
-                  direction: AxisDirection.left,
-                  visible: showSwipeLeftHint,
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(width: 28),
           Expanded(
             child: Container(
+              key: dividerKey,
               height: 1,
               color: dividerColor,
             ),
           ),
-          SizedBox(
-            width: 28,
-            child: Center(
-              child: IgnorePointer(
-                child: _SwipeHintArrow(
-                  direction: AxisDirection.right,
-                  visible: showSwipeRightHint,
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(width: 28),
         ],
       ),
-    );
-  }
-}
-
-class _SwipeHintArrow extends StatefulWidget {
-  const _SwipeHintArrow({
-    required this.direction,
-    required this.visible,
-  });
-
-  final AxisDirection direction;
-  final bool visible;
-
-  @override
-  State<_SwipeHintArrow> createState() => _SwipeHintArrowState();
-}
-
-class _SwipeHintArrowState extends State<_SwipeHintArrow>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _offsetAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    );
-    _offsetAnimation = Tween<double>(begin: 0, end: 8).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _startIfNeeded();
-  }
-
-  @override
-  void didUpdateWidget(covariant _SwipeHintArrow oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.visible != widget.visible ||
-        oldWidget.direction != widget.direction) {
-      _startIfNeeded();
-    }
-  }
-
-  void _startIfNeeded() {
-    if (!widget.visible) {
-      _controller.stop();
-      _controller.reset();
-      return;
-    }
-    unawaited(
-      _controller.forward(from: 0).then((_) async {
-        if (!mounted) return;
-        await _controller.reverse();
-      }),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!widget.visible) {
-      return const SizedBox(width: 20, height: 20);
-    }
-
-    final color =
-    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.46);
-    final isLeft = widget.direction == AxisDirection.left;
-    final dx = isLeft ? -_offsetAnimation.value : _offsetAnimation.value;
-    final icon = isLeft ? Icons.chevron_left : Icons.chevron_right;
-
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(dx, 0),
-          child: Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
-        );
-      },
     );
   }
 }
@@ -1102,7 +1094,6 @@ class _SetRowState extends State<_SetRow> {
     final deleteBg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10);
     final deleteFg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.84);
     final hasMarker = widget.value.mods != 0 || widget.value.superSlowEnabled;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(

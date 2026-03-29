@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,13 +15,24 @@ class ExerciseAssetResolver {
     'jpeg',
   ];
 
-  static final Map<String, Future<String?>> _cache = <String, Future<String?>>{};
+  static final Map<String, Future<String?>> _pathCache =
+  <String, Future<String?>>{};
+
+  static final Map<String, Future<ui.Image?>> _firstFrameCache =
+  <String, Future<ui.Image?>>{};
 
   static Future<String?> resolveAssetPath(String exerciseId) {
     final normalized = exerciseId.trim().toLowerCase();
-    return _cache.putIfAbsent(
+    return _pathCache.putIfAbsent(
       normalized,
           () => _resolveAssetPathInternal(normalized),
+    );
+  }
+
+  static Future<ui.Image?> resolveFirstFrame(String assetPath) {
+    return _firstFrameCache.putIfAbsent(
+      assetPath,
+          () => _resolveFirstFrameInternal(assetPath),
     );
   }
 
@@ -41,6 +54,19 @@ class ExerciseAssetResolver {
     }
 
     return null;
+  }
+
+  static Future<ui.Image?> _resolveFirstFrameInternal(String assetPath) async {
+    try {
+      final data = await rootBundle.load(assetPath);
+      final codec = await ui.instantiateImageCodec(
+        data.buffer.asUint8List(),
+      );
+      final frame = await codec.getNextFrame();
+      return frame.image;
+    } catch (_) {
+      return null;
+    }
   }
 
   static Future<bool> _assetExists(String assetPath) async {
@@ -109,6 +135,7 @@ class ExerciseAssetImage extends StatelessWidget {
     this.fit = BoxFit.contain,
     this.borderRadius,
     this.placeholderIcon = Icons.image_outlined,
+    this.animate = true,
   });
 
   final String exerciseId;
@@ -117,6 +144,7 @@ class ExerciseAssetImage extends StatelessWidget {
   final BoxFit fit;
   final BorderRadius? borderRadius;
   final IconData placeholderIcon;
+  final bool animate;
 
   @override
   Widget build(BuildContext context) {
@@ -132,17 +160,48 @@ class ExerciseAssetImage extends StatelessWidget {
             height: height,
             icon: placeholderIcon,
           );
-        } else {
+        } else if (animate) {
           child = Image.asset(
             path,
             width: width,
             height: height,
             fit: fit,
+            filterQuality: FilterQuality.low,
+            gaplessPlayback: true,
             errorBuilder: (_, __, ___) {
               return _PlaceholderImage(
                 width: width,
                 height: height,
                 icon: placeholderIcon,
+              );
+            },
+          );
+        } else {
+          child = FutureBuilder<ui.Image?>(
+            future: ExerciseAssetResolver.resolveFirstFrame(path),
+            builder: (context, frameSnapshot) {
+              final image = frameSnapshot.data;
+              if (image == null) {
+                if (frameSnapshot.connectionState == ConnectionState.done) {
+                  return _PlaceholderImage(
+                    width: width,
+                    height: height,
+                    icon: placeholderIcon,
+                  );
+                }
+
+                return SizedBox(
+                  width: width,
+                  height: height,
+                );
+              }
+
+              return RawImage(
+                image: image,
+                width: width,
+                height: height,
+                fit: fit,
+                filterQuality: FilterQuality.low,
               );
             },
           );
