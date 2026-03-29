@@ -853,8 +853,8 @@ class _ExerciseHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 150,
-            height: 150,
+            width: 160,
+            height: 160,
             child: RepaintBoundary(
               child: ExerciseAssetImage(
                 exerciseId: exerciseId,
@@ -868,30 +868,32 @@ class _ExerciseHeader extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: SizedBox(
-              height: 148,
+              height: 150,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Spacer(),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final compactFontSize = exerciseName.length > 34
-                          ? 18.0
-                          : exerciseName.length > 24
-                          ? 20.0
-                          : 22.0;
-                      return Text(
-                        exerciseName,
-                        textAlign: TextAlign.right,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          height: 1.02,
-                          fontSize: compactFontSize,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    },
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final compactFontSize = exerciseName.length > 34
+                            ? 18.0
+                            : exerciseName.length > 24
+                            ? 20.0
+                            : 22.0;
+                        return Text(
+                          exerciseName,
+                          textAlign: TextAlign.right,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            height: 1.20,
+                            fontSize: compactFontSize,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                    ),
                   ),
                   const Spacer(),
                   Row(
