@@ -1,11 +1,10 @@
-
 import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/audio/mtorque_sound_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
@@ -47,7 +46,8 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   int _todayEpochDay() {
     final now = DateTime.now();
     final utcMidnight = DateTime.utc(now.year, now.month, now.day);
-    return utcMidnight.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
+    return utcMidnight.millisecondsSinceEpoch ~/
+        Duration.millisecondsPerDay;
   }
 
   @override
@@ -64,6 +64,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final exercises = draft?.exerciseOrder ?? const <String>[];
     final totalPages = exercises.length + 1;
 
+    final panelColor = Theme.of(context).cardColor;
+    final panelBorderColor =
+    Theme.of(context).dividerColor.withValues(alpha: 0.35);
+
     if (_pageController.hasClients &&
         state.hostView == StrengthHostView.pager &&
         (_pageController.page?.round() ?? 0) != state.pagerIndex) {
@@ -78,18 +82,26 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return Scaffold(
       appBar: state.hostView == StrengthHostView.pager
           ? AppBar(
-        toolbarHeight: 90,
-        backgroundColor: Theme.of(context).cardColor,
+        toolbarHeight: 80,
+        backgroundColor: panelColor,
         surfaceTintColor: Colors.transparent,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
         shadowColor: Colors.transparent,
         titleSpacing: 16,
+        shape: Border(
+          bottom: BorderSide(
+            color: panelBorderColor,
+            width: 1,
+          ),
+        ),
         title: _SessionHeader(
           title: _sessionTitle(context),
           dateText: _sessionDateText(state),
-          onDateTap:
-          state.draftSession == null ? null : () => _pickSessionDate(context),
+          onDateTap: state.draftSession == null
+              ? null
+              : () => _pickSessionDate(context),
         ),
         actions: [
           Padding(
@@ -97,29 +109,48 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             child: FilledButton(
               onPressed: () => _showFinishDialog(context),
               style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 46),
-                padding: const EdgeInsets.symmetric(horizontal: 22),
+                minimumSize: const Size(0, 44),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 22),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22),
                 ),
+                elevation: 0,
               ),
               child: Text(_endLabel(context)),
             ),
           ),
           PopupMenuButton<_StrengthMenuAction>(
-            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+            tooltip:
+            MaterialLocalizations.of(context).showMenuTooltip,
+            color: panelColor,
             onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) => _buildMenuItems(context, state),
+            itemBuilder: (context) =>
+                _buildMenuItems(context, state),
           ),
         ],
       )
           : AppBar(
+        backgroundColor: panelColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        shape: Border(
+          bottom: BorderSide(
+            color: panelBorderColor,
+            width: 1,
+          ),
+        ),
         title: Text(AppLocalizations.of(context)!.navStrength),
         actions: [
           PopupMenuButton<_StrengthMenuAction>(
-            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+            tooltip:
+            MaterialLocalizations.of(context).showMenuTooltip,
+            color: panelColor,
             onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) => _buildMenuItems(context, state),
+            itemBuilder: (context) =>
+                _buildMenuItems(context, state),
           ),
         ],
       ),
@@ -187,10 +218,13 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       ) {
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
-    final pageIndex = state.pagerIndex.clamp(0, math.max(exerciseIds.length, 0));
-    final showExercisePage = exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
+    final pageIndex =
+    state.pagerIndex.clamp(0, math.max(exerciseIds.length, 0));
+    final showExercisePage =
+        exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
     final showSwipeLeft = showExercisePage && pageIndex > 0;
-    final showSwipeRight = showExercisePage && pageIndex < exerciseIds.length - 1;
+    final showSwipeRight =
+        showExercisePage && pageIndex < exerciseIds.length - 1;
 
     return Column(
       children: [
@@ -214,8 +248,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
               return ExercisePage(
                 key: ValueKey('exercise_page_$exerciseId'),
                 exerciseId: exerciseId,
-                showSwipeLeftHint: showSwipeLeft && index == pageIndex,
-                showSwipeRightHint: showSwipeRight && index == pageIndex,
+                showSwipeLeftHint:
+                showSwipeLeft && index == pageIndex,
+                showSwipeRightHint:
+                showSwipeRight && index == pageIndex,
               );
             },
           ),
@@ -268,7 +304,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
     if (!mounted || picked == null) return;
 
-    await ref.read(strengthFlowControllerProvider.notifier).updateDraftDate(picked);
+    await ref
+        .read(strengthFlowControllerProvider.notifier)
+        .updateDraftDate(picked);
   }
 
   List<PopupMenuEntry<_StrengthMenuAction>> _buildMenuItems(
@@ -277,13 +315,16 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       ) {
     final items = <PopupMenuEntry<_StrengthMenuAction>>[];
     final hasDraft = state.draftSession != null;
-    final hasPlanSelection = (state.selectedPlanName ?? '').trim().isNotEmpty;
+    final hasPlanSelection =
+        (state.selectedPlanName ?? '').trim().isNotEmpty;
 
     if (state.hostView == StrengthHostView.pager) {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.addExercise,
-          child: Text(_menuLabel(context, _StrengthMenuAction.addExercise)),
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.addExercise),
+          ),
         ),
       );
     }
@@ -291,7 +332,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.savePlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.savePlan)),
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.savePlan),
+          ),
         ),
       );
     }
@@ -299,41 +342,53 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.saveAsPlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.saveAsPlan)),
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.saveAsPlan),
+          ),
         ),
       );
     }
     items.add(
       PopupMenuItem(
         value: _StrengthMenuAction.loadPlan,
-        child: Text(_menuLabel(context, _StrengthMenuAction.loadPlan)),
+        child: Text(
+          _menuLabel(context, _StrengthMenuAction.loadPlan),
+        ),
       ),
     );
     if (hasPlanSelection) {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.renamePlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.renamePlan)),
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.renamePlan),
+          ),
         ),
       );
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.deletePlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.deletePlan)),
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.deletePlan),
+          ),
         ),
       );
     }
     items.add(
       PopupMenuItem(
         value: _StrengthMenuAction.startEmpty,
-        child: Text(_menuLabel(context, _StrengthMenuAction.startEmpty)),
+        child: Text(
+          _menuLabel(context, _StrengthMenuAction.startEmpty),
+        ),
       ),
     );
     if (state.hostView == StrengthHostView.pager) {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.closePlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.closePlan)),
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.closePlan),
+          ),
         ),
       );
     }
@@ -350,32 +405,57 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       case _StrengthMenuAction.savePlan:
         final name = state.selectedPlanName;
         if (name == null || name.trim().isEmpty) return;
-        await controller.savePlanFromCurrent(planName: name, overwrite: true);
+        await controller.savePlanFromCurrent(
+          planName: name,
+          overwrite: true,
+        );
         return;
       case _StrengthMenuAction.startEmpty:
         if (!await _confirmReplaceCurrent(context)) return;
-        await controller.startEmptySession(todayEpochDay: _todayEpochDay());
+        await controller.startEmptySession(
+          todayEpochDay: _todayEpochDay(),
+        );
         return;
       case _StrengthMenuAction.closePlan:
         await _handleClosePressed();
         return;
       case _StrengthMenuAction.saveAsPlan:
-        final name = await _promptForPlanName(context, initialValue: state.selectedPlanName ?? '');
+        final name = await _promptForPlanName(
+          context,
+          initialValue: state.selectedPlanName ?? '',
+        );
         if (name == null || name.trim().isEmpty) return;
-        await controller.savePlanFromCurrent(planName: name.trim(), overwrite: false);
+        await controller.savePlanFromCurrent(
+          planName: name.trim(),
+          overwrite: false,
+        );
         return;
       case _StrengthMenuAction.loadPlan:
         final selected = await _showLoadPlanDialog(context, state);
         if (selected == null || selected.trim().isEmpty) return;
         if (!await _confirmReplaceCurrent(context)) return;
-        await controller.loadPlan(planName: selected, todayEpochDay: _todayEpochDay());
+        await controller.loadPlan(
+          planName: selected,
+          todayEpochDay: _todayEpochDay(),
+        );
         return;
       case _StrengthMenuAction.renamePlan:
         final current = state.selectedPlanName;
         if (current == null || current.trim().isEmpty) return;
-        final next = await _promptForPlanName(context, initialValue: current);
-        if (next == null || next.trim().isEmpty || next.trim() == current) return;
-        await controller.renamePlan(oldName: current, newName: next.trim(), overwrite: false);
+        final next = await _promptForPlanName(
+          context,
+          initialValue: current,
+        );
+        if (next == null ||
+            next.trim().isEmpty ||
+            next.trim() == current) {
+          return;
+        }
+        await controller.renamePlan(
+          oldName: current,
+          newName: next.trim(),
+          overwrite: false,
+        );
         return;
       case _StrengthMenuAction.deletePlan:
         final current = state.selectedPlanName;
@@ -389,7 +469,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   String _menuLabel(BuildContext context, _StrengthMenuAction action) {
-    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    final de =
+        Localizations.localeOf(context).languageCode.toLowerCase() ==
+            'de';
     switch (action) {
       case _StrengthMenuAction.savePlan:
         return de ? 'Aktuellen Plan speichern' : 'Save current plan';
@@ -411,14 +493,20 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   String _endLabel(BuildContext context) {
-    return Localizations.localeOf(context).languageCode.toLowerCase() == 'de'
+    return Localizations.localeOf(context).languageCode.toLowerCase() ==
+        'de'
         ? 'Beenden'
         : 'Finish';
   }
 
-  Future<String?> _promptForPlanName(BuildContext context, {required String initialValue}) async {
+  Future<String?> _promptForPlanName(
+      BuildContext context, {
+        required String initialValue,
+      }) async {
     final controller = TextEditingController(text: initialValue);
-    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    final de =
+        Localizations.localeOf(context).languageCode.toLowerCase() ==
+            'de';
     return showDialog<String>(
       context: context,
       builder: (dialogContext) {
@@ -434,11 +522,16 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+              child: Text(
+                AppLocalizations.of(context)!.strengthCommonCancel,
+              ),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: Text(AppLocalizations.of(context)!.strengthCommonSave),
+              onPressed: () => Navigator.of(dialogContext)
+                  .pop(controller.text.trim()),
+              child: Text(
+                AppLocalizations.of(context)!.strengthCommonSave,
+              ),
             ),
           ],
         );
@@ -446,8 +539,13 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
   }
 
-  Future<String?> _showLoadPlanDialog(BuildContext context, StrengthFlowState state) {
-    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+  Future<String?> _showLoadPlanDialog(
+      BuildContext context,
+      StrengthFlowState state,
+      ) {
+    final de =
+        Localizations.localeOf(context).languageCode.toLowerCase() ==
+            'de';
     return showDialog<String>(
       context: context,
       builder: (dialogContext) {
@@ -456,7 +554,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           content: SizedBox(
             width: double.maxFinite,
             child: state.plans.isEmpty
-                ? Text(de ? 'Keine Pläne vorhanden.' : 'No plans available.')
+                ? Text(
+              de
+                  ? 'Keine Pläne vorhanden.'
+                  : 'No plans available.',
+            )
                 : ListView.builder(
               shrinkWrap: true,
               itemCount: state.plans.length,
@@ -464,7 +566,8 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                 final plan = state.plans[index];
                 return ListTile(
                   title: Text(plan.name),
-                  onTap: () => Navigator.of(dialogContext).pop(plan.name),
+                  onTap: () => Navigator.of(dialogContext)
+                      .pop(plan.name),
                 );
               },
             ),
@@ -472,7 +575,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+              child: Text(
+                AppLocalizations.of(context)!.strengthCommonCancel,
+              ),
             ),
           ],
         );
@@ -483,22 +588,33 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   Future<bool> _confirmReplaceCurrent(BuildContext context) async {
     final state = ref.read(strengthFlowControllerProvider);
     final draft = state.draftSession;
-    if (draft == null || (!draft.hasEntries && draft.exerciseOrder.isEmpty)) {
+    if (draft == null ||
+        (!draft.hasEntries && draft.exerciseOrder.isEmpty)) {
       return true;
     }
-    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+    final de =
+        Localizations.localeOf(context).languageCode.toLowerCase() ==
+            'de';
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(de ? 'Aktuelle Einheit ersetzen?' : 'Replace current session?'),
-          content: Text(de
-              ? 'Die aktuelle Einheit wird dadurch verworfen und ersetzt.'
-              : 'This will discard and replace the current session.'),
+          title: Text(
+            de
+                ? 'Aktuelle Einheit ersetzen?'
+                : 'Replace current session?',
+          ),
+          content: Text(
+            de
+                ? 'Die aktuelle Einheit wird dadurch verworfen und ersetzt.'
+                : 'This will discard and replace the current session.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+              child: Text(
+                AppLocalizations.of(context)!.strengthCommonCancel,
+              ),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -511,24 +627,35 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return result == true;
   }
 
-  Future<bool?> _confirmDeletePlan(BuildContext context, String planName) {
-    final de = Localizations.localeOf(context).languageCode.toLowerCase() == 'de';
+  Future<bool?> _confirmDeletePlan(
+      BuildContext context,
+      String planName,
+      ) {
+    final de =
+        Localizations.localeOf(context).languageCode.toLowerCase() ==
+            'de';
     return showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(de ? 'Plan löschen' : 'Delete plan'),
-          content: Text(de
-              ? 'Soll der Plan "$planName" gelöscht werden?'
-              : 'Delete plan "$planName"?'),
+          content: Text(
+            de
+                ? 'Soll der Plan "$planName" gelöscht werden?'
+                : 'Delete plan "$planName"?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(AppLocalizations.of(context)!.strengthCommonCancel),
+              child: Text(
+                AppLocalizations.of(context)!.strengthCommonCancel,
+              ),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(AppLocalizations.of(context)!.strengthCommonDelete),
+              child: Text(
+                AppLocalizations.of(context)!.strengthCommonDelete,
+              ),
             ),
           ],
         );
@@ -542,12 +669,16 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final draft = state.draftSession;
 
     if (draft == null) {
-      await ref.read(strengthFlowControllerProvider.notifier).showPlanGrid();
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .showPlanGrid();
       return;
     }
 
     if (!draft.hasEntries) {
-      await ref.read(strengthFlowControllerProvider.notifier).discardCurrentSession();
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .discardCurrentSession();
       return;
     }
 
@@ -561,15 +692,18 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           content: Text(l10n.strengthClosePlanMessage),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(_CloseAction.continueEditing),
+              onPressed: () => Navigator.of(dialogContext)
+                  .pop(_CloseAction.continueEditing),
               child: Text(l10n.strengthContinueEditing),
             ),
             TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(_CloseAction.discard),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CloseAction.discard),
               child: Text(l10n.strengthDiscard),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(_CloseAction.saveAndClose),
+              onPressed: () => Navigator.of(dialogContext)
+                  .pop(_CloseAction.saveAndClose),
               child: Text(l10n.strengthSaveAndClose),
             ),
           ],
@@ -578,7 +712,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
 
     if (action == _CloseAction.discard) {
-      await ref.read(strengthFlowControllerProvider.notifier).discardCurrentSession();
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .discardCurrentSession();
     } else if (action == _CloseAction.saveAndClose) {
       await _showFinishDialog(context);
     }
@@ -615,8 +751,12 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
 
     if (save == true) {
-      await ref.read(strengthFlowControllerProvider.notifier).finalizeSession(
-        notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .finalizeSession(
+        notes: notesController.text.trim().isEmpty
+            ? null
+            : notesController.text.trim(),
       );
     }
   }
@@ -672,24 +812,27 @@ class _SessionHeader extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           title,
           style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: onSurface,
+            height: 1.0,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         InkWell(
           onTap: onDateTap,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+            padding: const EdgeInsets.symmetric(vertical: 1),
             child: Text(
               dateText,
               style: textTheme.bodyMedium?.copyWith(
-                color: onSurface.withValues(alpha: 0.9),
+                color: onSurface.withValues(alpha: 0.78),
+                height: 1.0,
               ),
             ),
           ),
@@ -711,10 +854,12 @@ class _PagerSwipeHintOverlay extends StatefulWidget {
   final bool showRight;
 
   @override
-  State<_PagerSwipeHintOverlay> createState() => _PagerSwipeHintOverlayState();
+  State<_PagerSwipeHintOverlay> createState() =>
+      _PagerSwipeHintOverlayState();
 }
 
-class _PagerSwipeHintOverlayState extends State<_PagerSwipeHintOverlay>
+class _PagerSwipeHintOverlayState
+    extends State<_PagerSwipeHintOverlay>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _leftDx;
@@ -741,7 +886,8 @@ class _PagerSwipeHintOverlayState extends State<_PagerSwipeHintOverlay>
   }
 
   @override
-  void didUpdateWidget(covariant _PagerSwipeHintOverlay oldWidget) {
+  void didUpdateWidget(
+      covariant _PagerSwipeHintOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.showLeft != widget.showLeft ||
         oldWidget.showRight != widget.showRight) {
@@ -789,7 +935,11 @@ class _PagerSwipeHintOverlayState extends State<_PagerSwipeHintOverlay>
                 if (widget.showLeft)
                   Transform.translate(
                     offset: Offset(_leftDx.value, 0),
-                    child: Icon(Icons.chevron_left, color: color, size: 34),
+                    child: Icon(
+                      Icons.chevron_left,
+                      color: color,
+                      size: 34,
+                    ),
                   )
                 else
                   const SizedBox(width: 34),
@@ -797,7 +947,11 @@ class _PagerSwipeHintOverlayState extends State<_PagerSwipeHintOverlay>
                 if (widget.showRight)
                   Transform.translate(
                     offset: Offset(_rightDx.value, 0),
-                    child: Icon(Icons.chevron_right, color: color, size: 34),
+                    child: Icon(
+                      Icons.chevron_right,
+                      color: color,
+                      size: 34,
+                    ),
                   )
                 else
                   const SizedBox(width: 34),
@@ -814,19 +968,28 @@ class _TimerMetronomePanel extends StatefulWidget {
   const _TimerMetronomePanel();
 
   @override
-  State<_TimerMetronomePanel> createState() => _TimerMetronomePanelState();
+  State<_TimerMetronomePanel> createState() =>
+      _TimerMetronomePanelState();
 }
 
 class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
+  final _soundService = MtorqueSoundService.instance;
+
   final PageController _pageController = PageController();
-  final TextEditingController _restController = TextEditingController(text: '60');
-  final TextEditingController _conController = TextEditingController(text: '1.5');
-  final TextEditingController _holdTopController = TextEditingController(text: '0');
-  final TextEditingController _eccController = TextEditingController(text: '1.5');
-  final TextEditingController _holdBottomController = TextEditingController(text: '0');
+  final TextEditingController _restController =
+  TextEditingController(text: '60');
+  final TextEditingController _conController =
+  TextEditingController(text: '1.5');
+  final TextEditingController _holdTopController =
+  TextEditingController(text: '0');
+  final TextEditingController _eccController =
+  TextEditingController(text: '1.5');
+  final TextEditingController _holdBottomController =
+  TextEditingController(text: '0');
 
   Timer? _timer;
-  Timer? _metronomeTimer;
+  Timer? _metronomeFrameTimer;
+
   int _page = 0;
 
   Duration _total = const Duration(seconds: 60);
@@ -840,25 +1003,38 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
   @override
   void dispose() {
     _timer?.cancel();
-    _metronomeTimer?.cancel();
+    _metronomeFrameTimer?.cancel();
     _pageController.dispose();
     _restController.dispose();
     _conController.dispose();
     _holdTopController.dispose();
     _eccController.dispose();
     _holdBottomController.dispose();
+    unawaited(_soundService.metronomeStopLoop());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final panelColor = Theme.of(context).cardColor;
+    final panelBorderColor =
+    Theme.of(context).dividerColor.withValues(alpha: 0.35);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Card(
-          margin: EdgeInsets.zero,
+        Container(
+          decoration: BoxDecoration(
+            color: panelColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: panelBorderColor,
+              width: 1,
+            ),
+          ),
           child: SizedBox(
-            height: 100,
+            height: 136,
             child: PageView(
               controller: _pageController,
               onPageChanged: (value) {
@@ -869,51 +1045,92 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
               },
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _TimerDial(
-                        remaining: _remaining,
-                        total: _total,
-                        running: _timerRunning,
-                        dangerThresholdSec: 3,
-                        onTap: _handleTimerClicked,
+                      SizedBox(
+                        width: 96,
+                        height: 96,
+                        child: _TimerDial(
+                          remaining: _remaining,
+                          total: _total,
+                          running: _timerRunning,
+                          dangerThresholdSec: 10,
+                          onTap: _handleTimerClicked,
+                        ),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Timer',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 10),
                             Row(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
-                                  width: 88,
+                                  width: 96,
                                   child: TextField(
                                     controller: _restController,
                                     keyboardType: TextInputType.number,
-                                    textInputAction: TextInputAction.done,
+                                    textInputAction:
+                                    TextInputAction.done,
                                     decoration: const InputDecoration(
                                       isDense: true,
                                       hintText: 'sec',
                                     ),
-                                    onChanged: (_) => _applyTimerInputIfIdle(),
-                                    onSubmitted: (_) => _applyTimerInputIfIdle(),
+                                    onChanged: (_) =>
+                                        _applyTimerInputIfIdle(),
+                                    onSubmitted: (_) =>
+                                        _applyTimerInputIfIdle(),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                OutlinedButton(
-                                  onPressed: _resetTimer,
-                                  child: const Text('Reset'),
+                                const SizedBox(width: 14),
+                                SizedBox(
+                                  height: 42,
+                                  child: OutlinedButton(
+                                    onPressed: _resetTimer,
+                                    style:
+                                    OutlinedButton.styleFrom(
+                                      minimumSize:
+                                      const Size(96, 42),
+                                      shape:
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(
+                                            22),
+                                      ),
+                                    ),
+                                    child: const Text('Reset'),
+                                  ),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Ring: Tippen = Start/Stopp',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                color: cs.onSurface
+                                    .withValues(alpha: 0.68),
+                              ),
                             ),
                           ],
                         ),
@@ -922,32 +1139,95 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: _MetronomeMaze(
-                          elapsed: _metronomeElapsed,
-                          concentricMs: _phaseMs(_conController.text, 1500),
-                          holdTopMs: _phaseMs(_holdTopController.text, 0),
-                          eccentricMs: _phaseMs(_eccController.text, 1500),
-                          holdBottomMs: _phaseMs(_holdBottomController.text, 0),
-                          running: _metronomeRunning,
-                          onTap: _toggleMetronome,
+                        child: Column(
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 74,
+                              child: _MetronomeMaze(
+                                elapsed: _metronomeElapsed,
+                                concentricMs:
+                                _phaseMs(_conController.text, 1500),
+                                holdTopMs:
+                                _phaseMs(_holdTopController.text, 0),
+                                eccentricMs:
+                                _phaseMs(_eccController.text, 1500),
+                                holdBottomMs:
+                                _phaseMs(_holdBottomController.text, 0),
+                                running: _metronomeRunning,
+                                onTap: _toggleMetronome,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _metronomeRunning
+                                  ? 'Tippen = Stopp'
+                                  : 'Tippen = Start/Stopp',
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                color: cs.onSurface
+                                    .withValues(alpha: 0.74),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
                           children: [
-                            _TempoRow(controller: _conController, label: 'Conc.', onChanged: _handleTempoChanged),
-                            const SizedBox(height: 6),
-                            _TempoRow(controller: _holdTopController, label: 'Top', onChanged: _handleTempoChanged),
-                            const SizedBox(height: 6),
-                            _TempoRow(controller: _eccController, label: 'Ecc.', onChanged: _handleTempoChanged),
-                            const SizedBox(height: 6),
-                            _TempoRow(controller: _holdBottomController, label: 'Bottom', onChanged: _handleTempoChanged),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _TempoFieldBlock(
+                                    controller: _conController,
+                                    label: 'Konzentrisch',
+                                    onChanged: _handleTempoChanged,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _TempoFieldBlock(
+                                    controller: _holdTopController,
+                                    label: 'Statisch',
+                                    onChanged: _handleTempoChanged,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _TempoFieldBlock(
+                                    controller: _eccController,
+                                    label: 'Exzentrisch',
+                                    onChanged: _handleTempoChanged,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _TempoFieldBlock(
+                                    controller: _holdBottomController,
+                                    label: 'Statisch',
+                                    onChanged: _handleTempoChanged,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -1002,13 +1282,16 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
       return;
     }
 
-    final shouldResume = _remaining > Duration.zero && _remaining < _total;
+    final shouldResume =
+        _remaining > Duration.zero && _remaining < _total;
     if (shouldResume) {
       _resumeTimer();
       return;
     }
 
-    final seconds = int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
+    final seconds =
+        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ??
+            60;
     _startTimer(Duration(seconds: seconds));
   }
 
@@ -1022,32 +1305,31 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
       _lastSignalSecond = duration.inSeconds + 1;
     });
 
-    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      final next = _remaining - const Duration(milliseconds: 200);
-      if (next <= Duration.zero) {
-        timer.cancel();
-        _playDoneAlert();
-        setState(() {
-          _remaining = Duration.zero;
-          _timerRunning = false;
+    _timer = Timer.periodic(const Duration(milliseconds: 200),
+            (timer) {
+          final next = _remaining - const Duration(milliseconds: 200);
+          if (next <= Duration.zero) {
+            timer.cancel();
+            _playDoneAlert();
+            setState(() {
+              _remaining = Duration.zero;
+              _timerRunning = false;
+            });
+            return;
+          }
+
+          final sec = (next.inMilliseconds / 1000).ceil();
+          if (sec != _lastSignalSecond) {
+            if (sec >= 1 && sec <= 4) {
+              _playWarningBeep();
+            }
+            _lastSignalSecond = sec;
+          }
+
+          setState(() {
+            _remaining = next;
+          });
         });
-        return;
-      }
-
-      final sec = (next.inMilliseconds / 1000).ceil();
-      if (sec != _lastSignalSecond) {
-        if (sec == 3 || sec == 2) {
-          _playWarningBeep();
-        } else if (sec == 1) {
-          _playFinalSecondAlert();
-        }
-        _lastSignalSecond = sec;
-      }
-
-      setState(() {
-        _remaining = next;
-      });
-    });
   }
 
   void _resumeTimer() {
@@ -1059,32 +1341,31 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
       _lastSignalSecond = _remaining.inSeconds + 1;
     });
 
-    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      final next = _remaining - const Duration(milliseconds: 200);
-      if (next <= Duration.zero) {
-        timer.cancel();
-        _playDoneAlert();
-        setState(() {
-          _remaining = Duration.zero;
-          _timerRunning = false;
+    _timer = Timer.periodic(const Duration(milliseconds: 200),
+            (timer) {
+          final next = _remaining - const Duration(milliseconds: 200);
+          if (next <= Duration.zero) {
+            timer.cancel();
+            _playDoneAlert();
+            setState(() {
+              _remaining = Duration.zero;
+              _timerRunning = false;
+            });
+            return;
+          }
+
+          final sec = (next.inMilliseconds / 1000).ceil();
+          if (sec != _lastSignalSecond) {
+            if (sec >= 1 && sec <= 4) {
+              _playWarningBeep();
+            }
+            _lastSignalSecond = sec;
+          }
+
+          setState(() {
+            _remaining = next;
+          });
         });
-        return;
-      }
-
-      final sec = (next.inMilliseconds / 1000).ceil();
-      if (sec != _lastSignalSecond) {
-        if (sec == 3 || sec == 2) {
-          _playWarningBeep();
-        } else if (sec == 1) {
-          _playFinalSecondAlert();
-        }
-        _lastSignalSecond = sec;
-      }
-
-      setState(() {
-        _remaining = next;
-      });
-    });
   }
 
   void _stopTimer() {
@@ -1097,7 +1378,9 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
 
   void _resetTimer() {
     _stopTimer();
-    final seconds = int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
+    final seconds =
+        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ??
+            60;
     setState(() {
       _total = Duration(seconds: seconds);
       _remaining = _total;
@@ -1114,48 +1397,46 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
 
   void _startMetronome() {
     _stopMetronome();
+
+    final con = _phaseMs(_conController.text, 1500);
+    final holdTop = _phaseMs(_holdTopController.text, 0);
+    final ecc = _phaseMs(_eccController.text, 1500);
+    final holdBottom = _phaseMs(_holdBottomController.text, 0);
+
+    unawaited(
+      _soundService.metronomeStartLoop(
+        concentricMs: con,
+        holdTopMs: holdTop,
+        eccentricMs: ecc,
+        holdBottomMs: holdBottom,
+      ),
+    );
+
     setState(() {
       _metronomeRunning = true;
       _metronomeElapsed = Duration.zero;
     });
 
-    var phaseIndex = -1;
+    _metronomeFrameTimer =
+        Timer.periodic(const Duration(milliseconds: 16), (timer) {
+          final cycleMs =
+          math.max(1, con + holdTop + ecc + holdBottom);
+          final nextElapsed =
+              _metronomeElapsed + const Duration(milliseconds: 16);
 
-    _metronomeTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
-      final elapsed = _metronomeElapsed + const Duration(milliseconds: 40);
-      final phases = <int>[
-        _phaseMs(_conController.text, 1500),
-        _phaseMs(_holdTopController.text, 0),
-        _phaseMs(_eccController.text, 1500),
-        _phaseMs(_holdBottomController.text, 0),
-      ];
-      final cycle = phases.reduce((a, b) => a + b).clamp(1, 1000000);
-      final pos = elapsed.inMilliseconds % cycle;
-
-      var acc = 0;
-      var nextPhase = 0;
-      for (var i = 0; i < phases.length; i++) {
-        acc += phases[i];
-        if (pos < acc) {
-          nextPhase = i;
-          break;
-        }
-      }
-      if (nextPhase != phaseIndex) {
-        phaseIndex = nextPhase;
-        SystemSound.play(SystemSoundType.click);
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _metronomeElapsed = elapsed;
-      });
-    });
+          if (!mounted) return;
+          setState(() {
+            _metronomeElapsed = Duration(
+              milliseconds: nextElapsed.inMilliseconds % cycleMs,
+            );
+          });
+        });
   }
 
   void _stopMetronome() {
-    _metronomeTimer?.cancel();
-    _metronomeTimer = null;
+    _metronomeFrameTimer?.cancel();
+    _metronomeFrameTimer = null;
+    unawaited(_soundService.metronomeStopLoop());
     if (!mounted) return;
     setState(() {
       _metronomeRunning = false;
@@ -1180,15 +1461,11 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
   }
 
   void _playWarningBeep() {
-    SystemSound.play(SystemSoundType.click);
-  }
-
-  void _playFinalSecondAlert() {
-    SystemSound.play(SystemSoundType.alert);
+    unawaited(_soundService.timerBeep());
   }
 
   void _playDoneAlert() {
-    SystemSound.play(SystemSoundType.alert);
+    unawaited(_soundService.timerDone());
   }
 }
 
@@ -1209,42 +1486,58 @@ class _TimerDial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final danger = remaining.inSeconds <= dangerThresholdSec;
+    final danger =
+        remaining.inMilliseconds <= dangerThresholdSec * 1000;
     final elapsedFactor = total.inMilliseconds <= 0
         ? 1.0
-        : ((total.inMilliseconds - remaining.inMilliseconds) / total.inMilliseconds)
+        : ((total.inMilliseconds - remaining.inMilliseconds) /
+        total.inMilliseconds)
         .clamp(0.0, 1.0);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(48),
-      child: SizedBox(
-        width: 98,
-        height: 98,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CustomPaint(
-              size: const Size.square(98),
-              painter: _TimerDialPainter(
-                progress: elapsedFactor,
-                danger: danger,
-                color: Theme.of(context).colorScheme.primary,
-                trackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.14),
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${(remaining.inMilliseconds / 1000).ceil().clamp(0, 9999)}',
-                  style: Theme.of(context).textTheme.headlineSmall,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                size: const Size.square(96),
+                painter: _TimerDialPainter(
+                  progress: elapsedFactor,
+                  danger: danger,
+                  color: Theme.of(context).colorScheme.primary,
+                  trackColor: const Color(0xFFE5E7EB),
                 ),
-                const SizedBox(height: 2),
-                Icon(running ? Icons.pause : Icons.play_arrow, size: 18),
-              ],
-            ),
-          ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${(remaining.inMilliseconds / 1000).ceil().clamp(0, 9999)}',
+                    style:
+                    Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      height: 1.0,
+                      color: danger
+                          ? Colors.redAccent
+                          : Theme.of(context)
+                          .colorScheme
+                          .primary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Icon(
+                    running ? Icons.pause : Icons.play_arrow,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1266,7 +1559,7 @@ class _TimerDialPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final stroke = 6.0;
+    const stroke = 10.0;
     final rect = Rect.fromLTWH(
       stroke / 2,
       stroke / 2,
@@ -1326,43 +1619,24 @@ class _MetronomeMaze extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final cycle = math.max(1, concentricMs + holdTopMs + eccentricMs + holdBottomMs);
-    final pos = elapsed.inMilliseconds % cycle;
-
-    double progress;
-    if (pos < concentricMs) {
-      progress = concentricMs == 0 ? 0 : pos / concentricMs;
-    } else if (pos < concentricMs + holdTopMs) {
-      progress = 1;
-    } else if (pos < concentricMs + holdTopMs + eccentricMs) {
-      final local = pos - concentricMs - holdTopMs;
-      progress = eccentricMs == 0 ? 1 : 1 - (local / eccentricMs);
-    } else {
-      progress = 0;
-    }
+    final cycle =
+    math.max(1, concentricMs + holdTopMs + eccentricMs + holdBottomMs);
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+      child: CustomPaint(
+        painter: _MetronomeMazePainter(
+          playbackPosMs: elapsed.inMilliseconds % cycle,
+          concentricMs: concentricMs,
+          holdTopMs: holdTopMs,
+          eccentricMs: eccentricMs,
+          holdBottomMs: holdBottomMs,
+          running: running,
+          lineColor: const Color(0xFFE5E7EB),
+          ballColor: Theme.of(context).colorScheme.primary,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: CustomPaint(
-          painter: _MetronomeMazePainter(
-            progress: progress.clamp(0.0, 1.0),
-            color: running ? cs.primary : cs.onSurface.withValues(alpha: 0.38),
-          ),
-          child: Center(
-            child: Text(
-              running ? 'Tap to stop' : 'Tap to start',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-          ),
-        ),
+        child: const SizedBox.expand(),
       ),
     );
   }
@@ -1370,46 +1644,157 @@ class _MetronomeMaze extends StatelessWidget {
 
 class _MetronomeMazePainter extends CustomPainter {
   const _MetronomeMazePainter({
-    required this.progress,
-    required this.color,
+    required this.playbackPosMs,
+    required this.concentricMs,
+    required this.holdTopMs,
+    required this.eccentricMs,
+    required this.holdBottomMs,
+    required this.running,
+    required this.lineColor,
+    required this.ballColor,
   });
 
-  final double progress;
-  final Color color;
+  final int playbackPosMs;
+  final int concentricMs;
+  final int holdTopMs;
+  final int eccentricMs;
+  final int holdBottomMs;
+  final bool running;
+  final Color lineColor;
+  final Color ballColor;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.28)
+    final phases = <_MazePhase>[
+      _MazePhase(_MazeKind.concentric, math.max(0, concentricMs)),
+      _MazePhase(_MazeKind.holdTop, math.max(0, holdTopMs)),
+      _MazePhase(_MazeKind.eccentric, math.max(0, eccentricMs)),
+      _MazePhase(_MazeKind.holdBottom, math.max(0, holdBottomMs)),
+    ].where((p) => p.ms > 0).toList();
+
+    if (phases.isEmpty) {
+      phases.add(const _MazePhase(_MazeKind.concentric, 1));
+    }
+
+    final cycleMs =
+    phases.fold<int>(0, (sum, p) => sum + p.ms).clamp(1, 1000000);
+
+    final pathPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = 12
+      ..color = lineColor;
 
-    final active = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+    final ballPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = running ? ballColor : ballColor.withValues(alpha: 0.55);
 
-    final path = Path()
-      ..moveTo(size.width * 0.18, size.height * 0.78)
-      ..lineTo(size.width * 0.18, size.height * 0.22)
-      ..lineTo(size.width * 0.82, size.height * 0.22)
-      ..lineTo(size.width * 0.82, size.height * 0.78)
-      ..lineTo(size.width * 0.18, size.height * 0.78);
+    const ballRadius = 6.0;
+    const extraInset = 1.0;
+    const startXShift = 12.0;
 
-    canvas.drawPath(path, paint);
+    final safe =
+        math.max(ballRadius, pathPaint.strokeWidth * 0.5) + extraInset;
+    final xStartBase = safe;
+    final xEnd = size.width - safe;
+    final cycleW = (xEnd - xStartBase).clamp(1.0, double.infinity);
+    final xBall = math.min(
+      xStartBase + startXShift,
+      xEnd - ballRadius - pathPaint.strokeWidth * 0.5,
+    );
 
-    final dotX = size.width * (0.18 + (0.64 * progress));
-    final dotY = size.height * (0.78 - (0.56 * progress));
-    canvas.drawCircle(Offset(dotX, dotY), 7, active);
+    final yTop = safe;
+    final yBottom = math.max(size.height - safe, yTop + 1);
+
+    final offsetPx = (playbackPosMs / cycleMs) * cycleW;
+
+    Path buildCyclePath(double x0) {
+      final path = Path();
+      var x = x0;
+      path.moveTo(x, yBottom);
+
+      for (final ph in phases) {
+        final segW = (ph.ms / cycleMs) * cycleW;
+        switch (ph.kind) {
+          case _MazeKind.concentric:
+            path.lineTo(x + segW, yTop);
+            break;
+          case _MazeKind.holdTop:
+            path.lineTo(x + segW, yTop);
+            break;
+          case _MazeKind.eccentric:
+            path.lineTo(x + segW, yBottom);
+            break;
+          case _MazeKind.holdBottom:
+            path.lineTo(x + segW, yBottom);
+            break;
+        }
+        x += segW;
+      }
+      return path;
+    }
+
+    final baseX = xBall - offsetPx;
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawPath(buildCyclePath(baseX - cycleW), pathPaint);
+    canvas.drawPath(buildCyclePath(baseX), pathPaint);
+    canvas.drawPath(buildCyclePath(baseX + cycleW), pathPaint);
+    canvas.restore();
+
+    double yForTime(double tMs) {
+      var acc = 0.0;
+      for (final ph in phases) {
+        final dur = ph.ms.toDouble();
+        final next = acc + dur;
+        if (tMs <= next || ph == phases.last) {
+          final u =
+          dur <= 0 ? 0.0 : ((tMs - acc) / dur).clamp(0.0, 1.0);
+          switch (ph.kind) {
+            case _MazeKind.concentric:
+              return yBottom + (yTop - yBottom) * u;
+            case _MazeKind.holdTop:
+              return yTop;
+            case _MazeKind.eccentric:
+              return yTop + (yBottom - yTop) * u;
+            case _MazeKind.holdBottom:
+              return yBottom;
+          }
+        }
+        acc = next;
+      }
+      return yBottom;
+    }
+
+    final yBall = yForTime(playbackPosMs.toDouble());
+    canvas.drawCircle(Offset(xBall, yBall), ballRadius, ballPaint);
   }
 
   @override
   bool shouldRepaint(covariant _MetronomeMazePainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.color != color;
+    return oldDelegate.playbackPosMs != playbackPosMs ||
+        oldDelegate.concentricMs != concentricMs ||
+        oldDelegate.holdTopMs != holdTopMs ||
+        oldDelegate.eccentricMs != eccentricMs ||
+        oldDelegate.holdBottomMs != holdBottomMs ||
+        oldDelegate.running != running ||
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.ballColor != ballColor;
   }
 }
 
-class _TempoRow extends StatelessWidget {
-  const _TempoRow({
+enum _MazeKind { concentric, holdTop, eccentric, holdBottom }
+
+class _MazePhase {
+  const _MazePhase(this.kind, this.ms);
+
+  final _MazeKind kind;
+  final int ms;
+}
+
+class _TempoFieldBlock extends StatelessWidget {
+  const _TempoFieldBlock({
     required this.controller,
     required this.label,
     required this.onChanged,
@@ -1421,24 +1806,45 @@ class _TempoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: 56,
+          height: 28,
           child: TextField(
             controller: controller,
             textAlign: TextAlign.center,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(isDense: true),
+            keyboardType:
+            const TextInputType.numberWithOptions(decimal: true),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              height: 1.0,
+            ),
+            decoration: const InputDecoration(
+              isDense: true,
+              contentPadding:
+              EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+              border: InputBorder.none,
+            ),
             onChanged: onChanged,
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+        Container(
+          height: 2,
+          color: onSurface.withValues(alpha: 0.78),
+        ),
+        const SizedBox(height: 3),
+        SizedBox(
+          height: 13,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
         ),
       ],
