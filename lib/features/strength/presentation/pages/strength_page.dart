@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/audio/mtorque_sound_service.dart';
@@ -972,7 +973,8 @@ class _TimerMetronomePanel extends StatefulWidget {
       _TimerMetronomePanelState();
 }
 
-class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
+class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
+    with SingleTickerProviderStateMixin {
   final _soundService = MtorqueSoundService.instance;
 
   final PageController _pageController = PageController();
@@ -988,7 +990,10 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
   TextEditingController(text: '0');
 
   Timer? _timer;
-  Timer? _metronomeFrameTimer;
+
+  late final Ticker _metronomeTicker;
+  final Stopwatch _metronomeStopwatch = Stopwatch();
+  int _metronomeCycleMs = 1;
 
   int _page = 0;
 
@@ -1003,7 +1008,11 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
   @override
   void dispose() {
     _timer?.cancel();
-    _metronomeFrameTimer?.cancel();
+
+    _metronomeTicker.stop();
+    _metronomeTicker.dispose();
+    _metronomeStopwatch.stop();
+
     _pageController.dispose();
     _restController.dispose();
     _conController.dispose();
@@ -1012,6 +1021,24 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
     _holdBottomController.dispose();
     unawaited(_soundService.metronomeStopLoop());
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _metronomeTicker = createTicker((_) {
+      if (!mounted || !_metronomeRunning) return;
+
+      final cycleMs = math.max(1, _metronomeCycleMs);
+      final posMs = _metronomeStopwatch.elapsedMilliseconds % cycleMs;
+      final next = Duration(milliseconds: posMs);
+
+      if (next == _metronomeElapsed) return;
+
+      setState(() {
+        _metronomeElapsed = next;
+      });
+    });
   }
 
   @override
@@ -1403,6 +1430,19 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
     final ecc = _phaseMs(_eccController.text, 1500);
     final holdBottom = _phaseMs(_holdBottomController.text, 0);
 
+    _metronomeCycleMs = math.max(1, con + holdTop + ecc + holdBottom);
+
+    setState(() {
+      _metronomeRunning = true;
+      _metronomeElapsed = Duration.zero;
+    });
+
+    _metronomeStopwatch
+      ..reset()
+      ..start();
+
+    _metronomeTicker.start();
+
     unawaited(
       _soundService.metronomeStartLoop(
         concentricMs: con,
@@ -1411,32 +1451,15 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel> {
         holdBottomMs: holdBottom,
       ),
     );
-
-    setState(() {
-      _metronomeRunning = true;
-      _metronomeElapsed = Duration.zero;
-    });
-
-    _metronomeFrameTimer =
-        Timer.periodic(const Duration(milliseconds: 16), (timer) {
-          final cycleMs =
-          math.max(1, con + holdTop + ecc + holdBottom);
-          final nextElapsed =
-              _metronomeElapsed + const Duration(milliseconds: 16);
-
-          if (!mounted) return;
-          setState(() {
-            _metronomeElapsed = Duration(
-              milliseconds: nextElapsed.inMilliseconds % cycleMs,
-            );
-          });
-        });
   }
 
   void _stopMetronome() {
-    _metronomeFrameTimer?.cancel();
-    _metronomeFrameTimer = null;
+    _metronomeTicker.stop();
+    _metronomeStopwatch.stop();
+    _metronomeStopwatch.reset();
+
     unawaited(_soundService.metronomeStopLoop());
+
     if (!mounted) return;
     setState(() {
       _metronomeRunning = false;
