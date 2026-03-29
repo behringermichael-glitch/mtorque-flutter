@@ -11,6 +11,10 @@ import '../state/strength_flow_controller.dart';
 import '../state/strength_providers.dart';
 import 'exercise_asset_resolver.dart';
 
+class StartRestTimerNotification extends Notification {
+  const StartRestTimerNotification();
+}
+
 class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({
     super.key,
@@ -183,6 +187,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                             exerciseName: exerciseName,
                             isStatic: isStatic,
                           );
+                        },
+                        onStartRestTimer: () {
+                          const StartRestTimerNotification().dispatch(context);
                         },
                       );
                     },
@@ -722,7 +729,7 @@ class _ExerciseHeader extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -928,6 +935,7 @@ class _SetRow extends StatefulWidget {
     required this.onCompleted,
     required this.onInputFocusChanged,
     required this.onDelete,
+    required this.onStartRestTimer,
   });
 
   final int index;
@@ -940,6 +948,7 @@ class _SetRow extends StatefulWidget {
   final Future<void> Function() onCompleted;
   final ValueChanged<bool> onInputFocusChanged;
   final VoidCallback onDelete;
+  final VoidCallback onStartRestTimer;
 
   @override
   State<_SetRow> createState() => _SetRowState();
@@ -951,6 +960,7 @@ class _SetRowState extends State<_SetRow> {
   late final FocusNode _loadFocusNode;
   late final FocusNode _secondFocusNode;
   bool _lastAnyFocus = false;
+  String _lastSecondText = '';
 
   @override
   void initState() {
@@ -961,6 +971,7 @@ class _SetRowState extends State<_SetRow> {
     );
     _loadFocusNode = FocusNode()..addListener(_handleFocusUpdate);
     _secondFocusNode = FocusNode()..addListener(_handleFocusUpdate);
+    _lastSecondText = _secondController.text.trim();
   }
 
   @override
@@ -975,6 +986,7 @@ class _SetRowState extends State<_SetRow> {
     if (!_secondFocusNode.hasFocus) {
       final next = widget.isStatic ? formatInt(widget.value.durationSec) : formatNumber(widget.value.reps);
       if (_secondController.text != next) _secondController.text = next;
+      _lastSecondText = next.trim();
     }
   }
 
@@ -1034,25 +1046,22 @@ class _SetRowState extends State<_SetRow> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final lineColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.56);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final deleteBg = isDark
-        ? Theme.of(context).colorScheme.surfaceBright
-        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.78);
-    final deleteFg = isDark
-        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.86)
-        : Theme.of(context).colorScheme.surface;
+    final deleteBg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10);
+    final deleteFg = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.84);
     final hasMarker = widget.value.mods != 0 || widget.value.superSlowEnabled;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 24,
-            child: Text(
-              '${widget.index + 1}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
+            child: Center(
+              child: Text(
+                '${widget.index + 1}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -1063,11 +1072,13 @@ class _SetRowState extends State<_SetRow> {
               hintText: _loadHint(l10n),
               lineColor: lineColor,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              textInputAction: TextInputAction.next,
+              hintColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               onChanged: (value) {
                 widget.onChanged(widget.value.copyWith(load: tryParseDouble(value)));
                 if (mounted) setState(() {});
               },
-              onSubmitted: (_) => widget.onCompleted(),
+              onSubmitted: (_) => _secondFocusNode.requestFocus(),
             ),
           ),
           const SizedBox(width: 12),
@@ -1078,11 +1089,21 @@ class _SetRowState extends State<_SetRow> {
               hintText: _secondaryHint(l10n),
               lineColor: lineColor,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              textInputAction: TextInputAction.done,
+              hintColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               onChanged: (value) {
                 if (widget.isStatic) {
                   widget.onChanged(widget.value.copyWith(durationSec: int.tryParse(value.trim())));
                 } else {
                   widget.onChanged(widget.value.copyWith(reps: tryParseDouble(value)));
+                }
+
+                final trimmed = value.trim();
+                final shouldStart =
+                    _lastSecondText.isEmpty && trimmed.isNotEmpty;
+                _lastSecondText = trimmed;
+                if (shouldStart) {
+                  widget.onStartRestTimer();
                 }
               },
               onSubmitted: (_) => widget.onCompleted(),
@@ -1103,19 +1124,23 @@ class _SetRowState extends State<_SetRow> {
           const SizedBox(width: 10),
           SizedBox(
             width: 42,
-            height: 28,
-            child: Material(
-              color: deleteBg,
-              borderRadius: BorderRadius.circular(14),
-              child: InkWell(
+            height: 32,
+            child: Center(
+              child: Material(
+                color: deleteBg,
                 borderRadius: BorderRadius.circular(14),
-                onTap: widget.onDelete,
-                child: Center(
-                  child: Text(
-                    'x',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: deleteFg,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: widget.onDelete,
+                  child: SizedBox(
+                    width: 42,
+                    height: 32,
+                    child: Center(
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: deleteFg,
+                      ),
                     ),
                   ),
                 ),
@@ -1154,6 +1179,8 @@ class _UnderlineNumberField extends StatelessWidget {
     required this.hintText,
     required this.lineColor,
     required this.keyboardType,
+    required this.textInputAction,
+    required this.hintColor,
     required this.onChanged,
     required this.onSubmitted,
   });
@@ -1163,6 +1190,8 @@ class _UnderlineNumberField extends StatelessWidget {
   final String hintText;
   final Color lineColor;
   final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final Color hintColor;
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmitted;
 
@@ -1174,11 +1203,15 @@ class _UnderlineNumberField extends StatelessWidget {
         controller: controller,
         focusNode: focusNode,
         keyboardType: keyboardType,
-        textInputAction: TextInputAction.done,
+        textInputAction: textInputAction,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.0),
         decoration: InputDecoration(
           isDense: true,
           hintText: hintText,
+          hintStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+            height: 1.0,
+            color: hintColor,
+          ),
           border: const UnderlineInputBorder(),
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: lineColor, width: 1.2),
@@ -1186,7 +1219,7 @@ class _UnderlineNumberField extends StatelessWidget {
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: lineColor, width: 1.4),
           ),
-          contentPadding: const EdgeInsets.only(top: 8, bottom: 4),
+          contentPadding: const EdgeInsets.only(top: 10, bottom: 6),
         ),
         onChanged: onChanged,
         onSubmitted: onSubmitted,

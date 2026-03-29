@@ -13,6 +13,12 @@ import '../state/strength_providers.dart';
 import 'exercise_page.dart';
 import 'exercise_picker_sheet.dart';
 
+Color _panelSurfaceColor(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.cardTheme.color ??
+      theme.colorScheme.surfaceContainerLow;
+}
+
 class StrengthPage extends ConsumerStatefulWidget {
   static const String routePath = '/strength';
   static const String routeName = 'strength';
@@ -25,6 +31,8 @@ class StrengthPage extends ConsumerStatefulWidget {
 
 class _StrengthPageState extends ConsumerState<StrengthPage> {
   final PageController _pageController = PageController();
+  final GlobalKey<_TimerMetronomePanelState> _timerPanelKey =
+  GlobalKey<_TimerMetronomePanelState>();
   bool _initialized = false;
 
   @override
@@ -65,7 +73,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final exercises = draft?.exerciseOrder ?? const <String>[];
     final totalPages = exercises.length + 1;
 
-    final panelColor = Theme.of(context).cardColor;
+    final panelColor = _panelSurfaceColor(context);
     final panelBorderColor =
     Theme.of(context).dividerColor.withValues(alpha: 0.35);
 
@@ -83,7 +91,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return Scaffold(
       appBar: state.hostView == StrengthHostView.pager
           ? AppBar(
-        toolbarHeight: 80,
+        toolbarHeight: 64,
         backgroundColor: panelColor,
         surfaceTintColor: Colors.transparent,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
@@ -110,11 +118,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             child: FilledButton(
               onPressed: () => _showFinishDialog(context),
               style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 44),
+                minimumSize: const Size(0, 38),
                 padding:
-                const EdgeInsets.symmetric(horizontal: 22),
+                const EdgeInsets.symmetric(horizontal: 18),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(19),
                 ),
                 elevation: 0,
               ),
@@ -156,9 +164,15 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         ],
       ),
       body: SafeArea(
-        child: state.hostView == StrengthHostView.planGrid
-            ? _buildPlanGrid(context, state)
-            : _buildPager(context, state, exercises),
+        child: NotificationListener<StartRestTimerNotification>(
+          onNotification: (notification) {
+            _timerPanelKey.currentState?.startRestTimerFromInput();
+            return true;
+          },
+          child: state.hostView == StrengthHostView.planGrid
+              ? _buildPlanGrid(context, state)
+              : _buildPager(context, state, exercises),
+        ),
       ),
     );
   }
@@ -260,10 +274,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 180),
           child: showExercisePage
-              ? const Padding(
-            key: ValueKey('timer_panel'),
-            padding: EdgeInsets.fromLTRB(14, 4, 14, 12),
-            child: _TimerMetronomePanel(),
+              ? Padding(
+            key: const ValueKey('timer_panel'),
+            padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
+            child: _TimerMetronomePanel(key: _timerPanelKey),
           )
               : const SizedBox(
             key: ValueKey('timer_panel_hidden'),
@@ -817,7 +831,7 @@ class _SessionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: textTheme.headlineSmall?.copyWith(
+          style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
             color: onSurface,
             height: 1.0,
@@ -966,7 +980,7 @@ class _PagerSwipeHintOverlayState
 }
 
 class _TimerMetronomePanel extends StatefulWidget {
-  const _TimerMetronomePanel();
+  const _TimerMetronomePanel({super.key});
 
   @override
   State<_TimerMetronomePanel> createState() =>
@@ -1044,7 +1058,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final panelColor = Theme.of(context).cardColor;
+    final panelColor = _panelSurfaceColor(context);
     final panelBorderColor =
     Theme.of(context).dividerColor.withValues(alpha: 0.35);
 
@@ -1061,7 +1075,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
             ),
           ),
           child: SizedBox(
-            height: 136,
+            height: 120,
             child: PageView(
               controller: _pageController,
               onPageChanged: (value) {
@@ -1115,9 +1129,12 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                     keyboardType: TextInputType.number,
                                     textInputAction:
                                     TextInputAction.done,
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                       isDense: true,
                                       hintText: 'sec',
+                                      hintStyle: TextStyle(
+                                        color: cs.onSurface.withValues(alpha: 0.42),
+                                      ),
                                     ),
                                     onChanged: (_) =>
                                         _applyTimerInputIfIdle(),
@@ -1291,6 +1308,13 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
       ],
     );
   }
+
+  void startRestTimerFromInput() {
+    final seconds =
+        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
+    _startTimer(Duration(seconds: seconds));
+  }
+
 
   void _applyTimerInputIfIdle() {
     final seconds = int.tryParse(_restController.text.trim());
@@ -1532,7 +1556,7 @@ class _TimerDial extends StatelessWidget {
                 painter: _TimerDialPainter(
                   progress: elapsedFactor,
                   danger: danger,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: const Color(0xFF3B82F6),
                   trackColor: const Color(0xFFE5E7EB),
                 ),
               ),
@@ -1657,7 +1681,7 @@ class _MetronomeMaze extends StatelessWidget {
           holdBottomMs: holdBottomMs,
           running: running,
           lineColor: const Color(0xFFE5E7EB),
-          ballColor: Theme.of(context).colorScheme.primary,
+          ballColor: const Color(0xFF3B82F6),
         ),
         child: const SizedBox.expand(),
       ),
@@ -1816,7 +1840,7 @@ class _MazePhase {
   final int ms;
 }
 
-class _TempoFieldBlock extends StatelessWidget {
+class _TempoFieldBlock extends StatefulWidget {
   const _TempoFieldBlock({
     required this.controller,
     required this.label,
@@ -1828,8 +1852,40 @@ class _TempoFieldBlock extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   @override
+  State<_TempoFieldBlock> createState() => _TempoFieldBlockState();
+}
+
+class _TempoFieldBlockState extends State<_TempoFieldBlock> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode()..addListener(_handleStateChanged);
+    widget.controller.addListener(_handleStateChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_handleStateChanged);
+    _focusNode.removeListener(_handleStateChanged);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final hasValue = widget.controller.text.trim().isNotEmpty;
+    final underlineWidth = hasValue || _focusNode.hasFocus ? 1.4 : 1.0;
+    final underlineColor = onSurface.withValues(
+      alpha: hasValue || _focusNode.hasFocus ? 0.68 : 0.42,
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1837,11 +1893,12 @@ class _TempoFieldBlock extends StatelessWidget {
         SizedBox(
           height: 28,
           child: TextField(
-            controller: controller,
+            controller: widget.controller,
+            focusNode: _focusNode,
             textAlign: TextAlign.center,
             keyboardType:
             const TextInputType.numberWithOptions(decimal: true),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            style: theme.textTheme.titleMedium?.copyWith(
               height: 1.0,
             ),
             decoration: const InputDecoration(
@@ -1850,12 +1907,12 @@ class _TempoFieldBlock extends StatelessWidget {
               EdgeInsets.symmetric(vertical: 2, horizontal: 2),
               border: InputBorder.none,
             ),
-            onChanged: onChanged,
+            onChanged: widget.onChanged,
           ),
         ),
         Container(
-          height: 2,
-          color: onSurface.withValues(alpha: 0.78),
+          height: underlineWidth,
+          color: underlineColor,
         ),
         const SizedBox(height: 3),
         SizedBox(
@@ -1863,10 +1920,10 @@ class _TempoFieldBlock extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              label,
+              widget.label,
               textAlign: TextAlign.center,
               maxLines: 1,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: theme.textTheme.bodySmall,
             ),
           ),
         ),
