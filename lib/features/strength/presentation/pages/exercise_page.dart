@@ -120,7 +120,10 @@ class _ExercisePageState extends ConsumerState<ExercisePage> {
                           await flow.removeExercise(widget.exerciseId);
                         },
                       ),
-                      const Divider(height: 1),
+                      _ExerciseSectionDivider(
+                        showSwipeLeftHint: widget.showSwipeLeftHint,
+                        showSwipeRightHint: widget.showSwipeRightHint,
+                      ),
                     ],
                   ),
                 ),
@@ -725,100 +728,84 @@ class _ExerciseHeader extends StatelessWidget {
     final iconColor =
     Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.84);
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 160,
-                height: 160,
-                child: ExerciseAssetImage(
-                  exerciseId: exerciseId,
-                  fit: BoxFit.contain,
-                  borderRadius: BorderRadius.circular(14),
-                  placeholderIcon: Icons.image_not_supported_outlined,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SizedBox(
-                  height: 148,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 160,
+            height: 160,
+            child: ExerciseAssetImage(
+              exerciseId: exerciseId,
+              fit: BoxFit.contain,
+              borderRadius: BorderRadius.circular(14),
+              placeholderIcon: Icons.image_not_supported_outlined,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: SizedBox(
+              height: 148,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Spacer(),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final compactFontSize = exerciseName.length > 34
+                          ? 18.0
+                          : exerciseName.length > 24
+                          ? 20.0
+                          : 22.0;
+                      return Text(
+                        exerciseName,
+                        textAlign: TextAlign.right,
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          height: 1.02,
+                          fontSize: compactFontSize,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const Spacer(),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final compactFontSize = exerciseName.length > 34
-                              ? 18.0
-                              : exerciseName.length > 24
-                              ? 20.0
-                              : 22.0;
-                          return Text(
-                            exerciseName,
-                            textAlign: TextAlign.right,
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              height: 1.02,
-                              fontSize: compactFontSize,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          );
-                        },
+                      _HeaderActionIcon(
+                        icon: Icons.info_outline,
+                        color: iconColor,
+                        onTap: onInfo,
                       ),
-                      const Spacer(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          _HeaderActionIcon(
-                            icon: Icons.info_outline,
-                            color: iconColor,
-                            onTap: onInfo,
-                          ),
-                          const SizedBox(width: 18),
-                          _HeaderActionIcon(
-                            icon: Icons.accessibility_new_outlined,
-                            color: iconColor,
-                            onTap: onMuscles,
-                          ),
-                          const SizedBox(width: 18),
-                          _HeaderActionIcon(
-                            icon: Icons.bar_chart_outlined,
-                            color: iconColor,
-                            onTap: onStats,
-                          ),
-                          const SizedBox(width: 18),
-                          _HeaderActionIcon(
-                            icon: Icons.delete_outline,
-                            color: iconColor,
-                            onTap: onDelete,
-                          ),
-                        ],
+                      const SizedBox(width: 18),
+                      _HeaderActionIcon(
+                        icon: Icons.accessibility_new_outlined,
+                        color: iconColor,
+                        onTap: onMuscles,
+                      ),
+                      const SizedBox(width: 18),
+                      _HeaderActionIcon(
+                        icon: Icons.bar_chart_outlined,
+                        color: iconColor,
+                        onTap: onStats,
+                      ),
+                      const SizedBox(width: 18),
+                      _HeaderActionIcon(
+                        icon: Icons.delete_outline,
+                        color: iconColor,
+                        onTap: onDelete,
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-        Positioned(
-          left: 4,
-          right: 4,
-          bottom: -10,
-          child: IgnorePointer(
-            child: _SwipeHintIcons(
-              showLeft: showSwipeLeftHint,
-              showRight: showSwipeRightHint,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -848,23 +835,75 @@ class _HeaderActionIcon extends StatelessWidget {
   }
 }
 
-class _SwipeHintIcons extends StatefulWidget {
-  const _SwipeHintIcons({
-    required this.showLeft,
-    required this.showRight,
+class _ExerciseSectionDivider extends StatelessWidget {
+  const _ExerciseSectionDivider({
+    required this.showSwipeLeftHint,
+    required this.showSwipeRightHint,
   });
 
-  final bool showLeft;
-  final bool showRight;
+  final bool showSwipeLeftHint;
+  final bool showSwipeRightHint;
 
   @override
-  State<_SwipeHintIcons> createState() => _SwipeHintIconsState();
+  Widget build(BuildContext context) {
+    final dividerColor =
+    Theme.of(context).dividerColor.withValues(alpha: 0.55);
+
+    return SizedBox(
+      height: 24,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            child: Center(
+              child: IgnorePointer(
+                child: _SwipeHintArrow(
+                  direction: AxisDirection.left,
+                  visible: showSwipeLeftHint,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 1,
+              color: dividerColor,
+            ),
+          ),
+          SizedBox(
+            width: 28,
+            child: Center(
+              child: IgnorePointer(
+                child: _SwipeHintArrow(
+                  direction: AxisDirection.right,
+                  visible: showSwipeRightHint,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _SwipeHintIconsState extends State<_SwipeHintIcons> with SingleTickerProviderStateMixin {
+class _SwipeHintArrow extends StatefulWidget {
+  const _SwipeHintArrow({
+    required this.direction,
+    required this.visible,
+  });
+
+  final AxisDirection direction;
+  final bool visible;
+
+  @override
+  State<_SwipeHintArrow> createState() => _SwipeHintArrowState();
+}
+
+class _SwipeHintArrowState extends State<_SwipeHintArrow>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _leftAnimation;
-  late final Animation<double> _rightAnimation;
+  late final Animation<double> _offsetAnimation;
 
   @override
   void initState() {
@@ -873,29 +912,33 @@ class _SwipeHintIconsState extends State<_SwipeHintIcons> with SingleTickerProvi
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _leftAnimation = Tween<double>(begin: 0, end: -10).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    _rightAnimation = Tween<double>(begin: 0, end: 10).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _offsetAnimation = Tween<double>(begin: 0, end: 8).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
     _startIfNeeded();
   }
 
   @override
-  void didUpdateWidget(covariant _SwipeHintIcons oldWidget) {
+  void didUpdateWidget(covariant _SwipeHintArrow oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.showLeft != widget.showLeft || oldWidget.showRight != widget.showRight) {
+    if (oldWidget.visible != widget.visible ||
+        oldWidget.direction != widget.direction) {
       _startIfNeeded();
     }
   }
 
   void _startIfNeeded() {
-    if (!widget.showLeft && !widget.showRight) {
+    if (!widget.visible) {
       _controller.stop();
       _controller.reset();
       return;
     }
-    unawaited(_controller.forward(from: 0).then((_) async {
-      if (!mounted) return;
-      await _controller.reverse();
-    }));
+    unawaited(
+      _controller.forward(from: 0).then((_) async {
+        if (!mounted) return;
+        await _controller.reverse();
+      }),
+    );
   }
 
   @override
@@ -906,16 +949,26 @@ class _SwipeHintIconsState extends State<_SwipeHintIcons> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.46);
+    if (!widget.visible) {
+      return const SizedBox(width: 20, height: 20);
+    }
+
+    final color =
+    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.46);
+    final isLeft = widget.direction == AxisDirection.left;
+    final dx = isLeft ? -_offsetAnimation.value : _offsetAnimation.value;
+    final icon = isLeft ? Icons.chevron_left : Icons.chevron_right;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return Row(
-          children: [
-            if (widget.showLeft) Transform.translate(offset: Offset(_leftAnimation.value, 0), child: Icon(Icons.chevron_left, color: color, size: 28)) else const SizedBox(width: 28),
-            const Spacer(),
-            if (widget.showRight) Transform.translate(offset: Offset(_rightAnimation.value, 0), child: Icon(Icons.chevron_right, color: color, size: 28)) else const SizedBox(width: 28),
-          ],
+        return Transform.translate(
+          offset: Offset(dx, 0),
+          child: Icon(
+            icon,
+            color: color,
+            size: 24,
+          ),
         );
       },
     );
