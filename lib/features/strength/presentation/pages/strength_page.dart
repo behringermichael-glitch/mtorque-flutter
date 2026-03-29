@@ -10,6 +10,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../state/strength_providers.dart';
+import 'exercise_asset_resolver.dart';
 import 'exercise_page.dart';
 import 'exercise_picker_sheet.dart';
 
@@ -172,17 +173,12 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final panelBorderColor =
     Theme.of(context).dividerColor.withValues(alpha: 0.35);
 
-    if (_pageController.hasClients && hostView == StrengthHostView.pager) {
-      final maxPage = totalPages - 1;
-      final target = _currentPageIndex.clamp(0, maxPage < 0 ? 0 : maxPage);
-      final currentPage = _pageController.page?.round() ?? _pageController.initialPage;
-
-      if (currentPage != target) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!_pageController.hasClients) return;
-          _pageController.jumpToPage(target);
-        });
-      }
+    // NACHHER — in didUpdateWidget verlagern, nicht im build:
+    @override
+    void didUpdateWidget(StrengthPage oldWidget) {
+      super.didUpdateWidget(oldWidget);
+      // Seitenkorrektur nach exercise-Order-Änderung hier behandeln,
+      // nicht im build(). Der build() selbst aktualisiert nur _currentPageIndex.
     }
 
     return Scaffold(
@@ -359,6 +355,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                 controller: _pageController,
                 itemCount: exerciseIds.length + 1,
                 allowImplicitScrolling: true,
+                physics: const ClampingScrollPhysics(),   // ← NEU: identisch zu Android ViewPager2
                 onPageChanged: _handlePagerChanged,
                 itemBuilder: (context, index) {
                   if (index == exerciseIds.length) {
@@ -372,13 +369,19 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                   }
 
                   final exerciseId = exerciseIds[index];
+                  // NEU: Nachbar-Assets vorwärmen (index-1 und index+1):
+                  if (index + 1 < exerciseIds.length) {
+                    ExerciseAssetResolver.resolveAssetPath(exerciseIds[index + 1]);
+                  }
+                  if (index - 1 >= 0) {
+                    ExerciseAssetResolver.resolveAssetPath(exerciseIds[index - 1]);
+                  }
+
                   return ExercisePage(
                     key: ValueKey('exercise_page_$exerciseId'),
                     exerciseId: exerciseId,
                     onHeaderDividerGlobalYChanged:
-                    index == pageIndex
-                        ? _handleHeaderDividerGlobalYChanged
-                        : null,
+                    index == pageIndex ? _handleHeaderDividerGlobalYChanged : null,
                   );
                 },
               ),

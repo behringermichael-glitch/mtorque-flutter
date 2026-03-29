@@ -39,6 +39,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   Timer? _pendingSync;
   final Set<int> _focusedRows = <int>{};
+  late final ValueNotifier<bool> _compactHeaderNotifier;   // ← NEU
 
   late Future<StrengthExerciseSummary?> _exerciseFuture;
   late Future<StrengthExerciseStats> _statsFuture;
@@ -47,6 +48,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   @override
   void initState() {
     super.initState();
+    _compactHeaderNotifier = ValueNotifier(false);   // ← NEU
     _preparePageFutures();
     _scheduleHeaderDividerReport();
   }
@@ -57,6 +59,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
     if (oldWidget.exerciseId != widget.exerciseId) {
       _focusedRows.clear();
+      _compactHeaderNotifier.value = false;   // ← NEU
       _preparePageFutures();
       _scheduleHeaderDividerReport();
       return;
@@ -73,12 +76,15 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   void _preparePageFutures() {
     final repository = ref.read(strengthRepositoryProvider);
     _exerciseFuture = repository.getExerciseById(widget.exerciseId);
+    // Stats parallel starten, nicht warten bis exercise fertig ist:
     _statsFuture = _exerciseFuture.then(
           (exercise) => repository.loadExerciseStats(
         exerciseId: widget.exerciseId,
         isStaticExercise: exercise?.isStatic ?? false,
       ),
     );
+    // Asset-Pfad vorwärmen, damit beim Erscheinen der Page kein Jank entsteht:
+    ExerciseAssetResolver.resolveAssetPath(widget.exerciseId);
   }
 
   void _scheduleHeaderDividerReport() {
@@ -113,7 +119,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   }
 
   @override
+  @override
   void dispose() {
+    _compactHeaderNotifier.dispose();   // ← NEU
     _pendingSync?.cancel();
     super.dispose();
   }
@@ -132,7 +140,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
     final isCompact = _focusedRows.isNotEmpty;
 
-    setState(() {});
+    _compactHeaderNotifier.value = isCompact;   // ← nur Notifier, kein setState
 
     if (wasCompact == isCompact) return;
 
@@ -175,45 +183,48 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
               return Column(
                 children: [
-                  Offstage(
-                    offstage: compactHeader,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _ExerciseHeader(
-                          exerciseId: widget.exerciseId,
-                          exerciseName: exerciseName,
-                          animateImage: true,
-                          onInfo: () => _showInfoBottomSheet(
-                            context: context,
-                            repository: repository,
-                            exerciseId: widget.exerciseId,
-                          ),
-                          onMuscles: () => _showMusclesBottomSheet(
-                            context: context,
-                            repository: repository,
-                            exerciseId: widget.exerciseId,
-                          ),
-                          onStats: () => _showStatsBottomSheet(
-                            context: context,
-                            repository: repository,
-                            exerciseId: widget.exerciseId,
-                            exerciseName: exerciseName,
-                            isStaticExercise: isStatic,
-                          ),
-                          onDelete: () async {
-                            final confirmed =
-                            await _confirmDeleteExercise(context);
-                            if (!mounted || confirmed != true) return;
-                            await flow.removeExercise(widget.exerciseId);
-                          },
+                ValueListenableBuilder<bool>(          // ← NEU
+                valueListenable: _compactHeaderNotifier,
+                builder: (context, compactHeader, _) => Offstage(
+                  offstage: compactHeader,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                            _ExerciseHeader(
+                              exerciseId: widget.exerciseId,
+                              exerciseName: exerciseName,
+                              animateImage: true,
+                              onInfo: () => _showInfoBottomSheet(
+                                context: context,
+                                repository: repository,
+                                exerciseId: widget.exerciseId,
+                              ),
+                              onMuscles: () => _showMusclesBottomSheet(
+                                context: context,
+                                repository: repository,
+                                exerciseId: widget.exerciseId,
+                              ),
+                              onStats: () => _showStatsBottomSheet(
+                                context: context,
+                                repository: repository,
+                                exerciseId: widget.exerciseId,
+                                exerciseName: exerciseName,
+                                isStaticExercise: isStatic,
+                              ),
+                              onDelete: () async {
+                                final confirmed =
+                                await _confirmDeleteExercise(context);
+                                if (!mounted || confirmed != true) return;
+                                await flow.removeExercise(widget.exerciseId);
+                              },
+                            ),
+                            _ExerciseSectionDivider(
+                              dividerKey: _headerDividerKey,
+                            ),
+                          ],
                         ),
-                        _ExerciseSectionDivider(
-                          dividerKey: _headerDividerKey,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
                   Expanded(
                     child: RepaintBoundary(
                       child: ListView.builder(
