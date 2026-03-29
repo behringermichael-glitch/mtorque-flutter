@@ -180,7 +180,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
         builder: (context, snapshot) {
           final exercise = snapshot.data;
           final isStatic = exercise?.isStatic ?? false;
-          final exerciseName = exercise?.label ?? widget.exerciseId;
+          final hasExerciseLoaded =
+              snapshot.connectionState == ConnectionState.done;
+          final exerciseName = hasExerciseLoaded ? (exercise?.label ?? '') : '';
 
           return FutureBuilder<StrengthExerciseStats>(
             future: _statsFuture,
@@ -853,8 +855,8 @@ class _ExerciseHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 160,
-            height: 160,
+            width: 180,
+            height: 180,
             child: RepaintBoundary(
               child: ExerciseAssetImage(
                 exerciseId: exerciseId,
@@ -868,13 +870,15 @@ class _ExerciseHeader extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: SizedBox(
-              height: 150,
+              height: 170,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: LayoutBuilder(
+                    child: exerciseName.trim().isEmpty
+                        ? const SizedBox(height: 72)
+                        : LayoutBuilder(
                       builder: (context, constraints) {
                         final compactFontSize = exerciseName.length > 34
                             ? 18.0

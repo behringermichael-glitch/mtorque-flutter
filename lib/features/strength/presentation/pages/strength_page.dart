@@ -96,7 +96,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     if (renderObject is! RenderBox || !renderObject.hasSize) return;
 
     final localOffset = renderObject.globalToLocal(Offset(0, globalY));
-    final nextTopOffset = localOffset.dy - 12;
+    final nextTopOffset = localOffset.dy - 17;
 
     if (_swipeHintTopOffset != null &&
         (_swipeHintTopOffset! - nextTopOffset).abs() < 0.5) {

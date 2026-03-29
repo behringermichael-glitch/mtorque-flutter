@@ -179,9 +179,16 @@ class ExerciseAssetImage extends StatelessWidget {
       future: ExerciseAssetResolver.resolveAssetPath(exerciseId),
       builder: (context, snapshot) {
         final path = snapshot.data;
+        final isDone = snapshot.connectionState == ConnectionState.done;
 
         Widget child;
-        if (path == null || path.isEmpty) {
+
+        if (!isDone) {
+          child = SizedBox(
+            width: width,
+            height: height,
+          );
+        } else if (path == null || path.isEmpty) {
           child = _PlaceholderImage(
             width: width,
             height: height,
@@ -208,18 +215,19 @@ class ExerciseAssetImage extends StatelessWidget {
             future: ExerciseAssetResolver.resolveFirstFrame(path),
             builder: (context, frameSnapshot) {
               final image = frameSnapshot.data;
-              if (image == null) {
-                if (frameSnapshot.connectionState == ConnectionState.done) {
-                  return _PlaceholderImage(
-                    width: width,
-                    height: height,
-                    icon: placeholderIcon,
-                  );
-                }
 
+              if (frameSnapshot.connectionState != ConnectionState.done) {
                 return SizedBox(
                   width: width,
                   height: height,
+                );
+              }
+
+              if (image == null) {
+                return _PlaceholderImage(
+                  width: width,
+                  height: height,
+                  icon: placeholderIcon,
                 );
               }
 
