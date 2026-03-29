@@ -173,13 +173,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final panelBorderColor =
     Theme.of(context).dividerColor.withValues(alpha: 0.35);
 
-    // NACHHER — in didUpdateWidget verlagern, nicht im build:
-    @override
-    void didUpdateWidget(StrengthPage oldWidget) {
-      super.didUpdateWidget(oldWidget);
-      // Seitenkorrektur nach exercise-Order-Änderung hier behandeln,
-      // nicht im build(). Der build() selbst aktualisiert nur _currentPageIndex.
-    }
+    // PATCH 5: jumpToPage komplett aus build() entfernt.
+    // _currentPageIndex wird durch orderChanged bereits korrekt geclippt.
+    // Ein PageController-Jump im build()-Aufruf würde einen weiteren
+    // Frame-Callback einreihen und die Swipe-Animation unterbrechen.
 
     return Scaffold(
       appBar: hostView == StrengthHostView.pager
@@ -355,7 +352,12 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                 controller: _pageController,
                 itemCount: exerciseIds.length + 1,
                 allowImplicitScrolling: true,
-                physics: const ClampingScrollPhysics(),   // ← NEU: identisch zu Android ViewPager2
+                // PATCH 1: ClampingScrollPhysics entspricht dem Verhalten von
+                // ViewPager2 auf Android — kein overscroll-bounce, direktes
+                // page-snapping ohne Federeffekt. Das macht den Swipe
+                // deterministischer und verhindert Frame-Drops durch
+                // die BouncingScrollPhysics auf iOS.
+                physics: const ClampingScrollPhysics(),
                 onPageChanged: _handlePagerChanged,
                 itemBuilder: (context, index) {
                   if (index == exerciseIds.length) {
@@ -369,19 +371,25 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                   }
 
                   final exerciseId = exerciseIds[index];
-                  // NEU: Nachbar-Assets vorwärmen (index-1 und index+1):
+
+                  // PATCH 4: Nachbar-Assets vorwärmen.
+                  // Der Cache-Lookup läuft async im Hintergrund; wenn der
+                  // User zur nächsten/vorherigen Page wischt, ist der Pfad
+                  // bereits gecacht und ExerciseAssetImage zeigt sofort das Bild.
                   if (index + 1 < exerciseIds.length) {
-                    ExerciseAssetResolver.resolveAssetPath(exerciseIds[index + 1]);
+                    ExerciseAssetResolver.warmUp(exerciseIds[index + 1]);
                   }
                   if (index - 1 >= 0) {
-                    ExerciseAssetResolver.resolveAssetPath(exerciseIds[index - 1]);
+                    ExerciseAssetResolver.warmUp(exerciseIds[index - 1]);
                   }
 
                   return ExercisePage(
                     key: ValueKey('exercise_page_$exerciseId'),
                     exerciseId: exerciseId,
                     onHeaderDividerGlobalYChanged:
-                    index == pageIndex ? _handleHeaderDividerGlobalYChanged : null,
+                    index == pageIndex
+                        ? _handleHeaderDividerGlobalYChanged
+                        : null,
                   );
                 },
               ),

@@ -29,6 +29,13 @@ class ExerciseAssetResolver {
     );
   }
 
+  // PATCH 4: Warm-up-Methode — startet den Cache-Lookup ohne auf das Ergebnis
+  // zu warten. Wird aus dem PageView-itemBuilder für Nachbar-Pages aufgerufen,
+  // damit der Asset-Pfad bereits gecacht ist, wenn die Page ins Bild scrollt.
+  static void warmUp(String exerciseId) {
+    resolveAssetPath(exerciseId);
+  }
+
   static Future<ui.Image?> resolveFirstFrame(String assetPath) {
     return _firstFrameCache.putIfAbsent(
       assetPath,

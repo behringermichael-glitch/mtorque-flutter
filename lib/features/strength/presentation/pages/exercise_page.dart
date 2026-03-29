@@ -39,7 +39,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   Timer? _pendingSync;
   final Set<int> _focusedRows = <int>{};
-  late final ValueNotifier<bool> _compactHeaderNotifier;   // ← NEU
+  // PATCH 3-A: ValueNotifier ersetzt setState() für den Compact-Header.
+  // Nur der Offstage-Subtree wird neu gebaut, nicht der gesamte FutureBuilder-Stack.
+  late final ValueNotifier<bool> _compactHeaderNotifier;
 
   late Future<StrengthExerciseSummary?> _exerciseFuture;
   late Future<StrengthExerciseStats> _statsFuture;
@@ -48,7 +50,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   @override
   void initState() {
     super.initState();
-    _compactHeaderNotifier = ValueNotifier(false);   // ← NEU
+    // PATCH 3-B: Notifier vor den Futures initialisieren.
+    _compactHeaderNotifier = ValueNotifier(false);
     _preparePageFutures();
     _scheduleHeaderDividerReport();
   }
@@ -59,7 +62,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
     if (oldWidget.exerciseId != widget.exerciseId) {
       _focusedRows.clear();
-      _compactHeaderNotifier.value = false;   // ← NEU
+      // PATCH 3-C: Notifier beim Exercise-Wechsel synchron zurücksetzen.
+      _compactHeaderNotifier.value = false;
       _preparePageFutures();
       _scheduleHeaderDividerReport();
       return;
@@ -76,15 +80,14 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   void _preparePageFutures() {
     final repository = ref.read(strengthRepositoryProvider);
     _exerciseFuture = repository.getExerciseById(widget.exerciseId);
-    // Stats parallel starten, nicht warten bis exercise fertig ist:
     _statsFuture = _exerciseFuture.then(
           (exercise) => repository.loadExerciseStats(
         exerciseId: widget.exerciseId,
         isStaticExercise: exercise?.isStatic ?? false,
       ),
     );
-    // Asset-Pfad vorwärmen, damit beim Erscheinen der Page kein Jank entsteht:
-    ExerciseAssetResolver.resolveAssetPath(widget.exerciseId);
+    // PATCH 4: Asset-Pfad vorwärmen, damit beim ersten Render kein Lookup-Jank entsteht.
+    ExerciseAssetResolver.warmUp(widget.exerciseId);
   }
 
   void _scheduleHeaderDividerReport() {
@@ -119,9 +122,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   }
 
   @override
-  @override
   void dispose() {
-    _compactHeaderNotifier.dispose();   // ← NEU
+    // PATCH 3-D: Notifier vor dem super.dispose() freigeben.
+    _compactHeaderNotifier.dispose();
     _pendingSync?.cancel();
     super.dispose();
   }
@@ -129,6 +132,9 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   @override
   bool get wantKeepAlive => true;
 
+  // PATCH 3-E: setState(() {}) entfernt — nur noch Notifier-Update.
+  // Dadurch wird beim Focus-Wechsel (Tastatur auf/zu) kein kompletter
+  // FutureBuilder-Rebuild mehr ausgelöst.
   void _handleRowFocusChanged(int rowIndex, bool isFocused) {
     final wasCompact = _focusedRows.isNotEmpty;
 
@@ -140,7 +146,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
     final isCompact = _focusedRows.isNotEmpty;
 
-    _compactHeaderNotifier.value = isCompact;   // ← nur Notifier, kein setState
+    _compactHeaderNotifier.value = isCompact;
 
     if (wasCompact == isCompact) return;
 
@@ -165,7 +171,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
       ),
     );
 
-    final compactHeader = _focusedRows.isNotEmpty;
+    // PATCH 3-F: `final compactHeader = _focusedRows.isNotEmpty` entfernt.
+    // Der Wert kommt jetzt ausschließlich aus dem ValueListenableBuilder unten.
 
     return RepaintBoundary(
       child: FutureBuilder<StrengthExerciseSummary?>(
@@ -183,48 +190,51 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
               return Column(
                 children: [
-                ValueListenableBuilder<bool>(          // ← NEU
-                valueListenable: _compactHeaderNotifier,
-                builder: (context, compactHeader, _) => Offstage(
-                  offstage: compactHeader,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                            _ExerciseHeader(
+                  // PATCH 3-F: ValueListenableBuilder isoliert den Offstage-Rebuild.
+                  // Wenn der User eine Eingabe fokussiert oder verlässt, baut nur
+                  // dieser Subtree neu — nicht die ListView, nicht die FutureBuilder.
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _compactHeaderNotifier,
+                    builder: (context, compactHeader, _) => Offstage(
+                      offstage: compactHeader,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _ExerciseHeader(
+                            exerciseId: widget.exerciseId,
+                            exerciseName: exerciseName,
+                            animateImage: true,
+                            onInfo: () => _showInfoBottomSheet(
+                              context: context,
+                              repository: repository,
+                              exerciseId: widget.exerciseId,
+                            ),
+                            onMuscles: () => _showMusclesBottomSheet(
+                              context: context,
+                              repository: repository,
+                              exerciseId: widget.exerciseId,
+                            ),
+                            onStats: () => _showStatsBottomSheet(
+                              context: context,
+                              repository: repository,
                               exerciseId: widget.exerciseId,
                               exerciseName: exerciseName,
-                              animateImage: true,
-                              onInfo: () => _showInfoBottomSheet(
-                                context: context,
-                                repository: repository,
-                                exerciseId: widget.exerciseId,
-                              ),
-                              onMuscles: () => _showMusclesBottomSheet(
-                                context: context,
-                                repository: repository,
-                                exerciseId: widget.exerciseId,
-                              ),
-                              onStats: () => _showStatsBottomSheet(
-                                context: context,
-                                repository: repository,
-                                exerciseId: widget.exerciseId,
-                                exerciseName: exerciseName,
-                                isStaticExercise: isStatic,
-                              ),
-                              onDelete: () async {
-                                final confirmed =
-                                await _confirmDeleteExercise(context);
-                                if (!mounted || confirmed != true) return;
-                                await flow.removeExercise(widget.exerciseId);
-                              },
+                              isStaticExercise: isStatic,
                             ),
-                            _ExerciseSectionDivider(
-                              dividerKey: _headerDividerKey,
-                            ),
-                          ],
-                        ),
+                            onDelete: () async {
+                              final confirmed =
+                              await _confirmDeleteExercise(context);
+                              if (!mounted || confirmed != true) return;
+                              await flow.removeExercise(widget.exerciseId);
+                            },
+                          ),
+                          _ExerciseSectionDivider(
+                            dividerKey: _headerDividerKey,
+                          ),
+                        ],
                       ),
                     ),
+                  ),
                   Expanded(
                     child: RepaintBoundary(
                       child: ListView.builder(
