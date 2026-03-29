@@ -36,6 +36,17 @@ class MtorqueSoundService {
     await _safeInvoke('metronomeStopLoop');
   }
 
+  Future<int> getMetronomePositionMs() async {
+    try {
+      final value = await _channel.invokeMethod<int>('getMetronomePositionMs');
+      return value ?? 0;
+    } on MissingPluginException {
+      return 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   Future<void> _safeInvoke(
       String method, [
         Map<String, Object?>? arguments,

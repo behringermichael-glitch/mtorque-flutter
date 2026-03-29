@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class ExerciseAssetResolver {
   static final Map<String, Future<ui.Image?>> _firstFrameCache =
   <String, Future<ui.Image?>>{};
 
+  static Future<Set<String>>? _assetManifestFuture;
+
   static Future<String?> resolveAssetPath(String exerciseId) {
     final normalized = exerciseId.trim().toLowerCase();
     return _pathCache.putIfAbsent(
@@ -29,11 +32,21 @@ class ExerciseAssetResolver {
     );
   }
 
-  // PATCH 4: Warm-up-Methode — startet den Cache-Lookup ohne auf das Ergebnis
-  // zu warten. Wird aus dem PageView-itemBuilder für Nachbar-Pages aufgerufen,
-  // damit der Asset-Pfad bereits gecacht ist, wenn die Page ins Bild scrollt.
+  /// Startet nur den Pfad-Lookup.
   static void warmUp(String exerciseId) {
     resolveAssetPath(exerciseId);
+  }
+
+  /// Lädt Pfad + decoded Image in den Flutter-ImageCache vor.
+  static Future<void> precacheExerciseImage(
+      BuildContext context,
+      String exerciseId,
+      ) async {
+    final path = await resolveAssetPath(exerciseId);
+    if (path == null || path.isEmpty) return;
+
+    final provider = AssetImage(path);
+    await precacheImage(provider, context);
   }
 
   static Future<ui.Image?> resolveFirstFrame(String assetPath) {
@@ -48,19 +61,35 @@ class ExerciseAssetResolver {
       return null;
     }
 
+    final manifestAssets = await _loadExerciseAssetManifest();
     final candidates = _buildCandidateBaseNames(normalizedId);
 
     for (final candidate in candidates) {
       for (final ext in _extensions) {
         final path = '$_baseDir/$candidate.$ext';
-        final exists = await _assetExists(path);
-        if (exists) {
+        if (manifestAssets.contains(path)) {
           return path;
         }
       }
     }
 
     return null;
+  }
+
+  static Future<Set<String>> _loadExerciseAssetManifest() {
+    return _assetManifestFuture ??= _loadExerciseAssetManifestInternal();
+  }
+
+  static Future<Set<String>> _loadExerciseAssetManifestInternal() async {
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      return manifest
+          .listAssets()
+          .where((key) => key.startsWith('$_baseDir/'))
+          .toSet();
+    } catch (_) {
+      return <String>{};
+    }
   }
 
   static Future<ui.Image?> _resolveFirstFrameInternal(String assetPath) async {
@@ -73,15 +102,6 @@ class ExerciseAssetResolver {
       return frame.image;
     } catch (_) {
       return null;
-    }
-  }
-
-  static Future<bool> _assetExists(String assetPath) async {
-    try {
-      await rootBundle.load(assetPath);
-      return true;
-    } catch (_) {
-      return false;
     }
   }
 

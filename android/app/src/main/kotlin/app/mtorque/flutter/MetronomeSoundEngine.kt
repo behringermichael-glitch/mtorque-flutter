@@ -136,6 +136,17 @@ class MetronomeSoundEngine(private val ctx: Context) {
         track = t
     }
 
+    fun getPositionMs(): Long {
+        val t = track ?: return 0L
+        val head = try {
+            t.playbackHeadPosition
+        } catch (_: Throwable) {
+            0
+        }
+        val posSamples = head % totalSamples
+        return (posSamples.toLong() * 1000L) / sampleRate.toLong()
+    }
+
     fun stop() {
         try {
             track?.pause()

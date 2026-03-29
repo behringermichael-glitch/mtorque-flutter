@@ -59,12 +59,23 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
 
   void _handlePagerChanged(int index) {
+    final exercises = ref.read(
+      strengthFlowControllerProvider.select(
+            (state) => state.draftSession?.exerciseOrder ?? const <String>[],
+      ),
+    );
+
     setState(() {
       _currentPageIndex = index;
       _swipeHintTopOffset = null;
     });
 
     ref.read(strengthFlowControllerProvider.notifier).updatePagerIndex(index);
+
+    _precacheAroundPage(
+      exerciseIds: exercises,
+      centerIndex: index,
+    );
   }
 
   void _handleHeaderDividerGlobalYChanged(double globalY) {
@@ -111,6 +122,34 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       if (a[i] != b[i]) return false;
     }
     return true;
+  }
+
+  void _precacheAroundPage({
+    required List<String> exerciseIds,
+    required int centerIndex,
+  }) {
+    if (exerciseIds.isEmpty) return;
+
+    final candidates = <int>{
+      centerIndex,
+      centerIndex - 1,
+      centerIndex + 1,
+    };
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      for (final index in candidates) {
+        if (index < 0 || index >= exerciseIds.length) continue;
+        ExerciseAssetResolver.warmUp(exerciseIds[index]);
+        unawaited(
+          ExerciseAssetResolver.precacheExerciseImage(
+            context,
+            exerciseIds[index],
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -167,6 +206,13 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       if (_currentPageIndex > maxIndex) {
         _currentPageIndex = maxIndex < 0 ? 0 : maxIndex;
       }
+    }
+
+    if (orderChanged && exercises.isNotEmpty) {
+      _precacheAroundPage(
+        exerciseIds: exercises,
+        centerIndex: _currentPageIndex.clamp(0, exercises.length - 1),
+      );
     }
 
     final panelColor = _panelSurfaceColor(context);
@@ -371,17 +417,6 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                   }
 
                   final exerciseId = exerciseIds[index];
-
-                  // PATCH 4: Nachbar-Assets vorwärmen.
-                  // Der Cache-Lookup läuft async im Hintergrund; wenn der
-                  // User zur nächsten/vorherigen Page wischt, ist der Pfad
-                  // bereits gecacht und ExerciseAssetImage zeigt sofort das Bild.
-                  if (index + 1 < exerciseIds.length) {
-                    ExerciseAssetResolver.warmUp(exerciseIds[index + 1]);
-                  }
-                  if (index - 1 >= 0) {
-                    ExerciseAssetResolver.warmUp(exerciseIds[index - 1]);
-                  }
 
                   return ExercisePage(
                     key: ValueKey('exercise_page_$exerciseId'),
@@ -1138,7 +1173,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
   Timer? _timer;
 
   late final Ticker _metronomeTicker;
-  final Stopwatch _metronomeStopwatch = Stopwatch();
+  bool _metronomeFrameRequestInFlight = false;
   int _metronomeCycleMs = 1;
 
   int _page = 0;
@@ -1157,7 +1192,6 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
 
     _metronomeTicker.stop();
     _metronomeTicker.dispose();
-    _metronomeStopwatch.stop();
 
     _pageController.dispose();
     _restController.dispose();
@@ -1172,18 +1206,26 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
   @override
   void initState() {
     super.initState();
-    _metronomeTicker = createTicker((_) {
+    _metronomeTicker = createTicker((_) async {
       if (!mounted || !_metronomeRunning) return;
+      if (_metronomeFrameRequestInFlight) return;
 
-      final cycleMs = math.max(1, _metronomeCycleMs);
-      final posMs = _metronomeStopwatch.elapsedMilliseconds % cycleMs;
-      final next = Duration(milliseconds: posMs);
+      _metronomeFrameRequestInFlight = true;
+      try {
+        final posMs = await _soundService.getMetronomePositionMs();
+        if (!mounted || !_metronomeRunning) return;
 
-      if (next == _metronomeElapsed) return;
+        final cycleMs = math.max(1, _metronomeCycleMs);
+        final next = Duration(milliseconds: posMs % cycleMs);
 
-      setState(() {
-        _metronomeElapsed = next;
-      });
+        if (next == _metronomeElapsed) return;
+
+        setState(() {
+          _metronomeElapsed = next;
+        });
+      } finally {
+        _metronomeFrameRequestInFlight = false;
+      }
     });
   }
 
@@ -1593,12 +1635,6 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
       _metronomeElapsed = Duration.zero;
     });
 
-    _metronomeStopwatch
-      ..reset()
-      ..start();
-
-    _metronomeTicker.start();
-
     unawaited(
       _soundService.metronomeStartLoop(
         concentricMs: con,
@@ -1607,12 +1643,13 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
         holdBottomMs: holdBottom,
       ),
     );
+
+    _metronomeTicker.start();
   }
 
   void _stopMetronome() {
     _metronomeTicker.stop();
-    _metronomeStopwatch.stop();
-    _metronomeStopwatch.reset();
+    _metronomeFrameRequestInFlight = false;
 
     unawaited(_soundService.metronomeStopLoop());
 

@@ -75,6 +75,15 @@ class MtorqueSoundBridge(
                 result.success(null)
             }
 
+            "getMetronomePositionMs" -> {
+                val position = try {
+                    metronomeEngine?.getPositionMs() ?: 0L
+                } catch (_: Throwable) {
+                    0L
+                }
+                result.success(position.toInt())
+            }
+
             else -> result.notImplemented()
         }
     }
