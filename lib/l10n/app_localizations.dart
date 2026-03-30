@@ -880,6 +880,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{valueTons} t'**
   String strengthExerciseTonnageLabel(double valueTons);
+
+  /// No description provided for @strengthExerciseMuscleZoomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Double tap to zoom'**
+  String get strengthExerciseMuscleZoomHint;
+
+  /// No description provided for @muscleLabelFunction.
+  ///
+  /// In en, this message translates to:
+  /// **'Function'**
+  String get muscleLabelFunction;
+
+  /// No description provided for @muscleLabelOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin'**
+  String get muscleLabelOrigin;
+
+  /// No description provided for @muscleLabelInsertion.
+  ///
+  /// In en, this message translates to:
+  /// **'Insertion'**
+  String get muscleLabelInsertion;
+
+  /// No description provided for @muscleLabelInnervation.
+  ///
+  /// In en, this message translates to:
+  /// **'Innervation'**
+  String get muscleLabelInnervation;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

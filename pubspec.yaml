@@ -30,6 +30,8 @@ dependencies:
 
   shared_preferences: ^2.5.3
 
+  photo_view: ^0.15.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -42,6 +44,10 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - assets/data/exercises_master.csv
+    - assets/data/muscle_info.csv
+    - assets/images/anatomy/skeleton_front.png
+    - assets/images/anatomy/skeleton_back.png
+    - assets/images/anatomy/overlays/
     - assets/images/dashboard/
     - assets/images/exercises/
-    - assets/data/exercises_master.csv

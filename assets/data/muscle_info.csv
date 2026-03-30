@@ -1,0 +1,320 @@
+﻿Nr;Muskel;Funktion_de;Funktion_en;Ursprung;Ursprung_en;Ansatz;Ansatz_en;Innervation;;;;
+1;M. biceps brachii;"• Ellenbogen: Flexion, Supination
+• Schulter: Anteversion";"• Elbow: Flexion, supination
+• Shoulder: Flexion";"• Caput longum: Tuberculum supraglenoidale
+• Caput breve: Processus coracoideus";"• Caput longum: Tuberculum supraglenoidale
+• Caput breve: Processus coracoideus";"• Tuberositas radii
+• Fascia antebrachii (via Aponeurosis bicipitis brachii)";"• Tuberositas radii
+• Fascia antebrachii (via Aponeurosis bicipitis brachii)";• N. musculocutaneus (C5-6);;;;
+2;M. brachialis;• Ellenbogen: Flexion;• Elbow: Flexion;• Distaler Humerus (anteriore Fläche);• Distal humerus (anterior surface);• Tuberositas ulnae;• Tuberositas ulnae;• N. musculocutaneus (C5-6);;;;
+3;M. coracobrachialis;• Schulter: Anteversion, Adduktion, Innenrotation;• Shoulder: Flexion, adduction, internal rotation;• Processus coracoideus der Scapula;• Coracoid process of the scapula;• Mittleres Humerusdrittel (anteromedial);• Middle third of the humerus (anteromedial);• N. musculocutaneus (C5-6);;;;
+4;M. triceps brachii;"• Ellenbogen: Extension
+• Schulter: Retroversion und Adduktion (Caput longum)";"• Elbow: Extension
+• Shoulder: Extension and adduction (long head)";"• Caput longum: Tuberculum infraglenoidale scapulae
+• Caput laterale: Proximaler Humerus (superolateral vom Sulcus N. radialis)
+• Caput mediale: Distaler Humerus (inferomedial vom Sulcus N. radialis)";"• Caput longum: Tuberculum infraglenoidale scapulae
+• Lateral head: proximal humerus (superolateral to the radial nerve groove)
+• Medial head: distal humerus (inferomedial to the radial nerve groove)";• Olecranon;• Olecranon;• N. radialis (C6-8);;;;
+5;M. anconeus;• Ellenbogen: Extension;• Elbow: Extension;• Humerus: Epicondylus lateralis (dorsale Fläche);• Humerus: lateral epicondyle (posterior surface);• Olecranon und laterale Kante des proximalen Ulnaschaftes;• Olecranon and lateral border of the proximal ulnar shaft;• N. radialis (C6-8);;;;
+6;M. brachioradialis;"• Ellenbogen: Flexion (besonders in Semipronationsstellung des Unterarmes)
+• Ellenbogen: Pronation aus maximaler Supinationsstellung, Supination aus maximaler Pronation";"• Elbow: Flexion (especially in the semipronated position of the forearm)
+• Elbow: Pronation from maximal supination, supination from maximal pronation";"• Humerus: Distaler Humerus (radiale Kante)
+• Septum intermusculare laterale";"• Humerus: distal humerus (radial border)
+• Septum intermusculare laterale";• Lateraler Rand des distalen Radius (proximal des Processus styloideus);• Lateral border of the distal radius (proximal to the styloid process);• N. radialis (C5-6);;;;
+7;Mm. extensores carpi;"• Handgelenk: Extension,  Abduction (M. extensor carpi radialis longus, M. extensor carpi radialis brevis), Adduction (M. extensor carpi ulnaris)
+• Ellenbogen: Flexion (M. extensor carpi radialis longus, M. extensor carpi radialis brevis)";"• Wrist: Extension, abduction (extensor carpi radialis longus, extensor carpi radialis brevis), adduction (extensor carpi ulnaris)
+• Elbow: Flexion (extensor carpi radialis longus, extensor carpi radialis brevis)";• Epicondylus lateralis humeri;• Epicondylus lateralis humeri;"• Basis des Os metacarpale II (M. extensor carpi radialis longus)
+• Basis des Os metacarpale III (M. extensor carpi radialis brevis)
+• Basis des Os metacarpale V (M. extensor carpi ulnaris)";"• Base of the 2nd metacarpal (M. extensor carpi radialis longus)
+• Base of the 3rd metacarpal (M. extensor carpi radialis brevis)
+• Base of the 5th metacarpal (M. extensor carpi ulnaris)";• N. radialis (C5-6);;;;
+8;Mm. flexores carpi;• Handgelenk: Flexion, Abduction (M. flexor carpi radialis), Adduction (M. flexor ulnaris);• Wrist: Flexion, abduction (flexor carpi radialis), adduction (flexor carpi ulnaris);• Epicondylus medialis humeri;• Epicondylus medialis humeri;"• Basis der Ossa metacarpalia II, III (M. flexor carpi radialis)
+• Os pisiforme (M. flexor carpi ulnaris), Os hamatum (M. flexor carpi ulnaris), Os metacarpale V (M. flexor carpi ulnaris)";"• Base of metacarpals II and III (M. flexor carpi radialis)
+• Os pisiforme (M. flexor carpi ulnaris), Os hamatum (M. flexor carpi ulnaris), Os metacarpale V (M. flexor carpi ulnaris)";"• N. medianus (C6-7) (M. flexor carpi radialis)
+• N. ulnaris (C8-Th1) (M. flexor carpi ulnaris)";;;;
+9;M. deltoideus pars clavicularis;• Schulter: Anteversion, Innenrotation, horizonatale Adduktion, bei abduziertem Arm Abduktion, bei adduziertem Arm Adduktion (zusammen mit dem M. pectoralis major);"• Shoulder: Flexion, internal rotation, horizontal adduction; with the arm abducted: abduction; with the arm adducted: adduction (together with pectoralis major)";• Pars acromialis claviculae;• Pars acromialis claviculae;• Tuberositas deltoidea humeri;• Tuberositas deltoidea humeri;• N. axillaris (C5-6);;;;
+10;M. deltoideus pars acromialis;• Schulter: Abduktion,stabilisiert den Arm gegen die nach unten ziehende Last (gemeinsam mit M. supraspinatus);"• Shoulder: Abduction; stabilizes the arm against downward-directed load (together with supraspinatus)";• Acromion;• Acromion;• Tuberositas deltoidea humeri;• Tuberositas deltoidea humeri;• N. axillaris (C5-6);;;;
+11;M. deltoideus pars spinalis;• Schulter: Retroversion, Außenrotation, horizontale Abduktion, bei abduziertem Arm Abduktion, bei adduziertem Arm Adduktion;"• Shoulder: Extension, external rotation, horizontal abduction; with the arm abducted: abduction; with the arm adducted: adduction";• Spina scapulae;• Spina scapulae;• Tuberositas deltoidea humeri;• Tuberositas deltoidea humeri;• N. axillaris (C5-6);;;;
+12;M. supraspinatus;• Schulter: Abduktion (initiierend/unterstützend), Außenrotation, stabilisiert den Humeruskopf im Glenohumeralgelenk gegen  nach unten ziehende Lasten (gemeinsam dem M. deltoideus pars acromialis);"• Shoulder: Abduction (initiating/supporting), external rotation; stabilizes the humeral head in the glenohumeral joint against downward-directed loads (together with the acromial part of the deltoid)";• Fossa supraspinata scapulae;• Fossa supraspinata scapulae;• Tuberculum majus humeri;• Tuberculum majus humeri;• N. suprascapularis (C4-6);;;;
+13;M. teres major;"• Schulter: Innenrotation, Adduktion, Retroversion
+• Scapula: Dreht den Angulus inferior der Scapula bei festgestelltem Arm zum Humerus  (dient der Vordehnung des M. deltoideus)";"• Shoulder: Internal rotation, adduction, extension
+• Scapula: Rotates the inferior angle of the scapula toward the humerus when the arm is fixed (serves to pre-stretch the deltoid)";• Angulus inferior scapulae;• Angulus inferior scapulae;• Crista tuberculi minores;• Crista tuberculi minores;"• N. suprascapularis (C4-6),
+• N. thoracodorsalis (C6-7)
+• N. subscapularis (C5-C6)";;;;
+14;M. teres minor;• Schulter: Abduktion (oberer Anteil), Adducktion (unterer Anteil, Außenrotation  (besonders bei innenrotiertem Arm), glenohumerale Stabilisierung/Zentrierung;• Shoulder: Abduction (upper part), adduction (lower part), external rotation (especially with the arm internally rotated), glenohumeral stabilization/centering;• Margo lateralis scapulae (mittlerer Teil);• Margo lateralis scapulae (mittlerer Teil);• Tuberculum majus humeri (mittlerer und unterer Anteil);• Greater tubercle of the humerus (middle and inferior part);• N. axillaris (C5-6);;;;
+15;M. infraspinatus;• Schulter: Außenrotation des Armes (besonders bei innenrotiertem Arm), Abduktion (oberer Anteil), Adducktion (unterer Anteil), glenohumerale Stabilisierung/Zentrierung;• Shoulder: External rotation of the arm (especially with the arm internally rotated), abduction (upper part), adduction (lower part), glenohumeral stabilization/centering;• Fossa infraspinata scapulae;• Fossa infraspinata scapulae;• Tuberculum majus humeri (mittlerer und unterer Anteil);• Greater tubercle of the humerus (middle and inferior part);• N. suprascapularis (C4-6);;;;
+16;M. subscapularis;• Schulter: Innenrotation  (stärkster Innenrotator), Adduction, glenohumerale anterior-stabilisierende / zentrierende Funktion;• Shoulder: Internal rotation (strongest internal rotator), adduction, anterior glenohumeral stabilizing/centering function;• Fossa subscapularis;• Fossa subscapularis;"• Tuberculum minus humeri
+• Schultergelenkskapsel";"• Tuberculum minus humeri
+• Schultergelenkskapsel";• N. subscapularis;;;;
+17;M. pectoralis major pars clavicularis;"• Schulter: horizontale Adduction, Adduction, Innenrotation und Anteversion des Armes
+• Hebt den Schultergürtel";"• Shoulder: Horizontal adduction, adduction, internal rotation, and flexion of the arm
+• Elevates the shoulder girdle";• Clavicula (pars medialis);• Clavicula (pars medialis);• Crista tuberculi majores humeri (distal des Ansatzes vom M. pectoralis major pars abdominalis);• Crest of the greater tubercle of the humerus (distal to the insertion of M. pectoralis major, abdominal part);"• N. pectoralis medialis (C8, Th1)
+• N. pectoralis lateralis";;;;
+18;M. pectoralis major pars sternocostalis;"• Schulter: horizontale Adduction, Adduction, Innenrotation, untertützt Anteversion des retrovertierten Armes
+• Schultergrütel: zieht den Schultergürtel nach vorne";"• Shoulder: Horizontal adduction, adduction, internal rotation; assists flexion of the extended arm
+• Shoulder girdle: Draws the shoulder girdle forward";"• Sternum
+• Cartilagines costales (2. - 5. Rippe)";"• Sternum
+• Costal cartilages (2nd–5th ribs)";• Crista tuberculi majores humeri;• Crista tuberculi majores humeri;"• N. pectoralis medialis (C8, Th1)
+• N. pectoralis lateralis";;;;
+19;M. pectoralis major pars abdominalis;"• Schulter: horizontale Adduction, Adduction, Innenrotation, untertützt die Retroversion des des antevertierten Armes
+• Schultergürtel: Senkt den Schultergürtel";"• Shoulder: Horizontal adduction, adduction, internal rotation; assists extension of the flexed arm
+• Shoulder girdle: Depresses the shoulder girdle";• Recusscheide (vorderes Blatt);• Recusscheide (vorderes Blatt);• Crista tuberculi majores humeri (proximal des Ansatzes vom M. pectoralis major pars clavicularis);• Crest of the greater tubercle of the humerus (proximal to the insertion of M. pectoralis major, clavicular part);"• N. pectoralis medialis (C8, Th1)
+• N. pectoralis lateralis";;;;
+20;M. pectoralis minor;"• Senkt und protrahiert den Schultergürtel
+• Scapula: Zieht die Scapula nach vorn unten (dabei dreht sich die Gelenkfläche nach unten)";"• Depresses and protracts the shoulder girdle
+• Scapula: Draws the scapula anteriorly and inferiorly (thereby rotating the glenoid cavity downward)";• 3.-5. Rippe (Vorderfläche und Oberkante), Fascien der darüberliegenden Mm. Intercostales externi;• 3rd–5th ribs (anterior surface and superior border), fascia of the overlying external intercostal muscles;• Processus coracoideus scapulae;• Processus coracoideus scapulae;"• N. pectoralis medialis (C8, Th1)
+• N. pectoralis lateralis";;;;
+21;M. serratus anterior pars superior;• Scapula: Protraktion, Mitwirkung an der Aufwärtsrotation, Scapulastabilisierung am Thorax;• Scapula: Protraction, contribution to upward rotation, stabilization of the scapula against the thoracic wall;• 1.-2. Rippe (Vorder- und Oberkante);• 1st–2nd ribs (anterior and superior border);• Angulus superior scapulae;• Angulus superior scapulae;• N. thoracicus longus (C5-C7);;;;
+22;M. serratus anterior pars intermedia;• Scapula: Protraktion, Außenrotation, Scapulastabilisierung am Thorax;• Scapula: Protraction, external rotation, stabilization of the scapula against the thoracic wall;• 2.-3. Rippe (Vorder- und Oberkante);• 2nd–3rd ribs (anterior and superior border);• Scapula (medialer Rand);• Scapula (medial border);• N. thoracicus longus (C5-C7);;;;
+23;M. serratus anterior pars inferior;• Scapula: Protraktion, dreht den Angulus inferior nach lateral-kranial (Voraussetzung für das Heben des Armes über 90°), Scapulastabilisierung am Thorax;• Scapula: Protraction, rotates the inferior angle laterally and cranially (prerequisite for elevating the arm above 90°), stabilization of the scapula against the thoracic wall;• 4.-9. Rippe (Vorder- und Oberkante);• 4th–9th ribs (anterior and superior border);• Scapula (Margo medialis u. Angulus inferior scapulae);• Scapula (Margo medialis u. Angulus inferior scapulae);• N. thoracicus longus (C5-C7);;;;
+24;M. rectus abdominis;"• Rumpf: Ventralflexion
+• Becken: Hebt das Becken";"• Trunk: Flexion
+• Pelvis: Elevates the pelvis";"• Processus xiphoideus sterni
+• 5.-7. Rippe (sternales Ende im Bereich der Rippenknorpel)";"• Processus xiphoideus sterni
+• 5th–7th ribs (sternal end in the region of the costal cartilages)";"• Symphyse
+• Tuberculum pubicum";"• Symphyse
+• Tuberculum pubicum";• 5.-12. N. intercostalis (Th7-Th12);;;;
+25;M. obliquus externus abdominis;"• Rumpf: Lateralflexion, Rotation zur Gegenseite; Ventralflexion bei beidseitiger Kontraktion 
+• Becken: Hebt das Becken";"• Trunk: Lateral flexion, rotation to the opposite side; flexion with bilateral contraction
+• Pelvis: Elevates the pelvis";• 5.-12. Rippe (Außenfläche und Unterkante);• 5th–12th ribs (external surface and inferior border);"• Crista iliaca (labium externum)
+• Linea alba
+• Lig. Inguinale";"• Crista iliaca (labium externum)
+• Linea alba
+• Lig. Inguinale";• 5.-12. N. intercostalis;;;;
+26;M. obliquus internus abdominis;• Rumpf: Lateralflexion, ipsilaterale Rotation, Ventralflexion bei beidseitiger Kontraktion;• Trunk: Lateral flexion, ipsilateral rotation, flexion with bilateral contraction;"• Fascia thoracolumbalis
+• Crista iliaca (Linea intermedia)
+• Spina iliaca anterior superior
+• Ligamentum inguinale (lateraler Anteil)";"• Fascia thoracolumbalis
+• Crista iliaca (Linea intermedia)
+• Spina iliaca anterior superior
+• Inguinal ligament (lateral part)";"• 9.-12. Rippe (Unterkante)
+• 8.-10. Rippe (Rippenknorpel)
+• Linea alba";"• 9th–12th ribs (inferior border)
+• 8th–10th ribs (costal cartilages)
+• Linea alba";"• 8.-12. N. intercostalis
+• N. ilioinguinalis
+• N. iliohypogastricus";;;;
+27;M. quadratus lumborum;• Rumpf: Lateralflexion, Beckenanheben (Pelvic Hike);• Trunk: Lateral flexion, pelvic elevation (pelvic hike);"• Crista iliaca (Labium internum)
+• Ligamentum iliolumbale";"• Crista iliaca (Labium internum)
+• Ligamentum iliolumbale";"• 12. Rippe
+• Lendenwirbel 1.-4. (Processus transversus)";"• 12th rib
+• L1–L4 vertebrae (transverse processes)";"• N. subcostalis
+• Plexus lumbalis";;;;
+28;M. iliopsoas;• Hüfte: Flexion, Adduction, Innenrotation bei außenrotiertem Bein, Außenrotation bei innenrotiertem Bein;• Hip: Flexion, adduction, internal rotation with the leg externally rotated, external rotation with the leg internally rotated;• 12. Brustwirbelkörper - 4. Lendenwirbelkörper (Voderfläche und Querfortsätze der Wirbel);• T12 vertebral body – L4 vertebral body (anterior surface and transverse processes of the vertebrae);"• Trochanter minor femoris
+• Arcus iliopectineus (über Fascia iliaca)";"• Trochanter minor femoris
+• Iliopectineal arch (over the iliac fascia)";"• N. femoralis (L2-3)
+• Plexus lumbalis (L2-3)";;;;
+29;M. latissimus dorsi;"• Schulter: Innenrotation, Adduktion, Retroversion
+• Schultergürtel: Depression";"• Shoulder: Internal rotation, adduction, extension
+• Shoulder girdle: Depression";"• Angulus inferior scapulae
+• 7. Brust - 5. Lendenwirbelkörper (Processi spinosi)
+• Os sacrum
+• Fascia thoracolumbalis
+• 8.-12. Rippe
+• Crista iliaca os ilii";"• Angulus inferior scapulae
+• T7–L5 vertebrae (spinous processes)
+• Os sacrum
+• Fascia thoracolumbalis
+• 8th–12th ribs
+• Crista iliaca os ilii";• Crista tuberculi minoris humeri;• Crista tuberculi minoris humeri;• N. thoracodorsalis (C6-8);;;;
+30;M. rhomboideus major et minor;• Scapula: Hebt die Scapula, zieht sie nach kraniomedial und dreht den Angulus inferior nach medial;• Scapula: Elevates the scapula, draws it superomedially, and rotates the inferior angle medially;"• 1.-4. Brustwirbel (Procc. Spinosi; rhomboideus major)
+• 6.-7. Halswirbel (Procc. Spinosi; rhomboideus minor)
+• Lig. Nuchae
+";"• T1–T4 vertebrae (spinous processes; rhomboid major)
+• C6–C7 vertebrae (spinous processes; rhomboid minor)
+• Lig. Nuchae
+";"• Scapula (rhomboideus major: margo medialis unterhalb der Spina scapulae; rhomboideus minor: margo medialis oberhalb der Spina scapulae)";"• Scapula (rhomboideus major: margo medialis unterhalb der Spina scapulae; rhomboideus minor: margo medialis oberhalb der Spina scapulae)";• N. dorsalis scapulae (C5);;;;
+31;M. levator scapulae;• Scapula: Hept die Scapula  und dreht den Angulus inferior nach medial;• Scapula: Elevates the scapula and rotates the inferior angle medially;• 1.-4. Halswirbel (Tubercula posteriora der Processus transversi);• C1–C4 vertebrae (posterior tubercles of the transverse processes);• Scapula (margo medialis u. Angulus superior scapulae);• Scapula (margo medialis u. Angulus superior scapulae);"• N. dorsalis scapulae (C5)
+• Cervicale Spinalnverven (C3-4)";;;;
+32;M. trapecius pars descendens;"• Schultergürtel: Elevation
+• Scapula: Elevation, Mitwirkung an der Aufwärtsrotation
+• Hals: Extension";"• Shoulder girdle: Elevation
+• Scapula: Elevation, contribution to upward rotation
+• Neck: Extension";"• Linea nuchae superior
+• Ligamentum nuchae
+• Protuberantia occipitalis externa";"• Linea nuchae superior
+• Ligamentum nuchae
+• Protuberantia occipitalis externa";• Clavicula (laterales Drittel);• Clavicle (lateral third);"• N. accessorius
+• Plexus cervicalis";;;;
+33;M. trapecius pars transversus;• Schultergürtel: Retraktion des Schultergürtels;• Shoulder girdle: Retraction of the shoulder girdle;• 7.Halswirbel - 3.Brustwirbel (Processus spinosi);• C7 – T3 vertebrae (spinous processes);• Acromion;• Acromion;"• N. accessorius
+• Plexus cervicalis";;;;
+34;M. trapecius pars ascendens;"• Schultergürtel: Depression
+• Scapula: Beitrag zur Aufwärtsrotation";"• Shoulder girdle: Depression
+• Scapula: Contribution to upward rotation";• 3.-12. Brustwirbel (Processus spinosi);• T3–T12 vertebrae (spinous processes);• Spina scapulae;• Spina scapulae;"• N. accessorius
+• Plexus cervicalis";;;;
+35;M. erector spinae;"• Rumpf: Beugt den Rumpf zur gleichen Seite; Extension (bei beiseitiger Kontraktion)";"• Trunk: Bends the trunk to the same side; extension with bilateral contraction";"• Aufgrund der Vielzahl der einzelnen Ursprünge sind diese hier nicht einzeln aufgeführt
+• Insgesamt zieht der Muskel vom Os sacrum bis zum Os occipitale";"• Due to the large number of individual origins, they are not listed here separately
+• Overall, the muscle runs from the sacrum to the occipital bone";"• Aufgrund der Vielzahl der einzelnen Ansätze sind diese hier nicht einzeln aufgeführt
+• Insgesamt zieht der Muskel vom Os sacrum bis zum Os occipitale";"• Due to the large number of individual insertions, they are not listed here separately
+• Overall, the muscle runs from the sacrum to the occipital bone";• Nn. Spinales (Radices posteriores);;;;
+36;M. gluteus maximus;• Hüfte: Extension, Außenrotation, Abduction (oberer Teil), Adduction (unterer Teil);• Hip: Extension, external rotation, abduction (upper part), adduction (lower part);"• Ala ossis ilii
+• Crista iliaca
+• Os sacrum (dorsale Fläche)
+• Os coccygis (dorsale Fläche)
+• Ligamentum sacrotuberale
+• Fascia thoracolumbalis";"• Ala ossis ilii
+• Crista iliaca
+• Sacrum (posterior surface)
+• Coccyx (posterior surface)
+• Ligamentum sacrotuberale
+• Fascia thoracolumbalis";"• Tuberositas glutea femoris
+• Tractus iliotibialis";"• Tuberositas glutea femoris
+• Tractus iliotibialis";• N. gluteus inferior (L5-S2);;;;
+37;M. gluteus medius;"• Hüfte: Abduction; hebt bei festgestelltem Bein das Becken auf der gegenüberliegenden Seite nach oben; Innenrotation und Flexion (vorderer Anteil); Außenrotation und Extension (hinterer Anteil)";"• Hip: Abduction; with the leg fixed, elevates the pelvis on the opposite side; internal rotation and flexion (anterior part); external rotation and extension (posterior part)";"• Ala ossis ilii (zwischen Linea glutea posterior und anterior)
+• Crista iliaca anterior
+";"• Iliac ala (between the posterior and anterior gluteal lines)
+• Crista iliaca anterior
+";• Trochanter major femoris;• Trochanter major femoris;• N. gluteus superior (L4-S2);;;;
+38;M. gluteus minimus;"• Hüfte: Abduction; hebt bei festgestelltem Bein das Becken auf der gegenüberliegenden Seite nach oben; Innenrotation und Flexion (vorderer Anteil); Außenrotation und Extension (hinterer Anteil)";"• Hip: Abduction; with the leg fixed, elevates the pelvis on the opposite side; internal rotation and flexion (anterior part); external rotation and extension (posterior part)";"• Ala ossis ilii (zwischen Linea glutea inferior und anterior)
+";"• Iliac ala (between the inferior and anterior gluteal lines)
+";• Trochanter major femoris;• Trochanter major femoris;• N. gluteus superior (L4-S2);;;;
+39;M. tensor fasciae latae;"• Hüfte: Abduction, Innenrotation und Flexion
+• Spannt den Tractus iliotibialis
+• Knie: Extension, Außenrotation";"• Hip: Abduction, internal rotation and flexion
+• Tenses the iliotibial tract
+• Knee: Extension, external rotation";"• Spina iliaca anterior superior (laterale Fläche)
+• Crista iliaca";"• Anterior superior iliac spine (lateral surface)
+• Crista iliaca";"• Condylus lateralis tibiae via Tractus iliotibialis
+• Fascia lata";"• Condylus lateralis tibiae via Tractus iliotibialis
+• Fascia lata";• N. gluteus superior (L4-S2);;;;
+40;M. obturatorius internus et externus;"• Hüfte: Außenrotation, Adduktion (in Normalstellung), Abduktion (bei gebeugtem Hüftgelenk; M. obturatorius internus)";"• Hip: External rotation, adduction (in the neutral position), abduction (with the hip flexed; obturator internus)";"• Membrana obturatoria (Außenfläche: M. obturatorius internus; Innenfläche: M. obturatorius externus)
+• Knöcherner Rand des Foramen obturatorium";"• Obturator membrane (external surface: M. obturatorius internus; internal surface: M. obturatorius externus)
+• Bony margin of the obturator foramen";• Fossa trochanterica femoris;• Fossa trochanterica femoris;"• N. musculi obturatorii interni aus dem Plexus sacralis (M. obturatorius internus)
+• N. obturatorius (L3-4) (M. obturatorius externus)";;;;
+41;M. gemelli superior et inferior;• Hüfte: Außenrotation ;• Hip: External rotation;"• Spina ischiadica (M. gemellus superior)
+• Tuber ischiadicum (M. gemellus inferior)";"• Spina ischiadica (M. gemellus superior)
+• Tuber ischiadicum (M. gemellus inferior)";• Fossa trochanterica femoris;• Fossa trochanterica femoris;• Plexus sacralis;;;;
+42;M. sartorius;"• Hüftgelenk: Flexion, Abduction, Außenrotation (schwach)
+• Kniegelenk: Innenrotation (bei gebeugtem Knie), Flexion";"• Hip joint: Flexion, abduction, weak external rotation
+• Knee joint: Internal rotation (with the knee flexed), flexion";• Spina iliaca anterior superior;• Spina iliaca anterior superior;• Mediale Tibiafläche (Pes anserinus);• Medial surface of the tibia (pes anserinus);• N. femoralis (L2-3);;;;
+43;M. rectus femoris;"• Hüfte: Flexion
+• Knie: Extension";"• Hip: Flexion
+• Knee: Extension";"• Spina iliaca anterior inferior
+• Acetabulum (oberer Rand) am Os ilium";"• Spina iliaca anterior inferior
+• Acetabulum (superior rim) of the ilium";• Tuberositas tibiae;• Tuberositas tibiae;• N. femoralis (L2-3);;;;
+44;M. vastus lateralis;• Knie: Extension;• Knee: Extension;"• Trochanter major femoris
+• Linea aspera femoris (Labium lateralis)";"• Trochanter major femoris
+• Linea aspera femoris (Labium lateralis)";• Tuberositas tibiae;• Tuberositas tibiae;• N. femoralis (L2-3);;;;
+45;M. vastus medialis;• Knie: Extension;• Knee: Extension;• Linea aspera femoris (Labium mediale);• Linea aspera femoris (Labium mediale);• Tuberositas tibiae;• Tuberositas tibiae;• N. femoralis (L2-3);;;;
+46;M. vastus intermedius;• Knie: Extension;• Knee: Extension;• Femur (anterolaterale Fläche);• Femur (anterolateral surface);• Tuberositas tibiae;• Tuberositas tibiae;• N. femoralis (L2-3);;;;
+47;M. quadratus femoris;• Hüfte: Außenrotation, Adduktion;• Hip: External rotation, adduction;• Tuber ischiadicum;• Tuber ischiadicum;• Crista intertrochanterica femoris;• Crista intertrochanterica femoris;• N. musculi quadrati femoris;;;;
+48;M. biceps femoris caput longum;"• Hüfte: Extension, Außenrotation
+• Knie: Flexion, Außenrotation";"• Hip: Extension, external rotation
+• Knee: Flexion, external rotation";• Tuber ischiadicum (Hinterfläche);• Ischial tuberosity (posterior surface);"• Caput fibulae
+• Condylus lateralis fibulae";"• Caput fibulae
+• Condylus lateralis fibulae";• N. ischiadicus pars tibialis (S1-3);;;;
+49;M. biceps femoris caput breve;• Knie: Flexion, Außenrotation (bei gebeugtem Knie);• Knee: Flexion, external rotation (with the knee flexed);• Linea aspera femoris (Labium laterale);• Linea aspera femoris (Labium laterale);"• Caput fibulae
+• Condylus lateralis fibulae";"• Caput fibulae
+• Condylus lateralis fibulae";• N. fibularis communis (L5-S2);;;;
+50;M. Semitendinosus;"• Hüfte: Extension, Adduction
+• Knie: Flexion (bes. bei gebeugter Hüfte), Innenrotation (bei gebeugtem Knie)";"• Hip: Extension, adduction
+• Knee: Flexion (especially with the hip flexed), internal rotation (with the knee flexed)";• Tuber ischiadicum;• Tuber ischiadicum;• Proximale mediale Tibiafläche (Pes anserinus);• Proximal medial surface of the tibia (pes anserinus);• N. ischiadicus pars tibialis (S1-3);;;;
+51;M. semimembranosus;"• Hüfte: Extension, Adduction
+• Knie: Flexion (bes. bei gebeugter Hüfte), Innenrotation (bei gebeugtem Knie)";"• Hip: Extension, adduction
+• Knee: Flexion (especially with the hip flexed), internal rotation (with the knee flexed)";• Tuber ischiadicum;• Tuber ischiadicum;• Condylus medialis tibiae;• Condylus medialis tibiae;• N. ischiadicus pars tibialis (S1-3);;;;
+52;M. pectineus;• Hüfte: Adduction, Flexion, Außenrotation;• Hip: Adduction, flexion, external rotation;• Pecten ossis pubis;• Pecten ossis pubis;• Linea pectinea inferior femoris;• Linea pectinea inferior femoris;"• N. femoralis (L2--4)
+• N. obturatorius (L3-4)";;;;
+53;M. adductor longus;• Hüfte: Adduction, Innenrotation (schwach), Flexion (schwach);• Hip: Adduction, weak internal rotation, weak flexion;• Ramus superior ossis pubis;• Ramus superior ossis pubis;• Linea aspera femoris (Labium mediale);• Linea aspera femoris (Labium mediale);• N. obturatorius (L3-4);;;;
+54;M. gracilis;"• Hüfte: Adduction, Flexion
+• Knie: Flexion, Innenrotation";"• Hip: Adduction, flexion
+• Knee: Flexion, internal rotation";"• Ramus inferior ossis pubis
+• Symphyse";"• Ramus inferior ossis pubis
+• Symphyse";• Mediale Tibiafläche (Pes anserinus);• Medial surface of the tibia (pes anserinus);• N. obturatorius (L3-4);;;;
+55;M. adductor brevis;• Hüfte: Adduktion, Außenrotation, Flexion (schwach);• Hip: Adduction, external rotation, weak flexion;• Ramus inferior ossis pubis;• Ramus inferior ossis pubis;• Linea aspera femoris (Labium mediale);• Linea aspera femoris (Labium mediale);• N. obturatorius (L3-4);;;;
+56;M. adductor magnus;• Hüfte: Adduktion, Extension, Außenrotation (proximaler Anteil), Innenrotation (disaler Anteil);• Hip: Adduction, extension, external rotation (proximal part), internal rotation (distal part);"• Tuber ischiadicum
+• Ramus ossis ischii";"• Tuber ischiadicum
+• Ramus ossis ischii";"• Linea aspera femoris (Labium mediale)
+• Epicondylus medialis femoris";"• Linea aspera femoris (Labium mediale)
+• Epicondylus medialis femoris";"• N. obturatorius (L3-4)
+• N. ischiadicus pars tibialis (S1-3)";;;;
+57;M. adductor minimus;• Hüfte: Adduction, Außenrotation;• Hip: Adduction, external rotation;• M. adductor magnus;• M. adductor magnus;• Linea aspera femoris (Labium mediale);• Linea aspera femoris (Labium mediale);• N. obturatorius (L3-4);;;;
+58;M. gastrocnemius;"• Knie: Flexion
+• Oberes Sprunggelenk: Plantarflexion
+• Unteres Sprunggelenk: Supination
+";"• Knee: Flexion
+• Talocrural joint: Plantar flexion
+• Subtalar joint: Supination";"• Condylus medialis femoris
+• Condylus lateralis femoris";"• Condylus medialis femoris
+• Condylus lateralis femoris";• Tuber calcanei;• Tuber calcanei;• N. tibialis (S1-2);;;;
+59;M. soleus;"• Oberes Sprunggelenk: Plantarflexion
+• Unteres Sprunggelenk: Supination";"• Talocrural joint: Plantar flexion
+• Subtalar joint: Supination";"• Linea m. solei tibiae
+• Caput fibulae
+• Arcus tendineus m. solei";"• Linea m. solei tibiae
+• Caput fibulae
+• Arcus tendineus m. solei";• Tuber calcanei;• Tuber calcanei;• N. tibialis (S1-2);;;;
+60;M. plantaris;"• Knie: Flexion (schwach)
+• Oberes Sprunggelenk: Plantarflexion
+• Unteres Sprunggelenk: Supination";"• Knee: Weak flexion
+• Talocrural joint: Plantar flexion
+• Subtalar joint: Supination";• Condylus lateralis femoris;• Condylus lateralis femoris;• Tuber calcanei;• Tuber calcanei;• N. tibialis (L4-S1);;;;
+61;Mm. peronei;"• Oberes Sprunggelenk: Plantarflexion
+• Unteres Sprunggelenk: Pronation 
+• Abduktion des Fußes";"• Talocrural joint: Plantar flexion
+• Subtalar joint: Pronation
+• Abduction of the foot";"• Septa intermuscularia anterius und posterius cruris
+• Caput fibulae sowie oberes Drittel der Fibula (M. peroneus longus)
+• Fascia cruris (M. peroneus longus)
+• Unteres Drittel der Fibula (M. peroneus brevis)";"• Anterior and posterior intermuscular septa of the leg
+• Head of the fibula and proximal third of the fibula (M. peroneus longus)
+• Fascia cruris (M. peroneus longus)
+• Distal third of the fibula (M. peroneus brevis)";"• Os metatarsale I (M. peroneus longus)
+• Os cuneiforme mediale (M. peroneus longus)
+• Tuberositas ossis metatarsalis V (M. peroneus brevis)";"• Os metatarsale I (M. peroneus longus)
+• Os cuneiforme mediale (M. peroneus longus)
+• Tuberositas ossis metatarsalis V (M. peroneus brevis)";• N. fibularis superficialis;;;;
+62;M. tibialis anterior;"• Oberes Sprunggelenk: Dorsalextension
+• Unteres Sprunggelenk: Supination";"• Talocrural joint: Dorsiflexion
+• Subtalar joint: Supination";"• Condylus lateralis tibiae
+• Memrana interossea cruris
+• Fascia cruris";"• Condylus lateralis tibiae
+• Memrana interossea cruris
+• Fascia cruris";"• Os metatarsale I (Basis)
+• Os cuneiforme mediale";"• Os metatarsale I (Basis)
+• Os cuneiforme mediale";• N. fibularis profundus (L4-S1);;;;
+63;M. extensor hallucis longus;"• Oberes Sprunggelenk: Dorsalextension
+• Grund- u. Endgelenk der Großzehe: Extension";"• Talocrural joint: Dorsiflexion
+• Metatarsophalangeal and interphalangeal joints of the great toe: Extension";"• Facies mediales fibulae
+• Membrana interossea cruris";"• Facies mediales fibulae
+• Membrana interossea cruris";• Großzehe (superiore Fläche der Endphalanx);• Great toe (superior surface of the distal phalanx);• N. fibularis profundus (L4-S1);;;;
+64;M. extensor digitorum longus;"• Oberes Sprunggelenk: Dorsalextension
+• Unteres Sprunggelenk: Supination
+• 2.-5. Zehe: Dorsalextension";"• Talocrural joint: Dorsiflexion
+• Subtalar joint: Supination
+• Toes 2–5: Extension";"• Condylus lateralis tibiae
+• Margo anterior fibulae
+• Membrana interossea cruris
+• Fascia cruris";"• Condylus lateralis tibiae
+• Margo anterior fibulae
+• Membrana interossea cruris
+• Fascia cruris";• Dorsalaponeurose (2.-5. Zehe);• Dorsal aponeurosis (toes 2–5);• N. fibularis profundus (L4-S1);;;;
+65;M. flexor digitorum longus;"• Oberes Sprunggelenk: Plantarflexion
+• Unteres Sprunggelenk: Pronation
+• 2.-5. Zehe: Plantarflexion";"• Talocrural joint: Plantar flexion
+• Subtalar joint: Pronation
+• Toes 2–5: Plantar flexion";• Tibia (dorsale Fläche);• Tibia (posterior surface);• Endphalangen der 2.-5. Zehe (inferiore Flächen);• Distal phalanges of toes 2–5 (inferior surfaces);• N. tibialis (L5-S1);;;;
+66;M. tibialis posterior;"• Oberes Sprunggelenk: Plantarflexion (schwach)
+• Unteres Sprunggelenk: Supination";"• Talocrural joint: Weak plantar flexion
+• Subtalar joint: Supination";"• Tibia (dorsale Fläche)
+• Fibula (mediale Fläche)
+• Membrana interossea cruris";"• Tibia (posterior surface)
+• Fibula (medial surface)
+• Membrana interossea cruris";"• Ossa metatarsalia II-IV
+• Os cuneiforme I u. II
+• Tuberositas ossis navicularis";"• Ossa metatarsalia II-IV
+• Os cuneiforme I u. II
+• Tuberositas ossis navicularis";• N. tibialis (S1-2);;;;
+67;M. flexor hallucis longus;"• Oberes Sprunggelenk: Plantarflexion
+• Unteres Sprunggelenk: Supination (schwach)
+• Grund u. Endgelenk der Großzehe: Flexion";"• Talocrural joint: Plantar flexion
+• Subtalar joint: Weak supination
+• Metatarsophalangeal and interphalangeal joints of the great toe: Flexion";"• Fibula
+• Membrana interossea cruris";"• Fibula
+• Membrana interossea cruris";• Großzehe (Endphalanx);• Great toe (distal phalanx);• N. tibialis (L5-S1);;;;
+68;M. popliteus;• Knie: Flexion (schwach), Innenrotation (bei gebeugtem Knie);• Knee: Weak flexion, internal rotation (with the knee flexed);• Condylus lateralis femoris;• Condylus lateralis femoris;• Fascia posterior tibiae;• Fascia posterior tibiae;• N. tibialis (L4-S1);;;;
+;;;;;;;;;;;;
+;;;;;;;;;;;;
+;;;;;;;;;;;;
+;;;;;;;;;;;;
+;;Rauber Kopsch;;;;;;;;;;
+;;Moll;;;;;;;;;;

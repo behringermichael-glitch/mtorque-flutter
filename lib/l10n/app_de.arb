@@ -175,5 +175,10 @@
         "type": "double"
       }
     }
-  }
+  },
+  "strengthExerciseMuscleZoomHint": "Doppeltippen zum Zoomen",
+  "muscleLabelFunction": "Funktion",
+  "muscleLabelOrigin": "Ursprung",
+  "muscleLabelInsertion": "Ansatz",
+  "muscleLabelInnervation": "Innervation"
 }

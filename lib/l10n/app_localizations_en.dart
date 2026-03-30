@@ -412,4 +412,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String strengthExerciseTonnageLabel(double valueTons) {
     return '$valueTons t';
   }
+
+  @override
+  String get strengthExerciseMuscleZoomHint => 'Double tap to zoom';
+
+  @override
+  String get muscleLabelFunction => 'Function';
+
+  @override
+  String get muscleLabelOrigin => 'Origin';
+
+  @override
+  String get muscleLabelInsertion => 'Insertion';
+
+  @override
+  String get muscleLabelInnervation => 'Innervation';
 }

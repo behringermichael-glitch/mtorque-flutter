@@ -10,6 +10,7 @@ import '../../domain/repositories/strength_repository.dart';
 import '../state/strength_flow_controller.dart';
 import '../state/strength_providers.dart';
 import 'exercise_asset_resolver.dart';
+import '../widgets/anatomy/exercise_muscles_bottom_sheet.dart';
 
 class StartRestTimerNotification extends Notification {
   const StartRestTimerNotification();
@@ -711,8 +712,6 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     required StrengthRepository repository,
     required String exerciseId,
   }) {
-    final l10n = AppLocalizations.of(context)!;
-
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -722,60 +721,23 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
           future: repository.getExerciseDetail(exerciseId),
           builder: (context, snapshot) {
             final detail = snapshot.data;
-            final languageCode = Localizations.localeOf(context).languageCode;
-            final primary = detail?.muscles
-                .where((e) => e.role == StrengthMuscleRole.primary)
-                .toList() ??
-                const <StrengthExerciseMuscleUsage>[];
-            final secondary = detail?.muscles
-                .where((e) => e.role == StrengthMuscleRole.secondary)
-                .toList() ??
-                const <StrengthExerciseMuscleUsage>[];
 
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: detail == null &&
-                  snapshot.connectionState != ConnectionState.done
-                  ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(28),
+            if (detail == null &&
+                snapshot.connectionState != ConnectionState.done) {
+              return const Padding(
+                padding: EdgeInsets.all(28),
+                child: Center(
                   child: CircularProgressIndicator(),
                 ),
-              )
-                  : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      detail?.label ?? exerciseId,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _MuscleSection(
-                      title: l10n.strengthExercisePrimaryMuscles,
-                      color: const Color(0xFFFF3C3C),
-                      items: primary,
-                      languageCode: languageCode,
-                      emptyText:
-                      l10n.strengthExerciseNoMuscleDataAvailable,
-                    ),
-                    const SizedBox(height: 18),
-                    _MuscleSection(
-                      title: l10n.strengthExerciseSecondaryMuscles,
-                      color: const Color(0xFF3C7CFF),
-                      items: secondary,
-                      languageCode: languageCode,
-                      emptyText:
-                      l10n.strengthExerciseNoMuscleDataAvailable,
-                    ),
-                  ],
-                ),
-              ),
+              );
+            }
+
+            final muscles = detail?.muscles ?? const <StrengthExerciseMuscleUsage>[];
+
+            return ExerciseMusclesBottomSheet(
+              exerciseId: exerciseId,
+              exerciseLabel: detail?.label ?? exerciseId,
+              muscles: muscles,
             );
           },
         );
@@ -870,7 +832,7 @@ class _ExerciseHeader extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: SizedBox(
-              height: 170,
+              height: 180,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
