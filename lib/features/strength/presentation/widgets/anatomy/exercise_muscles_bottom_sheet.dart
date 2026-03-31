@@ -26,7 +26,6 @@ class ExerciseMusclesBottomSheet extends StatefulWidget {
 class _ExerciseMusclesBottomSheetState
     extends State<ExerciseMusclesBottomSheet> {
   String? _selectedMuscle;
-  bool _sheetScrollEnabled = true;
 
   @override
   void initState() {
@@ -83,43 +82,37 @@ class _ExerciseMusclesBottomSheetState
         builder: (context, snapshot) {
           return Column(
             children: [
+              Text(
+                widget.exerciseLabel,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _SkeletonCard(
+                allMuscles: all,
+                selectedMuscle: _selectedMuscle,
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  l10n.strengthExerciseMuscleZoomHint,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.72),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
               Expanded(
                 child: SingleChildScrollView(
-                  physics: _sheetScrollEnabled
-                      ? const ClampingScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
+                  physics: const ClampingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.exerciseLabel,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _SkeletonCard(
-                        allMuscles: all,
-                        selectedMuscle: _selectedMuscle,
-                        onInteractionStateChanged: (isInteracting) {
-                          _setSheetScrollEnabled(!isInteracting);
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: Text(
-                          l10n.strengthExerciseMuscleZoomHint,
-                          textAlign: TextAlign.center,
-                          style:
-                          Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.72),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
                       _MuscleSectionList(
                         title: l10n.strengthExercisePrimaryMuscles,
                         items: primary,
@@ -149,28 +142,16 @@ class _ExerciseMusclesBottomSheetState
       _selectedMuscle = _selectedMuscle == muscleName ? null : muscleName;
     });
   }
-
-  void _setSheetScrollEnabled(bool enabled) {
-    if (_sheetScrollEnabled == enabled || !mounted) {
-      return;
-    }
-
-    setState(() {
-      _sheetScrollEnabled = enabled;
-    });
-  }
 }
 
 class _SkeletonCard extends StatelessWidget {
   const _SkeletonCard({
     required this.allMuscles,
     required this.selectedMuscle,
-    required this.onInteractionStateChanged,
   });
 
   final List<AnatomyMuscleUsage> allMuscles;
   final String? selectedMuscle;
-  final ValueChanged<bool> onInteractionStateChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +172,6 @@ class _SkeletonCard extends StatelessWidget {
               side: AnatomySide.front,
               allMuscles: allMuscles,
               selectedMuscle: selectedMuscle,
-              onInteractionStateChanged: onInteractionStateChanged,
             ),
           ),
           const SizedBox(width: 12),
@@ -200,7 +180,6 @@ class _SkeletonCard extends StatelessWidget {
               side: AnatomySide.back,
               allMuscles: allMuscles,
               selectedMuscle: selectedMuscle,
-              onInteractionStateChanged: onInteractionStateChanged,
             ),
           ),
         ],
@@ -214,13 +193,11 @@ class _SkeletonPanel extends StatefulWidget {
     required this.side,
     required this.allMuscles,
     required this.selectedMuscle,
-    required this.onInteractionStateChanged,
   });
 
   final AnatomySide side;
   final List<AnatomyMuscleUsage> allMuscles;
   final String? selectedMuscle;
-  final ValueChanged<bool> onInteractionStateChanged;
 
   @override
   State<_SkeletonPanel> createState() => _SkeletonPanelState();
@@ -235,7 +212,6 @@ class _SkeletonPanelState extends State<_SkeletonPanel>
   TapDownDetails? _lastDoubleTapDown;
 
   double _currentScale = 1.0;
-  bool _interactionLocked = false;
 
   static const double _zoomLevelOne = 2.0;
   static const double _zoomLevelTwo = 3.2;
@@ -260,7 +236,6 @@ class _SkeletonPanelState extends State<_SkeletonPanel>
 
   @override
   void dispose() {
-    _setInteractionLocked(false);
     _animationController.dispose();
     _controller.removeListener(_handleMatrixChanged);
     _controller.dispose();
@@ -278,14 +253,6 @@ class _SkeletonPanelState extends State<_SkeletonPanel>
         _currentScale = nextScale;
       });
     }
-  }
-
-  void _setInteractionLocked(bool locked) {
-    if (_interactionLocked == locked) {
-      return;
-    }
-    _interactionLocked = locked;
-    widget.onInteractionStateChanged(locked);
   }
 
   void _animateTo(Matrix4 target) {
@@ -344,46 +311,35 @@ class _SkeletonPanelState extends State<_SkeletonPanel>
       aspectRatio: 0.46,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Listener(
-          onPointerDown: (_) {
-            _setInteractionLocked(true);
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onDoubleTapDown: (details) {
+            _lastDoubleTapDown = details;
           },
-          onPointerUp: (_) {
-            _setInteractionLocked(false);
-          },
-          onPointerCancel: (_) {
-            _setInteractionLocked(false);
-          },
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onDoubleTapDown: (details) {
-              _lastDoubleTapDown = details;
-            },
-            onDoubleTap: _handleDoubleTap,
-            child: InteractiveViewer(
-              transformationController: _controller,
-              minScale: 1,
-              maxScale: _zoomLevelTwo,
-              panEnabled: isZoomed,
-              scaleEnabled: true,
-              constrained: true,
-              boundaryMargin: const EdgeInsets.all(140),
-              clipBehavior: Clip.hardEdge,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    AnatomyAssetResolver.skeletonForSide(widget.side),
-                    fit: BoxFit.contain,
+          onDoubleTap: _handleDoubleTap,
+          child: InteractiveViewer(
+            transformationController: _controller,
+            minScale: 1,
+            maxScale: _zoomLevelTwo,
+            panEnabled: isZoomed,
+            scaleEnabled: true,
+            constrained: true,
+            boundaryMargin: const EdgeInsets.all(140),
+            clipBehavior: Clip.hardEdge,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  AnatomyAssetResolver.skeletonForSide(widget.side),
+                  fit: BoxFit.contain,
+                ),
+                for (final muscle in widget.allMuscles)
+                  _OverlayLayer(
+                    side: widget.side,
+                    muscle: muscle,
+                    selectedMuscle: widget.selectedMuscle,
                   ),
-                  for (final muscle in widget.allMuscles)
-                    _OverlayLayer(
-                      side: widget.side,
-                      muscle: muscle,
-                      selectedMuscle: widget.selectedMuscle,
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         ),

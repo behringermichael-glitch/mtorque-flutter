@@ -648,6 +648,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      enableDrag: true,
+      isDismissible: true,
       builder: (sheetContext) {
         return FutureBuilder<StrengthExerciseDetail?>(
           future: repository.getExerciseDetail(exerciseId),
@@ -716,6 +718,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      enableDrag: true,
+      isDismissible: true,
       builder: (sheetContext) {
         return FutureBuilder<StrengthExerciseDetail?>(
           future: repository.getExerciseDetail(exerciseId),
