@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../../l10n/app_localizations.dart';
+import '../../../../../../core/theme/app_theme.dart';
 import '../../../domain/repositories/strength_repository.dart';
 import 'anatomy_asset_resolver.dart';
 import 'anatomy_models.dart';
@@ -155,7 +156,8 @@ class _SkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final cardColor =
+    AppTheme.anatomyPanelBackground(Theme.of(context).brightness);
 
     return Container(
       width: double.infinity,
@@ -384,14 +386,14 @@ class _OverlayLayer extends StatelessWidget {
 
   Color _resolveColor() {
     if (selectedMuscle != null && selectedMuscle != muscle.muscleName) {
-      return const Color(0xFF707070);
+      return AppTheme.anatomyInactiveMuscle;
     }
 
     switch (muscle.role) {
       case AnatomyMuscleRole.primary:
-        return const Color(0xFFFF3C3C);
+        return AppTheme.anatomyPrimaryMuscle;
       case AnatomyMuscleRole.secondary:
-        return const Color(0xFF3C7CFF);
+        return AppTheme.anatomySecondaryMuscle;
     }
   }
 }
@@ -413,27 +415,31 @@ class _MuscleSectionList extends StatelessWidget {
   Widget build(BuildContext context) {
     final titleColor = items.isNotEmpty &&
         items.first.role == AnatomyMuscleRole.primary
-        ? const Color(0xFFFF3C3C)
-        : const Color(0xFF3C7CFF);
+        ? AppTheme.anatomyPrimaryMuscle
+        : AppTheme.anatomySecondaryMuscle;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: titleColor,
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.left,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: titleColor,
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        for (final item in items)
-          _MuscleTile(
-            item: item,
-            isSelected: selectedMuscle == item.muscleName,
-            onTap: () => onMuscleTap(item.muscleName),
-          ),
-      ],
+          const SizedBox(height: 10),
+          for (final item in items)
+            _MuscleTile(
+              item: item,
+              isSelected: selectedMuscle == item.muscleName,
+              onTap: () => onMuscleTap(item.muscleName),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -455,79 +461,98 @@ class _MuscleTile extends StatelessWidget {
     final languageCode = Localizations.localeOf(context).languageCode;
     final info = MuscleInfoRepository.findByMuscleName(item.muscleName);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-              child: Text(
-                '• ${item.muscleName} (${item.groupName})',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 20,
-                  height: 1.15,
+    final detailBackground =
+    AppTheme.anatomyPanelBackground(Theme.of(context).brightness);
+
+    final stripeColor = item.role == AnatomyMuscleRole.primary
+        ? AppTheme.anatomyPrimaryMuscle
+        : AppTheme.anatomySecondaryMuscle;
+
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: onTap,
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerLeft,
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                  child: Text(
+                    '• ${item.muscleName} (${item.groupName})',
+                    textAlign: TextAlign.left,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 20,
+                      height: 1.15,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          if (isSelected)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(top: 6, bottom: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              padding: const EdgeInsets.fromLTRB(0, 16, 16, 16),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      width: 6,
-                      margin: const EdgeInsets.only(right: 14),
-                      decoration: BoxDecoration(
-                        color: item.role == AnatomyMuscleRole.primary
-                            ? const Color(0xFFFF3C3C)
-                            : const Color(0xFF3C7CFF),
-                        borderRadius: BorderRadius.circular(999),
+            if (isSelected)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(top: 6, bottom: 12),
+                decoration: BoxDecoration(
+                  color: detailBackground,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 6,
+                        decoration: BoxDecoration(
+                          color: stripeColor,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(14),
+                            bottomLeft: Radius.circular(14),
+                          ),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _InfoBlock(
-                            label: l10n.muscleLabelFunction,
-                            value: info?.functionForLanguage(languageCode) ?? '',
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 16, 16, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _InfoBlock(
+                                label: l10n.muscleLabelFunction,
+                                value: info?.functionForLanguage(languageCode) ?? '',
+                              ),
+                              _InfoBlock(
+                                label: l10n.muscleLabelOrigin,
+                                value: info?.originForLanguage(languageCode) ?? '',
+                              ),
+                              _InfoBlock(
+                                label: l10n.muscleLabelInsertion,
+                                value:
+                                info?.insertionForLanguage(languageCode) ?? '',
+                              ),
+                              _InfoBlock(
+                                label: l10n.muscleLabelInnervation,
+                                value: info?.innervation ?? '',
+                                isLast: true,
+                              ),
+                            ],
                           ),
-                          _InfoBlock(
-                            label: l10n.muscleLabelOrigin,
-                            value: info?.originForLanguage(languageCode) ?? '',
-                          ),
-                          _InfoBlock(
-                            label: l10n.muscleLabelInsertion,
-                            value:
-                            info?.insertionForLanguage(languageCode) ?? '',
-                          ),
-                          _InfoBlock(
-                            label: l10n.muscleLabelInnervation,
-                            value: info?.innervation ?? '',
-                            isLast: true,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

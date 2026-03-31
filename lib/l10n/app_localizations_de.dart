@@ -374,7 +374,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthExercisePrimaryMuscles => 'Primäre Muskeln';
 
   @override
-  String get strengthExerciseSecondaryMuscles => 'Weitere Muskelbeteiligung';
+  String get strengthExerciseSecondaryMuscles => 'Sekundäre Muskeln';
 
   @override
   String get strengthExerciseNoMuscleDataAvailable => 'Keine Muskeldaten verfügbar.';

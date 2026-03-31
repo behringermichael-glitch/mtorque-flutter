@@ -13,6 +13,19 @@ final class AppTheme {
   static const Color statsOrange = Color(0xFFFF9800);
   static const Color settingsGreen = Color(0xFF4CAF50);
 
+  static const Color anatomyPrimaryMuscle = Color(0xFFFF3C3C);
+  static const Color anatomySecondaryMuscle = Color(0xFF3C7CFF);
+  static const Color anatomyInactiveMuscle = Color(0xFF707070);
+
+  static const Color anatomyPanelBackgroundLight = Color(0xFFE7E1DA);
+  static const Color anatomyPanelBackgroundDark = Color(0xFF1F2433);
+
+  static Color anatomyPanelBackground(Brightness brightness) {
+    return brightness == Brightness.dark
+        ? anatomyPanelBackgroundDark
+        : anatomyPanelBackgroundLight;
+  }
+
   static ThemeData light() {
     const colorScheme = ColorScheme(
       brightness: Brightness.light,
