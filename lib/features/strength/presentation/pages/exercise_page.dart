@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -999,6 +1000,10 @@ class _SetRowState extends State<_SetRow> {
   late final FocusNode _loadFocusNode;
   late final FocusNode _secondFocusNode;
   bool _lastAnyFocus = false;
+  bool _lastLoadFocus = false;
+  bool _lastSecondFocus = false;
+  bool _acceptSecondSuggestionOnBlur = false;
+  bool _secondEditedSinceFocus = false;
   String _lastSecondText = '';
 
   @override
@@ -1014,7 +1019,6 @@ class _SetRowState extends State<_SetRow> {
     );
     _loadFocusNode = FocusNode()..addListener(_handleFocusUpdate);
     _secondFocusNode = FocusNode()..addListener(_handleFocusUpdate);
-    _lastSecondText = _secondController.text.trim();
   }
 
   @override
@@ -1055,45 +1059,141 @@ class _SetRowState extends State<_SetRow> {
 
   void _handleFocusUpdate() {
     final anyFocus = _loadFocusNode.hasFocus || _secondFocusNode.hasFocus;
+
     if (anyFocus != _lastAnyFocus) {
       _lastAnyFocus = anyFocus;
       widget.onInputFocusChanged(anyFocus);
     }
+
     if (mounted) {
       setState(() {});
     }
   }
 
+  void _submitLoadField() {
+    _acceptLoadSuggestionOnly();
+    _secondFocusNode.requestFocus();
+  }
+
+  void _submitSecondField() {
+    _acceptSecondSuggestionOnly();
+    widget.onCompleted();
+
+    _loadFocusNode.unfocus();
+    _secondFocusNode.unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   bool _loadMatchesSuggestion(String value) {
     final parsed = tryParseDouble(value);
     final suggestion = widget.suggestedLoad;
+
     if (parsed == null || suggestion == null) {
       return false;
     }
+
     return (parsed - suggestion).abs() <= 0.05;
   }
 
+  void _acceptLoadSuggestionOnly() {
+    final suggestedLoad = widget.suggestedLoad;
+    if (suggestedLoad == null) return;
+
+    final loadText = _loadController.text.trim();
+    if (loadText.isNotEmpty) return;
+
+    final nextText = formatNumber(suggestedLoad);
+
+    _loadController.value = TextEditingValue(
+      text: nextText,
+      selection: TextSelection.collapsed(offset: nextText.length),
+    );
+
+    widget.onChanged(
+      widget.value.copyWith(load: suggestedLoad),
+    );
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _acceptSecondSuggestionOnly() {
+    final suggestedSecond = widget.suggestedSecond;
+    final suggestedLoad = widget.suggestedLoad;
+
+    if (suggestedSecond == null || suggestedLoad == null) return;
+
+    final secondText = _secondController.text.trim();
+    if (secondText.isNotEmpty) return;
+
+    final loadText = _loadController.text.trim();
+    if (!_loadMatchesSuggestion(loadText)) return;
+
+    if (widget.isStatic) {
+      final nextDuration = suggestedSecond.round();
+      final nextText = formatInt(nextDuration);
+
+      _secondController.value = TextEditingValue(
+        text: nextText,
+        selection: TextSelection.collapsed(offset: nextText.length),
+      );
+
+      _lastSecondText = nextText.trim();
+
+      widget.onChanged(
+        widget.value.copyWith(durationSec: nextDuration),
+      );
+    } else {
+      final nextText = formatNumber(suggestedSecond);
+
+      _secondController.value = TextEditingValue(
+        text: nextText,
+        selection: TextSelection.collapsed(offset: nextText.length),
+      );
+
+      _lastSecondText = nextText.trim();
+
+      widget.onChanged(
+        widget.value.copyWith(reps: suggestedSecond),
+      );
+    }
+
+    widget.onStartRestTimer();
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   String _secondaryHint(AppLocalizations l10n) {
-    final base = widget.isStatic ? l10n.strengthCommonDurationShort : 'Wdh.';
+    final base = widget.isStatic
+        ? l10n.strengthCommonDurationShort
+        : l10n.strengthCommonRepsShort;
+
     if (_secondController.text.trim().isNotEmpty) {
       return base;
     }
-    if (!_secondFocusNode.hasFocus) {
+
+    if (widget.suggestedSecond == null || widget.suggestedLoad == null) {
       return base;
     }
-    if (widget.suggestedSecond == null) {
-      return base;
-    }
-    if (widget.suggestedLoad == null) {
+
+    final suggestionsShouldBeVisible =
+        _loadFocusNode.hasFocus || _secondFocusNode.hasFocus;
+
+    if (!suggestionsShouldBeVisible) {
       return base;
     }
 
     final loadText = _loadController.text.trim();
+
     if (loadText.isEmpty || _loadMatchesSuggestion(loadText)) {
       return widget.isStatic
-          ? formatInt(widget.suggestedSecond?.round())
+          ? formatInt(widget.suggestedSecond!.round())
           : formatNumber(widget.suggestedSecond);
     }
+
     return base;
   }
 
@@ -1101,9 +1201,14 @@ class _SetRowState extends State<_SetRow> {
     if (_loadController.text.trim().isNotEmpty) {
       return '';
     }
-    if (_loadFocusNode.hasFocus && widget.suggestedLoad != null) {
+
+    final suggestionsShouldBeVisible =
+        _loadFocusNode.hasFocus || _secondFocusNode.hasFocus;
+
+    if (suggestionsShouldBeVisible && widget.suggestedLoad != null) {
       return formatNumber(widget.suggestedLoad);
     }
+
     return l10n.strengthCommonKgLabel;
   }
 
@@ -1146,6 +1251,9 @@ class _SetRowState extends State<_SetRow> {
               textInputAction: TextInputAction.next,
               hintColor: onSurface.withValues(alpha: 0.38),
               onChanged: (value) {
+                _secondEditedSinceFocus = true;
+                _acceptSecondSuggestionOnBlur = false;
+
                 widget.onChanged(
                   widget.value.copyWith(load: tryParseDouble(value)),
                 );
@@ -1153,7 +1261,8 @@ class _SetRowState extends State<_SetRow> {
                   setState(() {});
                 }
               },
-              onSubmitted: (_) => _secondFocusNode.requestFocus(),
+              onSubmitted: (_) => _submitLoadField(),
+              onEditingComplete: _submitLoadField,
             ),
           ),
           const SizedBox(width: 14),
@@ -1167,6 +1276,9 @@ class _SetRowState extends State<_SetRow> {
               textInputAction: TextInputAction.done,
               hintColor: onSurface.withValues(alpha: 0.38),
               onChanged: (value) {
+                _secondEditedSinceFocus = true;
+                _acceptSecondSuggestionOnBlur = false;
+
                 if (widget.isStatic) {
                   widget.onChanged(
                     widget.value.copyWith(
@@ -1190,7 +1302,9 @@ class _SetRowState extends State<_SetRow> {
                   setState(() {});
                 }
               },
-              onSubmitted: (_) => widget.onCompleted(),
+              onSubmitted: (_) => _submitSecondField(),
+              onEditingComplete: _submitSecondField,
+
             ),
           ),
           const SizedBox(width: 14),
@@ -1272,6 +1386,7 @@ class _UnderlineNumberField extends StatelessWidget {
     required this.hintColor,
     required this.onChanged,
     required this.onSubmitted,
+    required this.onEditingComplete,
   });
 
   final TextEditingController controller;
@@ -1283,6 +1398,7 @@ class _UnderlineNumberField extends StatelessWidget {
   final Color hintColor;
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmitted;
+  final VoidCallback onEditingComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -1325,6 +1441,7 @@ class _UnderlineNumberField extends StatelessWidget {
         ),
         onChanged: onChanged,
         onSubmitted: onSubmitted,
+        onEditingComplete: onEditingComplete,
       ),
     );
   }
