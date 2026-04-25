@@ -33,7 +33,7 @@ class ExercisePage extends ConsumerStatefulWidget {
 }
 
 class _ExercisePageState extends ConsumerState<ExercisePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   static const int _modBlood = 1;
   static const int _modChain = 2;
   static const int _modEqual = 4;
@@ -42,6 +42,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   Timer? _pendingSync;
   final Set<int> _focusedRows = <int>{};
+  bool _keyboardWasVisibleWhileRowFocused = false;
   // PATCH 3-A: ValueNotifier ersetzt setState() für den Compact-Header.
   // Nur der Offstage-Subtree wird neu gebaut, nicht der gesamte FutureBuilder-Stack.
   late final ValueNotifier<bool> _compactHeaderNotifier;
@@ -53,6 +54,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     // PATCH 3-B: Notifier vor den Futures initialisieren.
     _compactHeaderNotifier = ValueNotifier(false);
     _preparePageFutures();
@@ -126,6 +129,8 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
     // PATCH 3-D: Notifier vor dem super.dispose() freigeben.
     _compactHeaderNotifier.dispose();
     _pendingSync?.cancel();
@@ -134,6 +139,11 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
 
   @override
   bool get wantKeepAlive => true;
+
+  bool _isKeyboardVisibleFromView() {
+    final view = View.of(context);
+    return view.viewInsets.bottom > 0;
+  }
 
   // PATCH 3-E: setState(() {}) entfernt — nur noch Notifier-Update.
   // Dadurch wird beim Focus-Wechsel (Tastatur auf/zu) kein kompletter
@@ -145,11 +155,25 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
         ? _focusedRows.add(rowIndex)
         : _focusedRows.remove(rowIndex);
 
+    if (!isFocused && _focusedRows.isEmpty) {
+      _keyboardWasVisibleWhileRowFocused = false;
+    }
+
     if (!changed || !mounted) return;
 
     final isCompact = _focusedRows.isNotEmpty;
 
     _compactHeaderNotifier.value = isCompact;
+
+    if (isCompact) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        if (_isKeyboardVisibleFromView()) {
+          _keyboardWasVisibleWhileRowFocused = true;
+        }
+      });
+    }
 
     if (wasCompact == isCompact) return;
 
@@ -158,6 +182,50 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     } else {
       _scheduleHeaderDividerReport();
     }
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncKeyboardDismissalWithHeaderState();
+    });
+  }
+
+  void _syncKeyboardDismissalWithHeaderState() {
+    if (_focusedRows.isEmpty) {
+      _keyboardWasVisibleWhileRowFocused = false;
+      return;
+    }
+
+    final keyboardIsVisible = _isKeyboardVisibleFromView();
+
+    if (keyboardIsVisible) {
+      _keyboardWasVisibleWhileRowFocused = true;
+      return;
+    }
+
+    if (!_keyboardWasVisibleWhileRowFocused) {
+      return;
+    }
+
+    _keyboardWasVisibleWhileRowFocused = false;
+    _clearFocusedInputRowsAfterKeyboardDismiss();
+  }
+
+  void _clearFocusedInputRowsAfterKeyboardDismiss() {
+    FocusScope.of(context).unfocus(disposition: UnfocusDisposition.scope);
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    if (_focusedRows.isEmpty) {
+      return;
+    }
+
+    _focusedRows.clear();
+    _compactHeaderNotifier.value = false;
+    _scheduleHeaderDividerReport();
   }
 
   @override
@@ -994,12 +1062,13 @@ class _SetRow extends StatefulWidget {
   State<_SetRow> createState() => _SetRowState();
 }
 
-class _SetRowState extends State<_SetRow> {
+class _SetRowState extends State<_SetRow> with WidgetsBindingObserver {
   late final TextEditingController _loadController;
   late final TextEditingController _secondController;
   late final FocusNode _loadFocusNode;
   late final FocusNode _secondFocusNode;
   bool _lastAnyFocus = false;
+  bool _keyboardVisibleWhileFocused = false;
   bool _lastLoadFocus = false;
   bool _lastSecondFocus = false;
   bool _acceptSecondSuggestionOnBlur = false;
@@ -1009,6 +1078,8 @@ class _SetRowState extends State<_SetRow> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     _loadController = TextEditingController(
       text: formatNumber(widget.value.load),
     );
@@ -1045,6 +1116,8 @@ class _SetRowState extends State<_SetRow> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
     if (_lastAnyFocus) {
       widget.onInputFocusChanged(false);
     }
@@ -1057,12 +1130,31 @@ class _SetRowState extends State<_SetRow> {
     super.dispose();
   }
 
+  bool _isKeyboardVisibleFromView() {
+    final view = View.of(context);
+    return view.viewInsets.bottom > 0;
+  }
+
   void _handleFocusUpdate() {
     final anyFocus = _loadFocusNode.hasFocus || _secondFocusNode.hasFocus;
+
+    if (!anyFocus) {
+      _keyboardVisibleWhileFocused = false;
+    }
 
     if (anyFocus != _lastAnyFocus) {
       _lastAnyFocus = anyFocus;
       widget.onInputFocusChanged(anyFocus);
+    }
+
+    if (anyFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        if (_isKeyboardVisibleFromView()) {
+          _keyboardVisibleWhileFocused = true;
+        }
+      });
     }
 
     if (mounted) {
@@ -1213,7 +1305,57 @@ class _SetRowState extends State<_SetRow> {
   }
 
   @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncKeyboardVisibilityFromMetrics();
+    });
+  }
+
+  void _syncKeyboardVisibilityFromMetrics() {
+    final rowHasFocus = _loadFocusNode.hasFocus || _secondFocusNode.hasFocus;
+
+    if (!rowHasFocus) {
+      _keyboardVisibleWhileFocused = false;
+      return;
+    }
+
+    final keyboardIsVisible = _isKeyboardVisibleFromView();
+
+    if (keyboardIsVisible) {
+      _keyboardVisibleWhileFocused = true;
+      return;
+    }
+
+    if (!_keyboardVisibleWhileFocused) {
+      return;
+    }
+
+    _keyboardVisibleWhileFocused = false;
+    _clearInputFocusAfterKeyboardDismiss();
+  }
+
+  void _clearInputFocusAfterKeyboardDismiss() {
+    _loadFocusNode.unfocus();
+    _secondFocusNode.unfocus();
+    FocusScope.of(context).unfocus(disposition: UnfocusDisposition.scope);
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    if (_lastAnyFocus) {
+      _lastAnyFocus = false;
+      widget.onInputFocusChanged(false);
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     final l10n = AppLocalizations.of(context)!;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final lineColor = onSurface.withValues(alpha: 0.56);
