@@ -13,6 +13,28 @@ final class AppTheme {
   static const Color statsOrange = Color(0xFFFF9800);
   static const Color settingsGreen = Color(0xFF4CAF50);
 
+  static const Color dashboardDotNone = Color(0xFFA0A0A0);
+  static const Color tlDarkGray = Color(0xFFB0B3BD);
+
+  static const Color statsPlotBackgroundDark = Color(0xFF242B40);
+  static const Color statsPlotBackgroundLight = Colors.white;
+  static const Color statsTonnageBackground = Color(0xE67A0C0C);
+  static const Color statsTonnageText = Colors.white;
+
+  static Color statsPlotBackground(Brightness brightness) {
+    return brightness == Brightness.dark
+        ? statsPlotBackgroundDark
+        : statsPlotBackgroundLight;
+  }
+
+  static Color statsLeftBar(Brightness brightness) {
+    return brightness == Brightness.dark ? strengthBlue : tlDark;
+  }
+
+  static Color statsRightBar(Brightness brightness) {
+    return brightness == Brightness.dark ? tlDarkGray : dashboardDotNone;
+  }
+
   static const Color anatomyPrimaryMuscle = Color(0xFFFF3C3C);
   static const Color anatomySecondaryMuscle = Color(0xFF3C7CFF);
   static const Color anatomyInactiveMuscle = Color(0xFF707070);

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/repositories/strength_repository.dart';
@@ -1549,35 +1550,44 @@ class _StatsBottomSheetContentState extends State<_StatsBottomSheetContent> {
     final l10n = AppLocalizations.of(context)!;
     final stats = widget.stats;
 
-    final visibleDays = stats.days;
-    final bars = visibleDays.map((day) {
+    final visibleDays = [...stats.days]..sort((a, b) => a.date.compareTo(b.date));
+    final bars = <_StatsBarValue>[];
+
+    for (final day in visibleDays) {
       if (_selectedSetNumber == null) {
-        return _StatsBarValue(
-          leftValue: day.totalLoad,
-          rightValue: day.totalSecondValue,
-          label: _formatTonnage(day.tonnage, context),
-          date: day.date,
+        if (day.totalLoad <= 0 || day.totalSecondValue <= 0) continue;
+
+        bars.add(
+          _StatsBarValue(
+            leftValue: day.totalLoad,
+            rightValue: day.totalSecondValue,
+            label: _formatTonnage(day.tonnage, context),
+            date: day.date,
+          ),
         );
+        continue;
       }
 
-      final point = day.perSet
-          .where((e) => e.setNumber == _selectedSetNumber)
-          .cast<StrengthExerciseStatsSetPoint?>()
-          .firstWhere(
-            (e) => e != null,
-        orElse: () => null,
-      );
+      StrengthExerciseStatsSetPoint? point;
+      for (final candidate in day.perSet) {
+        if (candidate.setNumber == _selectedSetNumber) {
+          point = candidate;
+          break;
+        }
+      }
 
-      return _StatsBarValue(
-        leftValue: point?.load ?? 0,
-        rightValue: point?.secondValue ?? 0,
-        label: _formatTonnage(
-          (point?.load ?? 0) * (point?.secondValue ?? 0),
-          context,
+      if (point == null) continue;
+      if (point.load <= 0 || point.secondValue <= 0) continue;
+
+      bars.add(
+        _StatsBarValue(
+          leftValue: point.load,
+          rightValue: point.secondValue,
+          label: _formatTonnage(point.load * point.secondValue, context),
+          date: day.date,
         ),
-        date: day.date,
       );
-    }).toList();
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -1646,8 +1656,11 @@ class _StatsBottomSheetContentState extends State<_StatsBottomSheetContent> {
 
   String _formatTonnage(double value, BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    if (value <= 0) return l10n.strengthExerciseTonnageLabel(0);
-    return l10n.strengthExerciseTonnageLabel(value / 1000);
+    final valueTons = value <= 0 ? 0.0 : value / 1000.0;
+
+    return l10n.strengthExerciseTonnageLabel(
+      double.parse(valueTons.toStringAsFixed(2)),
+    );
   }
 }
 
@@ -1668,148 +1681,567 @@ class _SimpleStatsChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final leftMax =
-    bars.fold<double>(0, (maxValue, e) => math.max(maxValue, e.leftValue));
-    final rightMax =
-    bars.fold<double>(0, (maxValue, e) => math.max(maxValue, e.rightValue));
-    final leftDivisor = leftMax <= 0 ? 1 : leftMax;
-    final rightDivisor = rightMax <= 0 ? 1 : rightMax;
+    final brightness = Theme.of(context).brightness;
+    final colors = _StatsChartColors(
+      plotBackground: AppTheme.statsPlotBackground(brightness),
+      leftBar: AppTheme.statsLeftBar(brightness),
+      rightBar: AppTheme.statsRightBar(brightness),
+      tonnageBackground: AppTheme.statsTonnageBackground,
+      tonnageText: AppTheme.statsTonnageText,
+      axis: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+      grid: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.22),
+      text: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.78),
+    );
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 240,
-            child: Row(
-              children: [
-                RotatedBox(
-                  quarterTurns: 3,
-                  child: Text(
-                    leftAxisTitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      for (final bar in bars)
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.end,
-                                      children: [
-                                        _SingleBar(
-                                          value: bar.leftValue,
-                                          heightFactor:
-                                          bar.leftValue / leftDivisor,
-                                          color: const Color(0xFF4A7CFF),
-                                        ),
-                                        const SizedBox(width: 5),
-                                        _SingleBar(
-                                          value: bar.rightValue,
-                                          heightFactor:
-                                          bar.rightValue / rightDivisor,
-                                          color: const Color(0xFFC4CAD6),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _dayLabel(bar.date, context),
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF9C1616),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    bar.label,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 6),
-                RotatedBox(
-                  quarterTurns: 1,
-                  child: Text(
-                    rightAxisTitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
+    final visibleBars = bars
+        .where((bar) => bar.leftValue > 0 || bar.rightValue > 0)
+        .toList(growable: false);
+
+    return Material(
+      color: colors.plotBackground,
+      elevation: 2,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        height: 260,
+        width: double.infinity,
+        child: CustomPaint(
+          painter: _StatsChartPainter(
+            bars: visibleBars,
+            leftLegend: leftLegend,
+            rightLegend: rightLegend,
+            leftAxisTitle: leftAxisTitle,
+            rightAxisTitle: rightAxisTitle,
+            languageCode: Localizations.localeOf(context).languageCode,
+            colors: colors,
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
-            children: [
-              _LegendEntry(
-                color: const Color(0xFF4A7CFF),
-                label: leftLegend,
-              ),
-              _LegendEntry(
-                color: const Color(0xFFC4CAD6),
-                label: rightLegend,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
+}
 
-  String _dayLabel(DateTime date, BuildContext context) {
+class _StatsChartPainter extends CustomPainter {
+  _StatsChartPainter({
+    required List<_StatsBarValue> bars,
+    required this.leftLegend,
+    required this.rightLegend,
+    required this.leftAxisTitle,
+    required this.rightAxisTitle,
+    required this.languageCode,
+    required this.colors,
+  }) : bars = _lastSevenSortedBars(bars);
+
+  final List<_StatsBarValue> bars;
+  final String leftLegend;
+  final String rightLegend;
+  final String leftAxisTitle;
+  final String rightAxisTitle;
+  final String languageCode;
+  final _StatsChartColors colors;
+
+  static List<_StatsBarValue> _lastSevenSortedBars(List<_StatsBarValue> bars) {
+    final sorted = [...bars]..sort((a, b) => a.date.compareTo(b.date));
+    if (sorted.length <= 7) return sorted;
+    return sorted.sublist(sorted.length - 7);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0) return;
+
+    if (bars.isEmpty) {
+      return;
+    }
+
+    const padTop = 16.0;
+    const padInnerLeft = 4.0;
+    const padInnerRight = 4.0;
+
+    final textStyle = TextStyle(
+      color: colors.text,
+      fontSize: 11,
+      height: 1.0,
+    );
+    final labelStyle = TextStyle(
+      color: colors.text,
+      fontSize: 10,
+      height: 1.0,
+    );
+    final axisTitleStyle = TextStyle(
+      color: colors.text,
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      height: 1.0,
+    );
+    final legendStyle = TextStyle(
+      color: colors.text,
+      fontSize: 12,
+      height: 1.0,
+    );
+    final tonnageStyle = TextStyle(
+      color: colors.tonnageText,
+      fontSize: 10.5,
+      fontWeight: FontWeight.w700,
+      height: 1.0,
+    );
+
+    final leftScale = _StatsScale.fromValues(bars.map((e) => e.leftValue));
+    final rightScale = _StatsScale.fromValues(bars.map((e) => e.rightValue));
+
+    final leftLabelWidth = leftScale.ticks.fold<double>(
+      0,
+          (maxWidth, tick) => math.max(
+        maxWidth,
+        _measureText(_formatLeftTick(tick), textStyle).width,
+      ),
+    );
+    final rightLabelWidth = rightScale.ticks.fold<double>(
+      0,
+          (maxWidth, tick) => math.max(
+        maxWidth,
+        _measureText(_formatRightTick(tick), textStyle).width,
+      ),
+    );
+
+    final axisTitleSpace = axisTitleStyle.fontSize! + 14;
+    final plotLeft = padInnerLeft + leftLabelWidth + 6 + axisTitleSpace;
+    final plotRight =
+        size.width - padInnerRight - rightLabelWidth - 6 - axisTitleSpace;
+
+    final bottomPadding = _bottomPadding(textStyle, tonnageStyle, legendStyle);
+    final plotTop = padTop;
+    final plotBottom = size.height - bottomPadding;
+
+    if (plotRight <= plotLeft || plotBottom <= plotTop) return;
+
+    final axisPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..color = colors.axis;
+
+    final gridPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = colors.grid;
+
+    final leftBarPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.fill
+      ..color = colors.leftBar;
+
+    final rightBarPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.fill
+      ..color = colors.rightBar;
+
+    double mapLeftY(double value) {
+      final denominator = math.max(0.000001, leftScale.max - leftScale.min);
+      final fraction = (value - leftScale.min) / denominator;
+      return plotBottom - fraction * (plotBottom - plotTop);
+    }
+
+    double mapRightY(double value) {
+      final denominator = math.max(0.000001, rightScale.max - rightScale.min);
+      final fraction = (value - rightScale.min) / denominator;
+      return plotBottom - fraction * (plotBottom - plotTop);
+    }
+
+    _drawGridAndAxes(
+      canvas: canvas,
+      size: size,
+      plotLeft: plotLeft,
+      plotRight: plotRight,
+      plotTop: plotTop,
+      plotBottom: plotBottom,
+      leftScale: leftScale,
+      rightScale: rightScale,
+      textStyle: textStyle,
+      axisTitleStyle: axisTitleStyle,
+      axisPaint: axisPaint,
+      gridPaint: gridPaint,
+      mapLeftY: mapLeftY,
+      mapRightY: mapRightY,
+    );
+
+    final count = bars.length;
+    final plotWidth = plotRight - plotLeft;
+    final groupWidth = plotWidth / count;
+    const barGap = 3.0;
+    final barWidth = math.max(0.0, math.min(12.0, (groupWidth - barGap) / 2));
+
+    for (var index = 0; index < bars.length; index++) {
+      final bar = bars[index];
+      final groupLeft = plotLeft + index * groupWidth;
+      final groupRight = groupLeft + groupWidth;
+      final centerX = (groupLeft + groupRight) / 2;
+
+      double? leftBarTop;
+      double? rightBarTop;
+      double? leftBarCenterX;
+      double? rightBarCenterX;
+
+      if (bar.leftValue > 0) {
+        final x0 = centerX - barGap / 2 - barWidth;
+        final x1 = centerX - barGap / 2;
+        final y0 = mapLeftY(bar.leftValue);
+        canvas.drawRect(Rect.fromLTRB(x0, y0, x1, plotBottom), leftBarPaint);
+        leftBarTop = y0;
+        leftBarCenterX = (x0 + x1) / 2;
+      }
+
+      if (bar.rightValue > 0) {
+        final x0 = centerX + barGap / 2;
+        final x1 = centerX + barGap / 2 + barWidth;
+        final y0 = mapRightY(bar.rightValue);
+        canvas.drawRect(Rect.fromLTRB(x0, y0, x1, plotBottom), rightBarPaint);
+        rightBarTop = y0;
+        rightBarCenterX = (x0 + x1) / 2;
+      }
+
+      final minLabelY = plotTop + labelStyle.fontSize!;
+      if (leftBarTop != null) {
+        final text = _formatLeftValue(bar.leftValue);
+        final y = math.max(minLabelY, leftBarTop - 2 - labelStyle.fontSize!);
+        _drawText(
+          canvas,
+          text,
+          Offset(leftBarCenterX ?? centerX, y),
+          labelStyle,
+          align: TextAlign.center,
+        );
+      }
+
+      if (rightBarTop != null) {
+        final text = _formatRightValue(bar.rightValue);
+        final y = math.max(minLabelY, rightBarTop - 2 - labelStyle.fontSize!);
+        _drawText(
+          canvas,
+          text,
+          Offset(rightBarCenterX ?? centerX, y),
+          labelStyle,
+          align: TextAlign.center,
+        );
+      }
+    }
+
+    canvas.drawLine(
+      Offset(plotLeft, plotBottom),
+      Offset(plotRight, plotBottom),
+      axisPaint,
+    );
+
+    final labelsBottom = _drawXLabels(
+      canvas: canvas,
+      plotLeft: plotLeft,
+      plotRight: plotRight,
+      plotBottom: plotBottom,
+      textStyle: textStyle,
+      tonnageStyle: tonnageStyle,
+    );
+
+    _drawLegend(
+      canvas: canvas,
+      plotLeft: plotLeft,
+      plotRight: plotRight,
+      labelsBottom: labelsBottom,
+      legendStyle: legendStyle,
+      leftBarPaint: leftBarPaint,
+      rightBarPaint: rightBarPaint,
+    );
+  }
+
+  void _drawGridAndAxes({
+    required Canvas canvas,
+    required Size size,
+    required double plotLeft,
+    required double plotRight,
+    required double plotTop,
+    required double plotBottom,
+    required _StatsScale leftScale,
+    required _StatsScale rightScale,
+    required TextStyle textStyle,
+    required TextStyle axisTitleStyle,
+    required Paint axisPaint,
+    required Paint gridPaint,
+    required double Function(double value) mapLeftY,
+    required double Function(double value) mapRightY,
+  }) {
+    for (final tick in leftScale.ticks) {
+      final y = mapLeftY(tick);
+      _drawDashedLine(
+        canvas,
+        Offset(plotLeft, y),
+        Offset(plotRight, y),
+        gridPaint,
+      );
+      _drawText(
+        canvas,
+        _formatLeftTick(tick),
+        Offset(plotLeft - 4, y - textStyle.fontSize! * 0.5),
+        textStyle,
+        align: TextAlign.right,
+      );
+    }
+
+    for (final tick in rightScale.ticks) {
+      final y = mapRightY(tick);
+      _drawText(
+        canvas,
+        _formatRightTick(tick),
+        Offset(plotRight + 4, y - textStyle.fontSize! * 0.5),
+        textStyle,
+      );
+    }
+
+    canvas.drawLine(Offset(plotLeft, plotTop), Offset(plotLeft, plotBottom), axisPaint);
+    canvas.drawLine(Offset(plotRight, plotTop), Offset(plotRight, plotBottom), axisPaint);
+
+    final midY = (plotTop + plotBottom) / 2;
+    final leftTitleX = (4 + plotLeft - 2 - _measureText('0000', textStyle).width) / 2;
+    final rightTitleX =
+        (plotRight + 2 + _measureText('0000', textStyle).width + size.width - 4) / 2;
+
+    _drawRotatedText(
+      canvas,
+      leftAxisTitle,
+      Offset(leftTitleX, midY),
+      axisTitleStyle,
+      quarterTurns: -1,
+    );
+
+    _drawRotatedText(
+      canvas,
+      rightAxisTitle,
+      Offset(rightTitleX, midY),
+      axisTitleStyle,
+      quarterTurns: 1,
+    );
+  }
+
+  double _drawXLabels({
+    required Canvas canvas,
+    required double plotLeft,
+    required double plotRight,
+    required double plotBottom,
+    required TextStyle textStyle,
+    required TextStyle tonnageStyle,
+  }) {
+    final first = bars.first.date;
+    final last = bars.last.date;
+    final sameYear = first.year == last.year;
+
+    final lines = sameYear ? 2 : 3;
+    final lineHeight = textStyle.fontSize! * 1.10;
+    final y1 = plotBottom + textStyle.fontSize! * 1.05;
+
+    final groupWidth = (plotRight - plotLeft) / bars.length;
+    final approximateWidth = math.max(
+      _measureText('30', textStyle).width,
+      math.max(
+        _measureText(_monthLabel(first.month), textStyle).width,
+        _measureText('2026', textStyle).width,
+      ),
+    ) + 10;
+
+    final maxLabels = math.max(1, ((plotRight - plotLeft) / approximateWidth).floor());
+    final step = math.max(1, (bars.length / maxLabels).ceil());
+
+    var maxBottom = y1 + (lines - 1) * lineHeight;
+
+    for (var index = 0; index < bars.length; index++) {
+      if (!(index == 0 || index == bars.length - 1 || index % step == 0)) {
+        continue;
+      }
+
+      final bar = bars[index];
+      final centerX = plotLeft + (index + 0.5) * groupWidth;
+
+      _drawText(
+        canvas,
+        bar.date.day.toString().padLeft(2, '0'),
+        Offset(centerX, y1 - textStyle.fontSize!),
+        textStyle,
+        align: TextAlign.center,
+      );
+      _drawText(
+        canvas,
+        _monthLabel(bar.date.month),
+        Offset(centerX, y1 + lineHeight - textStyle.fontSize!),
+        textStyle,
+        align: TextAlign.center,
+      );
+
+      if (!sameYear) {
+        _drawText(
+          canvas,
+          bar.date.year.toString(),
+          Offset(centerX, y1 + 2 * lineHeight - textStyle.fontSize!),
+          textStyle,
+          align: TextAlign.center,
+        );
+      }
+
+      final lastDateLineY = y1 + (lines - 1) * lineHeight;
+      final bottom = _drawTonnageLabel(
+        canvas: canvas,
+        centerX: centerX,
+        baselineY: lastDateLineY + textStyle.fontSize! * 1.9 + 8,
+        label: bar.label,
+        style: tonnageStyle,
+      );
+
+      maxBottom = math.max(maxBottom, bottom);
+    }
+
+    return maxBottom;
+  }
+
+  double _drawTonnageLabel({
+    required Canvas canvas,
+    required double centerX,
+    required double baselineY,
+    required String label,
+    required TextStyle style,
+  }) {
+    final lines = _compactBottomLabelLines(label);
+    if (lines.$1.isEmpty) return baselineY;
+
+    const paddingX = 4.0;
+    const paddingY = 2.0;
+    const lineGap = 1.0;
+
+    final line1Size = _measureText(lines.$1, style);
+    final line2Size = lines.$2 == null ? Size.zero : _measureText(lines.$2!, style);
+    final textWidth = math.max(line1Size.width, line2Size.width);
+    final lineHeight = style.fontSize!;
+
+    final textBlockHeight =
+    lines.$2 == null ? lineHeight : lineHeight * 2 + lineGap;
+
+    final rect = RRect.fromRectAndRadius(
+      Rect.fromLTRB(
+        centerX - textWidth / 2 - paddingX,
+        baselineY - textBlockHeight - paddingY / 2,
+        centerX + textWidth / 2 + paddingX,
+        baselineY + paddingY,
+      ),
+      const Radius.circular(3),
+    );
+
+    final paint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.fill
+      ..color = colors.tonnageBackground;
+
+    canvas.drawRRect(rect, paint);
+
+    if (lines.$2 == null) {
+      _drawText(
+        canvas,
+        lines.$1,
+        Offset(centerX, baselineY - lineHeight),
+        style,
+        align: TextAlign.center,
+      );
+    } else {
+      _drawText(
+        canvas,
+        lines.$1,
+        Offset(centerX, baselineY - lineHeight * 2 - lineGap * 0.5),
+        style,
+        align: TextAlign.center,
+      );
+      _drawText(
+        canvas,
+        lines.$2!,
+        Offset(centerX, baselineY - lineHeight),
+        style,
+        align: TextAlign.center,
+      );
+    }
+
+    return rect.outerRect.bottom;
+  }
+
+  void _drawLegend({
+    required Canvas canvas,
+    required double plotLeft,
+    required double plotRight,
+    required double labelsBottom,
+    required TextStyle legendStyle,
+    required Paint leftBarPaint,
+    required Paint rightBarPaint,
+  }) {
+    const boxSize = 11.0;
+    const gapBoxText = 6.0;
+    const gapEntries = 20.0;
+
+    final leftTextSize = _measureText(leftLegend, legendStyle);
+    final rightTextSize = _measureText(rightLegend, legendStyle);
+
+    final width1 = boxSize + gapBoxText + leftTextSize.width;
+    final width2 = boxSize + gapBoxText + rightTextSize.width;
+    final totalWidth = width1 + gapEntries + width2;
+
+    var x = (plotLeft + plotRight - totalWidth) / 2;
+    final y = labelsBottom + legendStyle.fontSize! + 10;
+    final boxTop = y - legendStyle.fontSize! * 0.80;
+    final boxBottom = boxTop + boxSize;
+
+    canvas.drawRect(Rect.fromLTRB(x, boxTop, x + boxSize, boxBottom), leftBarPaint);
+    x += boxSize + gapBoxText;
+
+    _drawText(
+      canvas,
+      leftLegend,
+      Offset(x, y - legendStyle.fontSize!),
+      legendStyle,
+    );
+
+    x += leftTextSize.width + gapEntries;
+
+    canvas.drawRect(Rect.fromLTRB(x, boxTop, x + boxSize, boxBottom), rightBarPaint);
+    x += boxSize + gapBoxText;
+
+    _drawText(
+      canvas,
+      rightLegend,
+      Offset(x, y - legendStyle.fontSize!),
+      legendStyle,
+    );
+  }
+
+  static double _bottomPadding(
+      TextStyle textStyle,
+      TextStyle tonnageStyle,
+      TextStyle legendStyle,
+      ) {
+    final dateLineHeight = textStyle.fontSize! * 1.10;
+    final dateBlockMax = dateLineHeight * 3 + 2;
+    final tonBlock = tonnageStyle.fontSize! * 1.6 + 12;
+    final legendBlock = legendStyle.fontSize! * 1.4 + 8;
+    return 6 + dateBlockMax + tonBlock + legendBlock;
+  }
+
+  String _monthLabel(int month) {
+    final isGerman = languageCode.toLowerCase().startsWith('de');
     const monthsDe = <int, String>{
       1: 'Jan',
       2: 'Feb',
-      3: 'März',
+      3: 'Mär',
       4: 'Apr',
       5: 'Mai',
-      6: 'Juni',
-      7: 'Juli',
+      6: 'Jun',
+      7: 'Jul',
       8: 'Aug',
-      9: 'Sept',
+      9: 'Sep',
       10: 'Okt',
       11: 'Nov',
       12: 'Dez',
     };
-
     const monthsEn = <int, String>{
       1: 'Jan',
       2: 'Feb',
@@ -1825,75 +2257,274 @@ class _SimpleStatsChart extends StatelessWidget {
       12: 'Dec',
     };
 
-    final locale = Localizations.localeOf(context).languageCode.toLowerCase();
-    final month = locale == 'de' ? monthsDe[date.month]! : monthsEn[date.month]!;
-    return '${date.day}\n$month';
-  }
-}
-
-class _SingleBar extends StatelessWidget {
-  const _SingleBar({
-    required this.value,
-    required this.heightFactor,
-    required this.color,
-  });
-
-  final double value;
-  final double heightFactor;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final factor = heightFactor.isFinite ? heightFactor.clamp(0.0, 1.0) : 0.0;
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          value <= 0 ? '' : _compact(value),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: 4),
-        Container(
-          width: 16,
-          height: 120 * factor,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(4),
-            ),
-          ),
-        ),
-      ],
-    );
+    return isGerman ? monthsDe[month]! : monthsEn[month]!;
   }
 
-  String _compact(double value) {
-    if (value == value.roundToDouble()) return value.toInt().toString();
+  static Size _measureText(String text, TextStyle style) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    return painter.size;
+  }
+
+  static void _drawText(
+      Canvas canvas,
+      String text,
+      Offset offset,
+      TextStyle style, {
+        TextAlign align = TextAlign.left,
+      }) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textAlign: align,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final dx = switch (align) {
+      TextAlign.center => offset.dx - painter.width / 2,
+      TextAlign.right => offset.dx - painter.width,
+      _ => offset.dx,
+    };
+
+    painter.paint(canvas, Offset(dx, offset.dy));
+  }
+
+  static void _drawRotatedText(
+      Canvas canvas,
+      String text,
+      Offset center,
+      TextStyle style, {
+        required int quarterTurns,
+      }) {
+    if (text.trim().isEmpty) return;
+
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(quarterTurns * math.pi / 2);
+    painter.paint(canvas, Offset(-painter.width / 2, -painter.height / 2));
+    canvas.restore();
+  }
+
+  static void _drawDashedLine(
+      Canvas canvas,
+      Offset start,
+      Offset end,
+      Paint paint,
+      ) {
+    const dashWidth = 4.0;
+    const dashGap = 4.0;
+
+    final totalDistance = (end - start).distance;
+    if (totalDistance <= 0) return;
+
+    final direction = (end - start) / totalDistance;
+    var distance = 0.0;
+
+    while (distance < totalDistance) {
+      final nextDistance = math.min(distance + dashWidth, totalDistance);
+      final dashStart = start + direction * distance;
+      final dashEnd = start + direction * nextDistance;
+      canvas.drawLine(dashStart, dashEnd, paint);
+      distance += dashWidth + dashGap;
+    }
+  }
+
+  static String _formatLeftTick(double value) {
+    if (value.abs() >= 10) return value.toStringAsFixed(0);
     return value.toStringAsFixed(1);
   }
-}
 
-class _LegendEntry extends StatelessWidget {
-  const _LegendEntry({
-    required this.color,
-    required this.label,
-  });
+  static String _formatRightTick(double value) {
+    return value.toStringAsFixed(0);
+  }
 
-  final Color color;
-  final String label;
+  static String _formatLeftValue(double value) {
+    if (value.abs() >= 10) return value.toStringAsFixed(0);
+    return value.toStringAsFixed(1);
+  }
+
+  static String _formatRightValue(double value) {
+    return value.toStringAsFixed(0);
+  }
+
+  static (String, String?) _compactBottomLabelLines(String label) {
+    final raw = label.trim();
+    if (raw.isEmpty) return ('', null);
+
+    final match = RegExp(r'^\s*([0-9]+(?:[.,][0-9]+)?)\s*([A-Za-z]+)?\s*$')
+        .firstMatch(raw);
+
+    if (match == null) return (raw, null);
+
+    final numberPart = match.group(1)?.replaceAll(',', '.') ?? '';
+    final unitPart = match.group(2)?.trim() ?? '';
+    final value = double.tryParse(numberPart);
+
+    if (value == null) return (raw, null);
+
+    if (unitPart.toLowerCase() == 'lb' || unitPart.toLowerCase() == 'lbs') {
+      if (value.abs() < 1000) {
+        final top = value.abs() >= 10 ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
+        return (top, 'lb');
+      }
+
+      return ('${(value / 1000).toStringAsFixed(1)}k', 'lb');
+    }
+
+    if (unitPart.toLowerCase() == 't') {
+      return (raw.substring(0, raw.length - unitPart.length).trim(), 't');
+    }
+
+    return (raw, null);
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 10, height: 10, color: color),
-        const SizedBox(width: 6),
-        Text(label),
-      ],
-    );
+  bool shouldRepaint(covariant _StatsChartPainter oldDelegate) {
+    return oldDelegate.bars != bars ||
+        oldDelegate.leftLegend != leftLegend ||
+        oldDelegate.rightLegend != rightLegend ||
+        oldDelegate.leftAxisTitle != leftAxisTitle ||
+        oldDelegate.rightAxisTitle != rightAxisTitle ||
+        oldDelegate.languageCode != languageCode ||
+        oldDelegate.colors != colors;
   }
+}
+
+class _StatsScale {
+  const _StatsScale({
+    required this.min,
+    required this.max,
+    required this.ticks,
+  });
+
+  final double min;
+  final double max;
+  final List<double> ticks;
+
+  factory _StatsScale.fromValues(Iterable<double> values) {
+    final validValues = values.where((value) => value.isFinite).toList();
+    if (validValues.isEmpty) {
+      return const _StatsScale(min: 0, max: 1, ticks: [0, 1]);
+    }
+
+    var minValue = validValues.reduce(math.min);
+    var maxValue = validValues.reduce(math.max);
+
+    if (minValue >= 0) {
+      minValue = 0;
+      if (maxValue <= 20) {
+        maxValue = 20;
+      }
+    }
+
+    if (maxValue == minValue) {
+      if (minValue == 0) {
+        maxValue = 1;
+      } else {
+        final padding = minValue.abs() * 0.1;
+        minValue -= padding;
+        maxValue += padding;
+      }
+    }
+
+    final range = maxValue - minValue;
+    if (range <= 0) {
+      return _StatsScale(min: minValue, max: maxValue, ticks: [minValue, maxValue]);
+    }
+
+    final rawStep = range / 5;
+    final step = _niceNumber(rawStep, round: true);
+    final niceMin = (minValue / step).floorToDouble() * step;
+    final baseMax = (maxValue / step).ceilToDouble() * step;
+    final niceMax = baseMax + step;
+
+    final ticks = <double>[];
+    var value = niceMin;
+    while (value <= niceMax + 1e-9) {
+      ticks.add(value);
+      value += step;
+    }
+
+    return _StatsScale(min: niceMin, max: niceMax, ticks: ticks);
+  }
+
+  static double _niceNumber(double range, {required bool round}) {
+    if (range <= 0) return 1;
+
+    final exponent = (math.log(range) / math.ln10).floor();
+    final fraction = range / math.pow(10, exponent);
+
+    final niceFraction = round
+        ? switch (fraction) {
+      < 1.5 => 1.0,
+      < 3.0 => 2.0,
+      < 7.0 => 5.0,
+      _ => 10.0,
+    }
+        : switch (fraction) {
+      <= 1.0 => 1.0,
+      <= 2.0 => 2.0,
+      <= 5.0 => 5.0,
+      _ => 10.0,
+    };
+
+    return niceFraction * math.pow(10, exponent).toDouble();
+  }
+}
+
+class _StatsChartColors {
+  const _StatsChartColors({
+    required this.plotBackground,
+    required this.leftBar,
+    required this.rightBar,
+    required this.tonnageBackground,
+    required this.tonnageText,
+    required this.axis,
+    required this.grid,
+    required this.text,
+  });
+
+  final Color plotBackground;
+  final Color leftBar;
+  final Color rightBar;
+  final Color tonnageBackground;
+  final Color tonnageText;
+  final Color axis;
+  final Color grid;
+  final Color text;
+
+  @override
+  bool operator ==(Object other) {
+    return other is _StatsChartColors &&
+        other.plotBackground == plotBackground &&
+        other.leftBar == leftBar &&
+        other.rightBar == rightBar &&
+        other.tonnageBackground == tonnageBackground &&
+        other.tonnageText == tonnageText &&
+        other.axis == axis &&
+        other.grid == grid &&
+        other.text == text;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    plotBackground,
+    leftBar,
+    rightBar,
+    tonnageBackground,
+    tonnageText,
+    axis,
+    grid,
+    text,
+  );
 }
 
 class _StatsBarValue {
