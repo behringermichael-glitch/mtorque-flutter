@@ -81,7 +81,7 @@
   "streakLevel4Title": "Long-Term Consistency",
   "streakLevel4Months": "(4 months)",
   "streakLevel5Title": "High-Performance Adherence",
-  "streakLevel5Months": "(5 months)",
+  "streakLevel5Months": "(5+ months)",
   "dashboardQuickStartTitle": "Quick start",
   "dashboardQuickStartStrengthSubtitle": "Start your next strength session.",
   "dashboardQuickStartEnduranceSubtitle": "Open endurance with fallback tile.",
@@ -177,8 +177,108 @@
     }
   },
   "strengthExerciseMuscleZoomHint": "Double tap to zoom",
+
   "muscleLabelFunction": "Function",
   "muscleLabelOrigin": "Origin",
   "muscleLabelInsertion": "Insertion",
-  "muscleLabelInnervation": "Innervation"
+  "muscleLabelInnervation": "Innervation",
+
+  "strengthMenuStartEmptyPlan": "Start with empty plan",
+  "strengthMenuCloseSession": "Close session",
+  "strengthMenuSaveAsPlan": "Save as plan...",
+  "strengthMenuEditTrainingPlan": "Edit training plan",
+  "strengthMenuPrintPlanPdf": "Print plan as PDF",
+  "strengthMenuAddExercise": "Add exercise",
+  "strengthMenuLoadPlan": "Load plan",
+  "strengthMenuRenamePlan": "Rename plan",
+  "strengthMenuDeletePlan": "Delete plan",
+  "strengthMenuSaveCurrentPlan": "Save current plan",
+
+  "strengthEndSessionButton": "Finish",
+  "strengthSessionTitle": "Session",
+
+  "strengthPlanNameTitle": "Plan name",
+  "strengthPlanNameHint": "Enter name",
+  "strengthNoPlansAvailable": "No plans available.",
+
+  "strengthReplaceCurrentSessionTitle": "Replace current session?",
+  "strengthReplaceCurrentSessionMessage": "This will discard and replace the current session.",
+  "strengthReplaceCurrentSessionButton": "Replace",
+
+  "strengthDeletePlanTitle": "Delete plan",
+  "strengthDeletePlanMessage": "Delete plan “{planName}”?",
+  "@strengthDeletePlanMessage": {
+    "placeholders": {
+      "planName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "strengthPrintPlanPdfNotImplemented": "Training plan PDF printing is not implemented in Flutter yet.",
+
+  "strengthTimerTitle": "Timer",
+  "strengthTimerSecondsHint": "sec",
+  "strengthTimerReset": "Reset",
+  "strengthTimerRingHint": "Ring: tap = start/stop",
+  "strengthTimerTapStop": "Tap = stop",
+  "strengthTimerTapStartStop": "Tap = start/stop",
+  "strengthTempoConcentric": "Concentric",
+  "strengthTempoStatic": "Static",
+  "strengthTempoEccentric": "Eccentric",
+
+  "strengthPrintPlanSelectTitle": "Select plan",
+  "strengthPrintPlanSetsTitle": "Sets per exercise",
+  "strengthPrintSetsOption": "{sets} sets",
+  "@strengthPrintSetsOption": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "strengthPrintPlanCommentTitle": "Comment",
+  "strengthPrintPlanCommentMessage": "Add an optional comment for the printed plan.",
+  "strengthPrintPlanCommentHint": "Optional comment",
+  "strengthPrintPlanCommentSkip": "Skip",
+  "strengthPrintPlanNoExercises": "This plan does not contain exercises.",
+  "strengthPrintPlanFailed": "Could not print plan PDF: {message}",
+  "@strengthPrintPlanFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "strengthPrintJobStrengthPlan": "mTORQUE strength plan – {planName}",
+  "@strengthPrintJobStrengthPlan": {
+    "placeholders": {
+      "planName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "strengthPrintPdfGeneratedAt": "Generated: {date}",
+  "@strengthPrintPdfGeneratedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "strengthPrintPdfDate": "Date",
+  "strengthPrintPdfKg": "kg",
+  "strengthPrintPdfReps": "reps",
+  "strengthPrintPdfPageXOfY": "Page {pageNumber} of {pageCount}",
+  "@strengthPrintPdfPageXOfY": {
+    "placeholders": {
+      "pageNumber": {
+        "type": "int"
+      },
+      "pageCount": {
+        "type": "int"
+      }
+    }
+  }
 }

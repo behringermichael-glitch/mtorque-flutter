@@ -66,7 +66,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dashboardWeekLegendTitle => 'Wochenübersicht – Legende';
 
   @override
-  String get dashboardWeekLegendIntro => 'Die Punkte unter den Wochentagen zeigen an, ob du an diesem Tag Kraft, Ausdauer oder beides trainiert hast.';
+  String get dashboardWeekLegendIntro => 'Die Punkte unter den Wochentagen zeigen, ob du an diesem Tag Kraft, Ausdauer oder beides trainiert hast.';
 
   @override
   String get dashboardWeekLegendStrength => 'Krafttraining';
@@ -81,34 +81,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dashboardWeekLegendNone => 'Kein Training';
 
   @override
-  String get dashboardMotivationTeaser => 'Brauchst du einen Schubs? Hier ist dein Spruch des Tages.';
+  String get dashboardMotivationTeaser => 'Brauchst du Motivation? Hier ist dein heutiges Zitat.';
 
   @override
-  String get dashboardQuoteOne => 'WIRF DAS HANDTUCH NIE. NUTZE ES, UM DEN SCHWEISS ABZUWISCHEN. UND MACH WEITER.';
+  String get dashboardQuoteOne => 'WIRF NIEMALS DAS HANDTUCH. NUTZE ES, UM DEN SCHWEISS ABZUWISCHEN. DANN MACH WEITER.';
 
   @override
-  String get dashboardQuoteTwo => 'Disziplin bedeutet, das zu wählen, was du wirklich willst, statt das, was du gerade willst.';
+  String get dashboardQuoteTwo => 'Disziplin bedeutet, das zu wählen, was du langfristig willst, statt das, was du gerade willst.';
 
   @override
-  String get dashboardQuoteThree => 'Kleine Schritte, konsequent umgesetzt, werden zu großen Ergebnissen.';
+  String get dashboardQuoteThree => 'Kleine Schritte werden durch Beständigkeit zu großen Ergebnissen.';
 
   @override
-  String get dashboardQuoteFour => 'Motivation startet dich. Routine trägt dich weiter.';
+  String get dashboardQuoteFour => 'Motivation bringt dich in Bewegung. Routine trägt dich weiter.';
 
   @override
-  String get dashboardQuoteFive => 'Dein zukünftiges Ich wird dir für die heutige Einheit danken.';
+  String get dashboardQuoteFive => 'Dein zukünftiges Ich wird dir für den heutigen Einsatz danken.';
 
   @override
   String get dashboardShareQuoteDialogTitle => 'Motivation teilen';
 
   @override
-  String get dashboardShareQuoteDialogMessage => 'Teile dieses Motivationszitat mit einer Freundin oder einem Freund.';
+  String get dashboardShareQuoteDialogMessage => 'Teile dieses motivierende Zitat mit einem Freund.';
 
   @override
   String get dashboardShareQuoteActionShare => 'Teilen';
 
   @override
-  String get dashboardShareQuoteIntro => 'Ein Freund denkt, du solltest trainieren.';
+  String get dashboardShareQuoteIntro => 'Ein Freund findet, du solltest trainieren.';
 
   @override
   String get dashboardShareQuoteCopied => 'Motivation in die Zwischenablage kopiert.';
@@ -144,7 +144,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get goalUnitsDurationShort => 'min';
 
   @override
-  String get goalInvalidNumber => 'Bitte gib eine gültige Zahl > 0 ein.';
+  String get goalInvalidNumber => 'Bitte eine gültige Zahl > 0 eingeben.';
 
   @override
   String get dashboardTapToEdit => 'Tippen zum Bearbeiten';
@@ -162,7 +162,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dashboardStepsGoalInputHint => 'Schritte pro Tag';
 
   @override
-  String get dashboardStepsGoalInvalid => 'Bitte gib eine gültige Zahl ein.';
+  String get dashboardStepsGoalInvalid => 'Bitte eine gültige Zahl eingeben.';
 
   @override
   String dashboardStepsGoalFormat(int value) {
@@ -177,14 +177,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String dashboardMonthsShort(int value) {
-    return '$value m';
+    return '$value M';
   }
 
   @override
-  String get streakInfoTitle => 'Stern-Belohnungen';
+  String get streakInfoTitle => 'Sterne-Belohnungen';
 
   @override
-  String get streakInfoDescription => 'Für jeden Monat, in dem du dein persönliches Kraft- oder Ausdauerziel erreichst, bekommst du einen Stern. Diese Ziele kannst du in den entsprechenden Dashboard-Kacheln anpassen.';
+  String get streakInfoDescription => 'Für jeden Monat, in dem du deine persönlichen Kraft- oder Ausdauerziele erreichst, erhältst du einen Stern. Diese Ziele kannst du in den entsprechenden Dashboard-Kacheln anpassen.';
 
   @override
   String get streakLevel1Title => 'Erste Anpassung';
@@ -211,10 +211,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get streakLevel4Months => '(4 Monate)';
 
   @override
-  String get streakLevel5Title => 'Hohe Trainingsadhärenz';
+  String get streakLevel5Title => 'High-Performance-Adhärenz';
 
   @override
-  String get streakLevel5Months => '(5 Monate)';
+  String get streakLevel5Months => '(5+ Monate)';
 
   @override
   String get dashboardQuickStartTitle => 'Schnellstart';
@@ -229,13 +229,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dashboardGymKnowledgeTitle => 'GYM-Knowledge';
 
   @override
-  String get dashboardGymKnowledgeSubtitle => 'Evidenzbasierte Inhalte und praktische Impulse.';
+  String get dashboardGymKnowledgeSubtitle => 'Evidenzbasierte Inhalte und praktische Einblicke.';
 
   @override
   String get dashboardYoutubeItemOneTitle => 'Muskelermüdung erklärt';
 
   @override
-  String get dashboardYoutubeItemOneSubtitle => 'Grundlagen aus der Leistungsphysiologie.';
+  String get dashboardYoutubeItemOneSubtitle => 'Grundlagen der Leistungsphysiologie.';
 
   @override
   String get dashboardYoutubeItemTwoTitle => 'Repeated Bout Effect';
@@ -248,7 +248,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String dashboardShareQuoteMessage(String quote) {
-    return 'Ein Freund denkt, du solltest trainieren.\n\n“$quote”\n\nHol dir mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque';
+    return 'Ein Freund findet, du solltest trainieren.\n\n„$quote”\n\nHol dir mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque';
   }
 
   @override
@@ -258,10 +258,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dashboardYoutubeLoading => 'Videos werden geladen…';
 
   @override
-  String get dashboardYoutubeUnavailable => 'Zurzeit sind keine Videos verfügbar.';
+  String get dashboardYoutubeUnavailable => 'Derzeit sind keine Videos verfügbar.';
 
   @override
-  String get dashboardYoutubeTapToOpen => 'Tippen zum Öffnen auf YouTube.';
+  String get dashboardYoutubeTapToOpen => 'Tippen, um YouTube zu öffnen.';
 
   @override
   String get dashboardYoutubeOpenFailed => 'YouTube konnte nicht geöffnet werden.';
@@ -279,16 +279,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthClosePlanMessage => 'Speichern und schließen, verwerfen oder weiter bearbeiten?';
 
   @override
-  String get strengthContinueEditing => 'Weiter bearbeiten';
+  String get strengthContinueEditing => 'Weiter';
 
   @override
   String get strengthDiscard => 'Verwerfen';
 
   @override
-  String get strengthSaveAndClose => 'Speichern & schließen';
+  String get strengthSaveAndClose => 'Speichern und schließen';
 
   @override
-  String get strengthFinishSessionTitle => 'Session beenden';
+  String get strengthFinishSessionTitle => 'Einheit beenden';
 
   @override
   String get strengthNotes => 'Notizen';
@@ -315,13 +315,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthCommonDurationShort => 'Sek.';
 
   @override
-  String get strengthExerciseAddSetButton => '+ SATZ HINZUFÜGEN';
+  String get strengthExerciseAddSetButton => '+ Satz hinzufügen';
 
   @override
   String get strengthExerciseDeleteExerciseTitle => 'Übung löschen?';
 
   @override
-  String get strengthExerciseDeleteExerciseMessage => 'Möchtest Du diese Übung wirklich aus der Session entfernen?';
+  String get strengthExerciseDeleteExerciseMessage => 'Möchtest du diese Übung wirklich aus der Einheit entfernen?';
 
   @override
   String get strengthExerciseMarkersTitle => 'Zusätzliche Marker';
@@ -330,7 +330,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthExerciseMarkerBfr => 'BFR-Training';
 
   @override
-  String get strengthExerciseMarkerChain => 'Gewichtskette';
+  String get strengthExerciseMarkerChain => 'Gewichtsketten';
 
   @override
   String get strengthExerciseMarkerBands => 'Widerstandsbänder';
@@ -343,7 +343,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String strengthExerciseBfrValue(int value) {
-    return '$value % des Okklusionsdrucks';
+    return '$value% des Okklusionsdrucks';
   }
 
   @override
@@ -353,7 +353,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthExerciseChainWeightHint => 'z. B. 10';
 
   @override
-  String get strengthExerciseBandResistanceLabel => 'Band-Widerstand';
+  String get strengthExerciseBandResistanceLabel => 'Bandwiderstand';
 
   @override
   String get strengthExerciseBandResistanceHint => 'z. B. 20';
@@ -362,7 +362,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthExerciseSuperSlowActiveLabel => 'Super-slow aktiv';
 
   @override
-  String get strengthExerciseSuperSlowHint => 'z. B. 5-5-5 oder „sehr langsam“';
+  String get strengthExerciseSuperSlowHint => 'z. B. 5-5-5 oder „sehr langsam”';
 
   @override
   String get strengthExerciseDescriptionTitle => 'Übungsbeschreibung';
@@ -427,4 +427,151 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get muscleLabelInnervation => 'Innervation';
+
+  @override
+  String get strengthMenuStartEmptyPlan => 'Mit leerem Plan starten';
+
+  @override
+  String get strengthMenuCloseSession => 'Einheit schließen';
+
+  @override
+  String get strengthMenuSaveAsPlan => 'Als Plan speichern...';
+
+  @override
+  String get strengthMenuEditTrainingPlan => 'Trainingsplan bearbeiten';
+
+  @override
+  String get strengthMenuPrintPlanPdf => 'Plan als PDF drucken';
+
+  @override
+  String get strengthMenuAddExercise => 'Übung hinzufügen';
+
+  @override
+  String get strengthMenuLoadPlan => 'Plan laden';
+
+  @override
+  String get strengthMenuRenamePlan => 'Plan umbenennen';
+
+  @override
+  String get strengthMenuDeletePlan => 'Plan löschen';
+
+  @override
+  String get strengthMenuSaveCurrentPlan => 'Aktuellen Plan speichern';
+
+  @override
+  String get strengthEndSessionButton => 'Beenden';
+
+  @override
+  String get strengthSessionTitle => 'Einheit';
+
+  @override
+  String get strengthPlanNameTitle => 'Planname';
+
+  @override
+  String get strengthPlanNameHint => 'Name eingeben';
+
+  @override
+  String get strengthNoPlansAvailable => 'Keine Pläne vorhanden.';
+
+  @override
+  String get strengthReplaceCurrentSessionTitle => 'Aktuelle Einheit ersetzen?';
+
+  @override
+  String get strengthReplaceCurrentSessionMessage => 'Die aktuelle Einheit wird dadurch verworfen und ersetzt.';
+
+  @override
+  String get strengthReplaceCurrentSessionButton => 'Ersetzen';
+
+  @override
+  String get strengthDeletePlanTitle => 'Plan löschen';
+
+  @override
+  String strengthDeletePlanMessage(String planName) {
+    return 'Soll der Plan „$planName” gelöscht werden?';
+  }
+
+  @override
+  String get strengthPrintPlanPdfNotImplemented => 'Der PDF-Druck des Trainingsplans ist in Flutter noch nicht umgesetzt.';
+
+  @override
+  String get strengthTimerTitle => 'Timer';
+
+  @override
+  String get strengthTimerSecondsHint => 'Sek.';
+
+  @override
+  String get strengthTimerReset => 'Reset';
+
+  @override
+  String get strengthTimerRingHint => 'Ring: Tippen = Start/Stopp';
+
+  @override
+  String get strengthTimerTapStop => 'Tippen = Stopp';
+
+  @override
+  String get strengthTimerTapStartStop => 'Tippen = Start/Stopp';
+
+  @override
+  String get strengthTempoConcentric => 'Konzentrisch';
+
+  @override
+  String get strengthTempoStatic => 'Statisch';
+
+  @override
+  String get strengthTempoEccentric => 'Exzentrisch';
+
+  @override
+  String get strengthPrintPlanSelectTitle => 'Plan auswählen';
+
+  @override
+  String get strengthPrintPlanSetsTitle => 'Sätze pro Übung';
+
+  @override
+  String strengthPrintSetsOption(int sets) {
+    return '$sets Sätze';
+  }
+
+  @override
+  String get strengthPrintPlanCommentTitle => 'Kommentar';
+
+  @override
+  String get strengthPrintPlanCommentMessage => 'Füge optional einen Kommentar für den gedruckten Plan hinzu.';
+
+  @override
+  String get strengthPrintPlanCommentHint => 'Optionaler Kommentar';
+
+  @override
+  String get strengthPrintPlanCommentSkip => 'Überspringen';
+
+  @override
+  String get strengthPrintPlanNoExercises => 'Dieser Plan enthält keine Übungen.';
+
+  @override
+  String strengthPrintPlanFailed(String message) {
+    return 'Plan-PDF konnte nicht gedruckt werden: $message';
+  }
+
+  @override
+  String strengthPrintJobStrengthPlan(String planName) {
+    return 'mTORQUE Trainingsplan – $planName';
+  }
+
+  @override
+  String strengthPrintPdfGeneratedAt(String date) {
+    return 'Erstellt: $date';
+  }
+
+  @override
+  String get strengthPrintPdfDate => 'Datum';
+
+  @override
+  String get strengthPrintPdfKg => 'kg';
+
+  @override
+  String get strengthPrintPdfReps => 'Wdh.';
+
+  @override
+  String strengthPrintPdfPageXOfY(int pageNumber, int pageCount) {
+    return 'Seite $pageNumber von $pageCount';
+  }
 }

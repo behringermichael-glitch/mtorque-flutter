@@ -214,7 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get streakLevel5Title => 'High-Performance Adherence';
 
   @override
-  String get streakLevel5Months => '(5 months)';
+  String get streakLevel5Months => '(5+ months)';
 
   @override
   String get dashboardQuickStartTitle => 'Quick start';
@@ -427,4 +427,151 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get muscleLabelInnervation => 'Innervation';
+
+  @override
+  String get strengthMenuStartEmptyPlan => 'Start with empty plan';
+
+  @override
+  String get strengthMenuCloseSession => 'Close session';
+
+  @override
+  String get strengthMenuSaveAsPlan => 'Save as plan...';
+
+  @override
+  String get strengthMenuEditTrainingPlan => 'Edit training plan';
+
+  @override
+  String get strengthMenuPrintPlanPdf => 'Print plan as PDF';
+
+  @override
+  String get strengthMenuAddExercise => 'Add exercise';
+
+  @override
+  String get strengthMenuLoadPlan => 'Load plan';
+
+  @override
+  String get strengthMenuRenamePlan => 'Rename plan';
+
+  @override
+  String get strengthMenuDeletePlan => 'Delete plan';
+
+  @override
+  String get strengthMenuSaveCurrentPlan => 'Save current plan';
+
+  @override
+  String get strengthEndSessionButton => 'Finish';
+
+  @override
+  String get strengthSessionTitle => 'Session';
+
+  @override
+  String get strengthPlanNameTitle => 'Plan name';
+
+  @override
+  String get strengthPlanNameHint => 'Enter name';
+
+  @override
+  String get strengthNoPlansAvailable => 'No plans available.';
+
+  @override
+  String get strengthReplaceCurrentSessionTitle => 'Replace current session?';
+
+  @override
+  String get strengthReplaceCurrentSessionMessage => 'This will discard and replace the current session.';
+
+  @override
+  String get strengthReplaceCurrentSessionButton => 'Replace';
+
+  @override
+  String get strengthDeletePlanTitle => 'Delete plan';
+
+  @override
+  String strengthDeletePlanMessage(String planName) {
+    return 'Delete plan “$planName”?';
+  }
+
+  @override
+  String get strengthPrintPlanPdfNotImplemented => 'Training plan PDF printing is not implemented in Flutter yet.';
+
+  @override
+  String get strengthTimerTitle => 'Timer';
+
+  @override
+  String get strengthTimerSecondsHint => 'sec';
+
+  @override
+  String get strengthTimerReset => 'Reset';
+
+  @override
+  String get strengthTimerRingHint => 'Ring: tap = start/stop';
+
+  @override
+  String get strengthTimerTapStop => 'Tap = stop';
+
+  @override
+  String get strengthTimerTapStartStop => 'Tap = start/stop';
+
+  @override
+  String get strengthTempoConcentric => 'Concentric';
+
+  @override
+  String get strengthTempoStatic => 'Static';
+
+  @override
+  String get strengthTempoEccentric => 'Eccentric';
+
+  @override
+  String get strengthPrintPlanSelectTitle => 'Select plan';
+
+  @override
+  String get strengthPrintPlanSetsTitle => 'Sets per exercise';
+
+  @override
+  String strengthPrintSetsOption(int sets) {
+    return '$sets sets';
+  }
+
+  @override
+  String get strengthPrintPlanCommentTitle => 'Comment';
+
+  @override
+  String get strengthPrintPlanCommentMessage => 'Add an optional comment for the printed plan.';
+
+  @override
+  String get strengthPrintPlanCommentHint => 'Optional comment';
+
+  @override
+  String get strengthPrintPlanCommentSkip => 'Skip';
+
+  @override
+  String get strengthPrintPlanNoExercises => 'This plan does not contain exercises.';
+
+  @override
+  String strengthPrintPlanFailed(String message) {
+    return 'Could not print plan PDF: $message';
+  }
+
+  @override
+  String strengthPrintJobStrengthPlan(String planName) {
+    return 'mTORQUE strength plan – $planName';
+  }
+
+  @override
+  String strengthPrintPdfGeneratedAt(String date) {
+    return 'Generated: $date';
+  }
+
+  @override
+  String get strengthPrintPdfDate => 'Date';
+
+  @override
+  String get strengthPrintPdfKg => 'kg';
+
+  @override
+  String get strengthPrintPdfReps => 'reps';
+
+  @override
+  String strengthPrintPdfPageXOfY(int pageNumber, int pageCount) {
+    return 'Page $pageNumber of $pageCount';
+  }
 }

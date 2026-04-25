@@ -500,7 +500,7 @@ abstract class AppLocalizations {
   /// No description provided for @streakLevel5Months.
   ///
   /// In en, this message translates to:
-  /// **'(5 months)'**
+  /// **'(5+ months)'**
   String get streakLevel5Months;
 
   /// No description provided for @dashboardQuickStartTitle.
@@ -910,6 +910,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Innervation'**
   String get muscleLabelInnervation;
+
+  /// No description provided for @strengthMenuStartEmptyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with empty plan'**
+  String get strengthMenuStartEmptyPlan;
+
+  /// No description provided for @strengthMenuCloseSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Close session'**
+  String get strengthMenuCloseSession;
+
+  /// No description provided for @strengthMenuSaveAsPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as plan...'**
+  String get strengthMenuSaveAsPlan;
+
+  /// No description provided for @strengthMenuEditTrainingPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit training plan'**
+  String get strengthMenuEditTrainingPlan;
+
+  /// No description provided for @strengthMenuPrintPlanPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Print plan as PDF'**
+  String get strengthMenuPrintPlanPdf;
+
+  /// No description provided for @strengthMenuAddExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercise'**
+  String get strengthMenuAddExercise;
+
+  /// No description provided for @strengthMenuLoadPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Load plan'**
+  String get strengthMenuLoadPlan;
+
+  /// No description provided for @strengthMenuRenamePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename plan'**
+  String get strengthMenuRenamePlan;
+
+  /// No description provided for @strengthMenuDeletePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete plan'**
+  String get strengthMenuDeletePlan;
+
+  /// No description provided for @strengthMenuSaveCurrentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save current plan'**
+  String get strengthMenuSaveCurrentPlan;
+
+  /// No description provided for @strengthEndSessionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get strengthEndSessionButton;
+
+  /// No description provided for @strengthSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get strengthSessionTitle;
+
+  /// No description provided for @strengthPlanNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan name'**
+  String get strengthPlanNameTitle;
+
+  /// No description provided for @strengthPlanNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter name'**
+  String get strengthPlanNameHint;
+
+  /// No description provided for @strengthNoPlansAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans available.'**
+  String get strengthNoPlansAvailable;
+
+  /// No description provided for @strengthReplaceCurrentSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace current session?'**
+  String get strengthReplaceCurrentSessionTitle;
+
+  /// No description provided for @strengthReplaceCurrentSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will discard and replace the current session.'**
+  String get strengthReplaceCurrentSessionMessage;
+
+  /// No description provided for @strengthReplaceCurrentSessionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get strengthReplaceCurrentSessionButton;
+
+  /// No description provided for @strengthDeletePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete plan'**
+  String get strengthDeletePlanTitle;
+
+  /// No description provided for @strengthDeletePlanMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete plan “{planName}”?'**
+  String strengthDeletePlanMessage(String planName);
+
+  /// No description provided for @strengthPrintPlanPdfNotImplemented.
+  ///
+  /// In en, this message translates to:
+  /// **'Training plan PDF printing is not implemented in Flutter yet.'**
+  String get strengthPrintPlanPdfNotImplemented;
+
+  /// No description provided for @strengthTimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get strengthTimerTitle;
+
+  /// No description provided for @strengthTimerSecondsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'sec'**
+  String get strengthTimerSecondsHint;
+
+  /// No description provided for @strengthTimerReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get strengthTimerReset;
+
+  /// No description provided for @strengthTimerRingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ring: tap = start/stop'**
+  String get strengthTimerRingHint;
+
+  /// No description provided for @strengthTimerTapStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap = stop'**
+  String get strengthTimerTapStop;
+
+  /// No description provided for @strengthTimerTapStartStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap = start/stop'**
+  String get strengthTimerTapStartStop;
+
+  /// No description provided for @strengthTempoConcentric.
+  ///
+  /// In en, this message translates to:
+  /// **'Concentric'**
+  String get strengthTempoConcentric;
+
+  /// No description provided for @strengthTempoStatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Static'**
+  String get strengthTempoStatic;
+
+  /// No description provided for @strengthTempoEccentric.
+  ///
+  /// In en, this message translates to:
+  /// **'Eccentric'**
+  String get strengthTempoEccentric;
+
+  /// No description provided for @strengthPrintPlanSelectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select plan'**
+  String get strengthPrintPlanSelectTitle;
+
+  /// No description provided for @strengthPrintPlanSetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets per exercise'**
+  String get strengthPrintPlanSetsTitle;
+
+  /// No description provided for @strengthPrintSetsOption.
+  ///
+  /// In en, this message translates to:
+  /// **'{sets} sets'**
+  String strengthPrintSetsOption(int sets);
+
+  /// No description provided for @strengthPrintPlanCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get strengthPrintPlanCommentTitle;
+
+  /// No description provided for @strengthPrintPlanCommentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an optional comment for the printed plan.'**
+  String get strengthPrintPlanCommentMessage;
+
+  /// No description provided for @strengthPrintPlanCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional comment'**
+  String get strengthPrintPlanCommentHint;
+
+  /// No description provided for @strengthPrintPlanCommentSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get strengthPrintPlanCommentSkip;
+
+  /// No description provided for @strengthPrintPlanNoExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan does not contain exercises.'**
+  String get strengthPrintPlanNoExercises;
+
+  /// No description provided for @strengthPrintPlanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not print plan PDF: {message}'**
+  String strengthPrintPlanFailed(String message);
+
+  /// No description provided for @strengthPrintJobStrengthPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'mTORQUE strength plan – {planName}'**
+  String strengthPrintJobStrengthPlan(String planName);
+
+  /// No description provided for @strengthPrintPdfGeneratedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated: {date}'**
+  String strengthPrintPdfGeneratedAt(String date);
+
+  /// No description provided for @strengthPrintPdfDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get strengthPrintPdfDate;
+
+  /// No description provided for @strengthPrintPdfKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get strengthPrintPdfKg;
+
+  /// No description provided for @strengthPrintPdfReps.
+  ///
+  /// In en, this message translates to:
+  /// **'reps'**
+  String get strengthPrintPdfReps;
+
+  /// No description provided for @strengthPrintPdfPageXOfY.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {pageNumber} of {pageCount}'**
+  String strengthPrintPdfPageXOfY(int pageNumber, int pageCount);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

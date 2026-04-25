@@ -10,6 +10,8 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../state/strength_providers.dart';
+import '../widgets/strength_plan_print_dialogs.dart';
+import '../../domain/services/strength_plan_print_service.dart';
 import 'exercise_asset_resolver.dart';
 import 'exercise_page.dart';
 import 'exercise_picker_sheet.dart';
@@ -498,62 +500,6 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       }) {
     final items = <PopupMenuEntry<_StrengthMenuAction>>[];
 
-    if (hostView == StrengthHostView.pager) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.addExercise,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.addExercise),
-          ),
-        ),
-      );
-    }
-    if (hasPlanSelection && hasDraft) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.savePlan,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.savePlan),
-          ),
-        ),
-      );
-    }
-    if (hasDraft) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.saveAsPlan,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.saveAsPlan),
-          ),
-        ),
-      );
-    }
-    items.add(
-      PopupMenuItem(
-        value: _StrengthMenuAction.loadPlan,
-        child: Text(
-          _menuLabel(context, _StrengthMenuAction.loadPlan),
-        ),
-      ),
-    );
-    if (hasPlanSelection) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.renamePlan,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.renamePlan),
-          ),
-        ),
-      );
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.deletePlan,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.deletePlan),
-          ),
-        ),
-      );
-    }
     items.add(
       PopupMenuItem(
         value: _StrengthMenuAction.startEmpty,
@@ -562,6 +508,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         ),
       ),
     );
+
     if (hostView == StrengthHostView.pager) {
       items.add(
         PopupMenuItem(
@@ -572,6 +519,49 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         ),
       );
     }
+
+    if (hasDraft) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.saveAsPlan,
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.saveAsPlan),
+          ),
+        ),
+      );
+    }
+
+    items.add(
+      PopupMenuItem(
+        value: _StrengthMenuAction.editPlan,
+        child: Text(
+          _menuLabel(context, _StrengthMenuAction.editPlan),
+        ),
+      ),
+    );
+
+    if (hasDraft) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.printPlanPdf,
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.printPlanPdf),
+          ),
+        ),
+      );
+    }
+
+    if (hostView == StrengthHostView.pager) {
+      items.add(
+        PopupMenuItem(
+          value: _StrengthMenuAction.addExercise,
+          child: Text(
+            _menuLabel(context, _StrengthMenuAction.addExercise),
+          ),
+        ),
+      );
+    }
+
     return items;
   }
 
@@ -609,6 +599,12 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           planName: name.trim(),
           overwrite: false,
         );
+        return;
+      case _StrengthMenuAction.editPlan:
+        await controller.showPlanGrid();
+        return;
+      case _StrengthMenuAction.printPlanPdf:
+        await _handlePrintPlanPdf();
         return;
       case _StrengthMenuAction.loadPlan:
         final selected = await _showLoadPlanDialog(context, state);
@@ -649,69 +645,120 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   String _menuLabel(BuildContext context, _StrengthMenuAction action) {
-    final de =
-        Localizations.localeOf(context).languageCode.toLowerCase() ==
-            'de';
+    final l10n = AppLocalizations.of(context)!;
+
     switch (action) {
       case _StrengthMenuAction.savePlan:
-        return de ? 'Aktuellen Plan speichern' : 'Save current plan';
+        return l10n.strengthMenuSaveCurrentPlan;
       case _StrengthMenuAction.startEmpty:
-        return de ? 'Neue Einheit starten' : 'Start new session';
+        return l10n.strengthMenuStartEmptyPlan;
       case _StrengthMenuAction.closePlan:
-        return de ? 'Einheit schließen' : 'Close session';
+        return l10n.strengthMenuCloseSession;
       case _StrengthMenuAction.saveAsPlan:
-        return de ? 'Als neuen Plan speichern' : 'Save as new plan';
+        return l10n.strengthMenuSaveAsPlan;
+      case _StrengthMenuAction.editPlan:
+        return l10n.strengthMenuEditTrainingPlan;
+      case _StrengthMenuAction.printPlanPdf:
+        return l10n.strengthMenuPrintPlanPdf;
       case _StrengthMenuAction.loadPlan:
-        return de ? 'Plan laden' : 'Load plan';
+        return l10n.strengthMenuLoadPlan;
       case _StrengthMenuAction.renamePlan:
-        return de ? 'Plan umbenennen' : 'Rename plan';
+        return l10n.strengthMenuRenamePlan;
       case _StrengthMenuAction.deletePlan:
-        return de ? 'Plan löschen' : 'Delete plan';
+        return l10n.strengthMenuDeletePlan;
       case _StrengthMenuAction.addExercise:
-        return de ? 'Übung hinzufügen' : 'Add exercise';
+        return l10n.strengthMenuAddExercise;
     }
   }
 
   String _endLabel(BuildContext context) {
-    return Localizations.localeOf(context).languageCode.toLowerCase() ==
-        'de'
-        ? 'Beenden'
-        : 'Finish';
+    return AppLocalizations.of(context)!.strengthEndSessionButton;
+  }
+
+  Future<void> _handlePrintPlanPdf() async {
+    final l10n = AppLocalizations.of(context)!;
+    final state = ref.read(strengthFlowControllerProvider);
+
+    final selectedPlanName = await StrengthPlanPrintDialogs.selectPlan(
+      context,
+      plans: state.plans,
+    );
+    if (!mounted || selectedPlanName == null || selectedPlanName.trim().isEmpty) {
+      return;
+    }
+
+    final setsPerExercise =
+    await StrengthPlanPrintDialogs.selectSetsPerExercise(context);
+    if (!mounted || setsPerExercise == null) return;
+
+    final comment =
+    await StrengthPlanPrintDialogs.enterOptionalComment(context);
+    if (!mounted) return;
+
+    try {
+      final printService = ref.read(strengthPlanPrintServiceProvider);
+
+      await printService.printSavedPlan(
+        planName: selectedPlanName.trim(),
+        setsPerExercise: setsPerExercise,
+        languageCode: Localizations.localeOf(context).languageCode,
+        jobName: l10n.strengthPrintJobStrengthPlan(selectedPlanName.trim()),
+        generatedAtLabel: l10n.strengthPrintPdfGeneratedAt('{date}'),
+        dateLabel: l10n.strengthPrintPdfDate,
+        kgLabel: l10n.strengthPrintPdfKg,
+        repsLabel: l10n.strengthPrintPdfReps,
+        pageLabelBuilder: l10n.strengthPrintPdfPageXOfY,
+        comment: comment,
+      );
+    } on StrengthPlanPrintNoExercisesException {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.strengthPrintPlanNoExercises),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.strengthPrintPlanFailed(error.toString()),
+          ),
+        ),
+      );
+    }
   }
 
   Future<String?> _promptForPlanName(
       BuildContext context, {
         required String initialValue,
       }) async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: initialValue);
-    final de =
-        Localizations.localeOf(context).languageCode.toLowerCase() ==
-            'de';
+
     return showDialog<String>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(de ? 'Planname' : 'Plan name'),
+          title: Text(l10n.strengthPlanNameTitle),
           content: TextField(
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              hintText: de ? 'Name eingeben' : 'Enter name',
+              hintText: l10n.strengthPlanNameHint,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(
-                AppLocalizations.of(context)!.strengthCommonCancel,
-              ),
+              child: Text(l10n.strengthCommonCancel),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .pop(controller.text.trim()),
-              child: Text(
-                AppLocalizations.of(context)!.strengthCommonSave,
-              ),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(controller.text.trim()),
+              child: Text(l10n.strengthCommonSave),
             ),
           ],
         );
@@ -723,22 +770,17 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       BuildContext context,
       StrengthFlowState state,
       ) {
-    final de =
-        Localizations.localeOf(context).languageCode.toLowerCase() ==
-            'de';
+    final l10n = AppLocalizations.of(context)!;
+
     return showDialog<String>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(de ? 'Plan laden' : 'Load plan'),
+          title: Text(l10n.strengthMenuLoadPlan),
           content: SizedBox(
             width: double.maxFinite,
             child: state.plans.isEmpty
-                ? Text(
-              de
-                  ? 'Keine Pläne vorhanden.'
-                  : 'No plans available.',
-            )
+                ? Text(l10n.strengthNoPlansAvailable)
                 : ListView.builder(
               shrinkWrap: true,
               itemCount: state.plans.length,
@@ -746,8 +788,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                 final plan = state.plans[index];
                 return ListTile(
                   title: Text(plan.name),
-                  onTap: () => Navigator.of(dialogContext)
-                      .pop(plan.name),
+                  onTap: () => Navigator.of(dialogContext).pop(plan.name),
                 );
               },
             ),
@@ -755,9 +796,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(
-                AppLocalizations.of(context)!.strengthCommonCancel,
-              ),
+              child: Text(l10n.strengthCommonCancel),
             ),
           ],
         );
@@ -766,44 +805,34 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Future<bool> _confirmReplaceCurrent(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.read(strengthFlowControllerProvider);
     final draft = state.draftSession;
-    if (draft == null ||
-        (!draft.hasEntries && draft.exerciseOrder.isEmpty)) {
+
+    if (draft == null || (!draft.hasEntries && draft.exerciseOrder.isEmpty)) {
       return true;
     }
-    final de =
-        Localizations.localeOf(context).languageCode.toLowerCase() ==
-            'de';
+
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(
-            de
-                ? 'Aktuelle Einheit ersetzen?'
-                : 'Replace current session?',
-          ),
-          content: Text(
-            de
-                ? 'Die aktuelle Einheit wird dadurch verworfen und ersetzt.'
-                : 'This will discard and replace the current session.',
-          ),
+          title: Text(l10n.strengthReplaceCurrentSessionTitle),
+          content: Text(l10n.strengthReplaceCurrentSessionMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(
-                AppLocalizations.of(context)!.strengthCommonCancel,
-              ),
+              child: Text(l10n.strengthCommonCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(de ? 'Ersetzen' : 'Replace'),
+              child: Text(l10n.strengthReplaceCurrentSessionButton),
             ),
           ],
         );
       },
     );
+
     return result == true;
   }
 
@@ -811,31 +840,22 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       BuildContext context,
       String planName,
       ) {
-    final de =
-        Localizations.localeOf(context).languageCode.toLowerCase() ==
-            'de';
+    final l10n = AppLocalizations.of(context)!;
+
     return showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(de ? 'Plan löschen' : 'Delete plan'),
-          content: Text(
-            de
-                ? 'Soll der Plan "$planName" gelöscht werden?'
-                : 'Delete plan "$planName"?',
-          ),
+          title: Text(l10n.strengthDeletePlanTitle),
+          content: Text(l10n.strengthDeletePlanMessage(planName)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(
-                AppLocalizations.of(context)!.strengthCommonCancel,
-              ),
+              child: Text(l10n.strengthCommonCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(
-                AppLocalizations.of(context)!.strengthCommonDelete,
-              ),
+              child: Text(l10n.strengthCommonDelete),
             ),
           ],
         );
@@ -942,8 +962,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   String _sessionTitle(BuildContext context) {
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return languageCode == 'de' ? 'Einheit' : 'Session';
+    return AppLocalizations.of(context)!.strengthSessionTitle;
   }
 
   String _sessionDateText({
@@ -1241,6 +1260,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final panelColor = _panelSurfaceColor(context);
     final panelBorderColor =
     Theme.of(context).dividerColor.withValues(alpha: 0.35);
@@ -1292,7 +1312,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                           CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Timer',
+                              l10n.strengthTimerTitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium
@@ -1314,7 +1334,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                     TextInputAction.done,
                                     decoration: InputDecoration(
                                       isDense: true,
-                                      hintText: 'sec',
+                                      hintText: l10n.strengthTimerSecondsHint,
                                       hintStyle: TextStyle(
                                         color: cs.onSurface.withValues(alpha: 0.42),
                                       ),
@@ -1341,14 +1361,14 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                             22),
                                       ),
                                     ),
-                                    child: const Text('Reset'),
+                                    child: Text(l10n.strengthTimerReset),
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Ring: Tippen = Start/Stopp',
+                              l10n.strengthTimerRingHint,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
@@ -1394,8 +1414,8 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                             const SizedBox(height: 6),
                             Text(
                               _metronomeRunning
-                                  ? 'Tippen = Stopp'
-                                  : 'Tippen = Start/Stopp',
+                                  ? l10n.strengthTimerTapStop
+                                  : l10n.strengthTimerTapStartStop,
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -1421,7 +1441,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                 Expanded(
                                   child: _TempoFieldBlock(
                                     controller: _conController,
-                                    label: 'Konzentrisch',
+                                    label: l10n.strengthTempoConcentric,
                                     onChanged: _handleTempoChanged,
                                   ),
                                 ),
@@ -1429,7 +1449,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                 Expanded(
                                   child: _TempoFieldBlock(
                                     controller: _holdTopController,
-                                    label: 'Statisch',
+                                    label: l10n.strengthTempoStatic,
                                     onChanged: _handleTempoChanged,
                                   ),
                                 ),
@@ -1441,7 +1461,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                 Expanded(
                                   child: _TempoFieldBlock(
                                     controller: _eccController,
-                                    label: 'Exzentrisch',
+                                    label: l10n.strengthTempoEccentric,
                                     onChanged: _handleTempoChanged,
                                   ),
                                 ),
@@ -2149,6 +2169,8 @@ enum _StrengthMenuAction {
   startEmpty,
   closePlan,
   saveAsPlan,
+  editPlan,
+  printPlanPdf,
   loadPlan,
   renamePlan,
   deletePlan,

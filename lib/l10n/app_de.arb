@@ -19,21 +19,21 @@
   "weekdaySunShort": "So.",
   "dashboardWeekOverviewHint": "Tippen für mehr Infos",
   "dashboardWeekLegendTitle": "Wochenübersicht – Legende",
-  "dashboardWeekLegendIntro": "Die Punkte unter den Wochentagen zeigen an, ob du an diesem Tag Kraft, Ausdauer oder beides trainiert hast.",
+  "dashboardWeekLegendIntro": "Die Punkte unter den Wochentagen zeigen, ob du an diesem Tag Kraft, Ausdauer oder beides trainiert hast.",
   "dashboardWeekLegendStrength": "Krafttraining",
   "dashboardWeekLegendEndurance": "Ausdauertraining",
   "dashboardWeekLegendBoth": "Kraft + Ausdauer",
   "dashboardWeekLegendNone": "Kein Training",
-  "dashboardMotivationTeaser": "Brauchst du einen Schubs? Hier ist dein Spruch des Tages.",
-  "dashboardQuoteOne": "WIRF DAS HANDTUCH NIE. NUTZE ES, UM DEN SCHWEISS ABZUWISCHEN. UND MACH WEITER.",
-  "dashboardQuoteTwo": "Disziplin bedeutet, das zu wählen, was du wirklich willst, statt das, was du gerade willst.",
-  "dashboardQuoteThree": "Kleine Schritte, konsequent umgesetzt, werden zu großen Ergebnissen.",
-  "dashboardQuoteFour": "Motivation startet dich. Routine trägt dich weiter.",
-  "dashboardQuoteFive": "Dein zukünftiges Ich wird dir für die heutige Einheit danken.",
+  "dashboardMotivationTeaser": "Brauchst du Motivation? Hier ist dein heutiges Zitat.",
+  "dashboardQuoteOne": "WIRF NIEMALS DAS HANDTUCH. NUTZE ES, UM DEN SCHWEISS ABZUWISCHEN. DANN MACH WEITER.",
+  "dashboardQuoteTwo": "Disziplin bedeutet, das zu wählen, was du langfristig willst, statt das, was du gerade willst.",
+  "dashboardQuoteThree": "Kleine Schritte werden durch Beständigkeit zu großen Ergebnissen.",
+  "dashboardQuoteFour": "Motivation bringt dich in Bewegung. Routine trägt dich weiter.",
+  "dashboardQuoteFive": "Dein zukünftiges Ich wird dir für den heutigen Einsatz danken.",
   "dashboardShareQuoteDialogTitle": "Motivation teilen",
-  "dashboardShareQuoteDialogMessage": "Teile dieses Motivationszitat mit einer Freundin oder einem Freund.",
+  "dashboardShareQuoteDialogMessage": "Teile dieses motivierende Zitat mit einem Freund.",
   "dashboardShareQuoteActionShare": "Teilen",
-  "dashboardShareQuoteIntro": "Ein Freund denkt, du solltest trainieren.",
+  "dashboardShareQuoteIntro": "Ein Freund findet, du solltest trainieren.",
   "dashboardShareQuoteCopied": "Motivation in die Zwischenablage kopiert.",
   "goalStrengthTitle": "Kraftziel festlegen",
   "goalEnduranceTitle": "Ausdauerziel festlegen",
@@ -45,13 +45,13 @@
   "goalUnitsMin": "min",
   "goalUnitsDistanceShort": "km",
   "goalUnitsDurationShort": "min",
-  "goalInvalidNumber": "Bitte gib eine gültige Zahl > 0 ein.",
+  "goalInvalidNumber": "Bitte eine gültige Zahl > 0 eingeben.",
   "dashboardTapToEdit": "Tippen zum Bearbeiten",
   "dashboardStepsTitle": "Schritte",
   "dashboardStepsGoalDialogTitle": "Schrittziel bearbeiten",
   "dashboardStepsGoalDialogMessage": "Lege dein tägliches Schrittziel fest.",
   "dashboardStepsGoalInputHint": "Schritte pro Tag",
-  "dashboardStepsGoalInvalid": "Bitte gib eine gültige Zahl ein.",
+  "dashboardStepsGoalInvalid": "Bitte eine gültige Zahl eingeben.",
   "dashboardStepsGoalFormat": "Ziel: {value}",
   "@dashboardStepsGoalFormat": {
     "placeholders": {
@@ -62,7 +62,7 @@
   },
   "dashboardStreaksTitle": "Streaks",
   "dashboardStreaksHint": "Tippen für mehr Infos",
-  "dashboardMonthsShort": "{value} m",
+  "dashboardMonthsShort": "{value} M",
   "@dashboardMonthsShort": {
     "placeholders": {
       "value": {
@@ -70,8 +70,8 @@
       }
     }
   },
-  "streakInfoTitle": "Stern-Belohnungen",
-  "streakInfoDescription": "Für jeden Monat, in dem du dein persönliches Kraft- oder Ausdauerziel erreichst, bekommst du einen Stern. Diese Ziele kannst du in den entsprechenden Dashboard-Kacheln anpassen.",
+  "streakInfoTitle": "Sterne-Belohnungen",
+  "streakInfoDescription": "Für jeden Monat, in dem du deine persönlichen Kraft- oder Ausdauerziele erreichst, erhältst du einen Stern. Diese Ziele kannst du in den entsprechenden Dashboard-Kacheln anpassen.",
   "streakLevel1Title": "Erste Anpassung",
   "streakLevel1Months": "(1 Monat)",
   "streakLevel2Title": "Stabile Gewohnheitsbildung",
@@ -80,19 +80,19 @@
   "streakLevel3Months": "(3 Monate)",
   "streakLevel4Title": "Langfristige Konstanz",
   "streakLevel4Months": "(4 Monate)",
-  "streakLevel5Title": "Hohe Trainingsadhärenz",
-  "streakLevel5Months": "(5 Monate)",
+  "streakLevel5Title": "High-Performance-Adhärenz",
+  "streakLevel5Months": "(5+ Monate)",
   "dashboardQuickStartTitle": "Schnellstart",
   "dashboardQuickStartStrengthSubtitle": "Starte deine nächste Krafteinheit.",
   "dashboardQuickStartEnduranceSubtitle": "Öffne Ausdauer mit Fallback-Kachel.",
   "dashboardGymKnowledgeTitle": "GYM-Knowledge",
-  "dashboardGymKnowledgeSubtitle": "Evidenzbasierte Inhalte und praktische Impulse.",
+  "dashboardGymKnowledgeSubtitle": "Evidenzbasierte Inhalte und praktische Einblicke.",
   "dashboardYoutubeItemOneTitle": "Muskelermüdung erklärt",
-  "dashboardYoutubeItemOneSubtitle": "Grundlagen aus der Leistungsphysiologie.",
+  "dashboardYoutubeItemOneSubtitle": "Grundlagen der Leistungsphysiologie.",
   "dashboardYoutubeItemTwoTitle": "Repeated Bout Effect",
   "dashboardYoutubeItemTwoSubtitle": "Warum dasselbe Training später weniger schmerzt.",
   "dashboardShareQuoteWatermark": "mTORQUE App",
-  "dashboardShareQuoteMessage": "Ein Freund denkt, du solltest trainieren.\n\n“{quote}”\n\nHol dir mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque",
+  "dashboardShareQuoteMessage": "Ein Freund findet, du solltest trainieren.\n\n„{quote}”\n\nHol dir mTORQUE:\nhttps://play.google.com/store/apps/details?id=app.mtorque",
   "@dashboardShareQuoteMessage": {
     "placeholders": {
       "quote": {
@@ -102,18 +102,18 @@
   },
   "dashboardShareQuoteFailed": "Teilen fehlgeschlagen.",
   "dashboardYoutubeLoading": "Videos werden geladen…",
-  "dashboardYoutubeUnavailable": "Zurzeit sind keine Videos verfügbar.",
-  "dashboardYoutubeTapToOpen": "Tippen zum Öffnen auf YouTube.",
+  "dashboardYoutubeUnavailable": "Derzeit sind keine Videos verfügbar.",
+  "dashboardYoutubeTapToOpen": "Tippen, um YouTube zu öffnen.",
   "dashboardYoutubeOpenFailed": "YouTube konnte nicht geöffnet werden.",
 
   "strengthStartEmptyPlan": "Leeren Plan starten",
   "strengthAddExercise": "Übung hinzufügen",
   "strengthClosePlanTitle": "Plan schließen",
   "strengthClosePlanMessage": "Speichern und schließen, verwerfen oder weiter bearbeiten?",
-  "strengthContinueEditing": "Weiter bearbeiten",
+  "strengthContinueEditing": "Weiter",
   "strengthDiscard": "Verwerfen",
-  "strengthSaveAndClose": "Speichern & schließen",
-  "strengthFinishSessionTitle": "Session beenden",
+  "strengthSaveAndClose": "Speichern und schließen",
+  "strengthFinishSessionTitle": "Einheit beenden",
   "strengthNotes": "Notizen",
 
   "strengthCommonCancel": "Abbrechen",
@@ -124,16 +124,16 @@
   "strengthCommonRepsShort": "Wdh.",
   "strengthCommonDurationShort": "Sek.",
 
-  "strengthExerciseAddSetButton": "+ SATZ HINZUFÜGEN",
+  "strengthExerciseAddSetButton": "+ Satz hinzufügen",
   "strengthExerciseDeleteExerciseTitle": "Übung löschen?",
-  "strengthExerciseDeleteExerciseMessage": "Möchtest Du diese Übung wirklich aus der Session entfernen?",
+  "strengthExerciseDeleteExerciseMessage": "Möchtest du diese Übung wirklich aus der Einheit entfernen?",
   "strengthExerciseMarkersTitle": "Zusätzliche Marker",
   "strengthExerciseMarkerBfr": "BFR-Training",
-  "strengthExerciseMarkerChain": "Gewichtskette",
+  "strengthExerciseMarkerChain": "Gewichtsketten",
   "strengthExerciseMarkerBands": "Widerstandsbänder",
   "strengthExerciseMarkerSuperSlow": "Super-slow",
   "strengthExerciseBfrPressureLabel": "BFR-Druck",
-  "strengthExerciseBfrValue": "{value} % des Okklusionsdrucks",
+  "strengthExerciseBfrValue": "{value}% des Okklusionsdrucks",
   "@strengthExerciseBfrValue": {
     "placeholders": {
       "value": {
@@ -143,10 +143,10 @@
   },
   "strengthExerciseChainWeightLabel": "Kettengewicht",
   "strengthExerciseChainWeightHint": "z. B. 10",
-  "strengthExerciseBandResistanceLabel": "Band-Widerstand",
+  "strengthExerciseBandResistanceLabel": "Bandwiderstand",
   "strengthExerciseBandResistanceHint": "z. B. 20",
   "strengthExerciseSuperSlowActiveLabel": "Super-slow aktiv",
-  "strengthExerciseSuperSlowHint": "z. B. 5-5-5 oder „sehr langsam“",
+  "strengthExerciseSuperSlowHint": "z. B. 5-5-5 oder „sehr langsam”",
   "strengthExerciseDescriptionTitle": "Übungsbeschreibung",
   "strengthExerciseNoDescriptionAvailable": "Keine Beschreibung verfügbar.",
   "strengthExercisePrimaryMuscles": "Primäre Muskeln",
@@ -177,8 +177,108 @@
     }
   },
   "strengthExerciseMuscleZoomHint": "Doppeltippen zum Zoomen",
+
   "muscleLabelFunction": "Funktion",
   "muscleLabelOrigin": "Ursprung",
   "muscleLabelInsertion": "Ansatz",
-  "muscleLabelInnervation": "Innervation"
+  "muscleLabelInnervation": "Innervation",
+
+  "strengthMenuStartEmptyPlan": "Mit leerem Plan starten",
+  "strengthMenuCloseSession": "Einheit schließen",
+  "strengthMenuSaveAsPlan": "Als Plan speichern...",
+  "strengthMenuEditTrainingPlan": "Trainingsplan bearbeiten",
+  "strengthMenuPrintPlanPdf": "Plan als PDF drucken",
+  "strengthMenuAddExercise": "Übung hinzufügen",
+  "strengthMenuLoadPlan": "Plan laden",
+  "strengthMenuRenamePlan": "Plan umbenennen",
+  "strengthMenuDeletePlan": "Plan löschen",
+  "strengthMenuSaveCurrentPlan": "Aktuellen Plan speichern",
+
+  "strengthEndSessionButton": "Beenden",
+  "strengthSessionTitle": "Einheit",
+
+  "strengthPlanNameTitle": "Planname",
+  "strengthPlanNameHint": "Name eingeben",
+  "strengthNoPlansAvailable": "Keine Pläne vorhanden.",
+
+  "strengthReplaceCurrentSessionTitle": "Aktuelle Einheit ersetzen?",
+  "strengthReplaceCurrentSessionMessage": "Die aktuelle Einheit wird dadurch verworfen und ersetzt.",
+  "strengthReplaceCurrentSessionButton": "Ersetzen",
+
+  "strengthDeletePlanTitle": "Plan löschen",
+  "strengthDeletePlanMessage": "Soll der Plan „{planName}” gelöscht werden?",
+  "@strengthDeletePlanMessage": {
+    "placeholders": {
+      "planName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "strengthPrintPlanPdfNotImplemented": "Der PDF-Druck des Trainingsplans ist in Flutter noch nicht umgesetzt.",
+
+  "strengthTimerTitle": "Timer",
+  "strengthTimerSecondsHint": "Sek.",
+  "strengthTimerReset": "Reset",
+  "strengthTimerRingHint": "Ring: Tippen = Start/Stopp",
+  "strengthTimerTapStop": "Tippen = Stopp",
+  "strengthTimerTapStartStop": "Tippen = Start/Stopp",
+  "strengthTempoConcentric": "Konzentrisch",
+  "strengthTempoStatic": "Statisch",
+  "strengthTempoEccentric": "Exzentrisch",
+
+  "strengthPrintPlanSelectTitle": "Plan auswählen",
+  "strengthPrintPlanSetsTitle": "Sätze pro Übung",
+  "strengthPrintSetsOption": "{sets} Sätze",
+  "@strengthPrintSetsOption": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "strengthPrintPlanCommentTitle": "Kommentar",
+  "strengthPrintPlanCommentMessage": "Füge optional einen Kommentar für den gedruckten Plan hinzu.",
+  "strengthPrintPlanCommentHint": "Optionaler Kommentar",
+  "strengthPrintPlanCommentSkip": "Überspringen",
+  "strengthPrintPlanNoExercises": "Dieser Plan enthält keine Übungen.",
+  "strengthPrintPlanFailed": "Plan-PDF konnte nicht gedruckt werden: {message}",
+  "@strengthPrintPlanFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "strengthPrintJobStrengthPlan": "mTORQUE Trainingsplan – {planName}",
+  "@strengthPrintJobStrengthPlan": {
+    "placeholders": {
+      "planName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "strengthPrintPdfGeneratedAt": "Erstellt: {date}",
+  "@strengthPrintPdfGeneratedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "strengthPrintPdfDate": "Datum",
+  "strengthPrintPdfKg": "kg",
+  "strengthPrintPdfReps": "Wdh.",
+  "strengthPrintPdfPageXOfY": "Seite {pageNumber} von {pageCount}",
+  "@strengthPrintPdfPageXOfY": {
+    "placeholders": {
+      "pageNumber": {
+        "type": "int"
+      },
+      "pageCount": {
+        "type": "int"
+      }
+    }
+  }
 }
