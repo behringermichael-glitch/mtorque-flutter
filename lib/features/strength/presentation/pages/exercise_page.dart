@@ -763,11 +763,10 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      instruction.trim().isEmpty
+                    _ExerciseInstructionText(
+                      text: instruction.trim().isEmpty
                           ? l10n.strengthExerciseNoDescriptionAvailable
                           : instruction.trim(),
-                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],
                 ),
@@ -857,6 +856,115 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
           },
         );
       },
+    );
+  }
+}
+
+class _ExerciseInstructionText extends StatelessWidget {
+  const _ExerciseInstructionText({
+    required this.text,
+  });
+
+  final String text;
+
+  static final RegExp _bulletPattern = RegExp(r'^\s*(?:[-*•‣▪])\s+');
+  static final RegExp _numberedPattern = RegExp(r'^\s*\d+[.)]\s+');
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyLarge;
+    final lines = text
+        .split(RegExp(r'\r?\n'))
+        .map((line) => line.trimRight())
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final line in lines) _buildLine(context, line, textStyle),
+      ],
+    );
+  }
+
+  Widget _buildLine(
+      BuildContext context,
+      String line,
+      TextStyle? textStyle,
+      ) {
+    if (line.trim().isEmpty) {
+      return const SizedBox(height: 8);
+    }
+
+    final trimmedLine = line.trimLeft();
+
+    final bulletMatch = _bulletPattern.firstMatch(trimmedLine);
+    if (bulletMatch != null) {
+      final bulletText = trimmedLine.substring(bulletMatch.end).trimLeft();
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 22,
+              child: Text(
+                '•',
+                style: textStyle,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                bulletText,
+                style: textStyle,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final numberedMatch = _numberedPattern.firstMatch(trimmedLine);
+    if (numberedMatch != null) {
+      final numberLabel = trimmedLine.substring(
+        numberedMatch.start,
+        numberedMatch.end,
+      ).trim();
+
+      final numberedText = trimmedLine.substring(numberedMatch.end).trimLeft();
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 30,
+              child: Text(
+                numberLabel,
+                style: textStyle,
+                textAlign: TextAlign.right,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                numberedText,
+                style: textStyle,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        trimmedLine,
+        style: textStyle,
+      ),
     );
   }
 }
