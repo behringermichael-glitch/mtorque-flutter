@@ -991,35 +991,44 @@ class _SessionHeader extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: onSurface,
-            height: 1.0,
-          ),
-        ),
-        const SizedBox(height: 4),
-        InkWell(
-          onTap: onDateTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1),
-            child: Text(
-              dateText,
-              style: textTheme.bodyMedium?.copyWith(
-                color: onSurface.withValues(alpha: 0.78),
-                height: 1.0,
-              ),
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: onSurface,
+              height: 1.0,
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            dateText,
+            style: textTheme.bodyMedium?.copyWith(
+              color: onSurface.withValues(alpha: 0.78),
+              height: 1.0,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onDateTap == null) {
+      return content;
+    }
+
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onDateTap,
+        borderRadius: BorderRadius.circular(10),
+        child: content,
+      ),
     );
   }
 }
