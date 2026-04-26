@@ -254,15 +254,6 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
         ),
         actions: [
-          IconButton(
-            tooltip: AppLocalizations.of(context)!
-                .strengthPlanEditorStructureTooltip,
-            onPressed: hasDraft && exercises.isNotEmpty
-                ? () => _openPlanEditorSheet(context)
-                : null,
-            icon: const Icon(Icons.account_tree_outlined),
-          ),
-          const SizedBox(width: 12),
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: FilledButton(
@@ -434,6 +425,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                   return ExercisePage(
                     key: ValueKey('exercise_page_$exerciseId'),
                     exerciseId: exerciseId,
+                    onEditPlanStructure: () => _openPlanEditorSheet(context),
                     onHeaderDividerGlobalYChanged:
                     index == pageIndex
                         ? _handleHeaderDividerGlobalYChanged

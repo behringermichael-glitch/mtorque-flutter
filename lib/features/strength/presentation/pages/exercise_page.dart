@@ -23,10 +23,12 @@ class ExercisePage extends ConsumerStatefulWidget {
   const ExercisePage({
     super.key,
     required this.exerciseId,
+    this.onEditPlanStructure,
     this.onHeaderDividerGlobalYChanged,
   });
 
   final String exerciseId;
+  final VoidCallback? onEditPlanStructure;
   final ValueChanged<double>? onHeaderDividerGlobalYChanged;
 
   @override
@@ -332,6 +334,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                             exerciseName: exerciseName,
                             supersetSubtitle: supersetSubtitle,
                             animateImage: true,
+                            onEditPlanStructure: widget.onEditPlanStructure,
                             onInfo: () => _showInfoBottomSheet(
                               context: context,
                               repository: repository,
@@ -1030,6 +1033,7 @@ class _ExerciseHeader extends StatelessWidget {
     required this.exerciseName,
     required this.supersetSubtitle,
     required this.animateImage,
+    required this.onEditPlanStructure,
     required this.onInfo,
     required this.onMuscles,
     required this.onStats,
@@ -1040,6 +1044,7 @@ class _ExerciseHeader extends StatelessWidget {
   final String exerciseName;
   final String? supersetSubtitle;
   final bool animateImage;
+  final VoidCallback? onEditPlanStructure;
   final VoidCallback onInfo;
   final VoidCallback onMuscles;
   final VoidCallback onStats;
@@ -1087,56 +1092,66 @@ class _ExerciseHeader extends StatelessWidget {
                             ? 20.0
                             : 22.0;
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              exerciseName,
-                              textAlign: TextAlign.right,
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                height: 1.20,
-                                fontSize: compactFontSize,
-                              ),
-                              maxLines: supersetSubtitle == null ? 3 : 2,
-                              overflow: TextOverflow.ellipsis,
+                        return InkWell(
+                          onTap: onEditPlanStructure,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 3,
                             ),
-                            if (supersetSubtitle != null) ...[
-                              const SizedBox(height: 6),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  exerciseName,
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.20,
+                                    fontSize: compactFontSize,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary.withValues(
-                                      alpha: 0.18,
-                                    ),
-                                    borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(
-                                      color: Theme.of(context).colorScheme.primary.withValues(
-                                        alpha: 0.38,
+                                  maxLines: supersetSubtitle == null ? 3 : 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (supersetSubtitle != null) ...[
+                                  const SizedBox(height: 6),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary.withValues(
+                                          alpha: 0.18,
+                                        ),
+                                        borderRadius: BorderRadius.circular(999),
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.primary.withValues(
+                                            alpha: 0.38,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        supersetSubtitle!,
+                                        textAlign: TextAlign.right,
+                                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                          fontWeight: FontWeight.w800,
+                                          height: 1.10,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ),
-                                  child: Text(
-                                    supersetSubtitle!,
-                                    textAlign: TextAlign.right,
-                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.w800,
-                                      height: 1.10,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                                ],
+                              ],
+                            ),
+                          ),
                         );
                       },
                     ),
