@@ -313,7 +313,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
                   child: Row(
                     children: [
                       Text(
@@ -328,34 +328,32 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
 
                           return FilterChip(
                             selected: _advanced,
-                            showCheckmark: true,
-                            checkmarkColor: Colors.white,
+                            showCheckmark: false,
+                            shape: const StadiumBorder(),
+                            avatar: _advanced
+                                ? const CircleAvatar(
+                              radius: 10,
+                              backgroundColor: advancedRedDark,
+                              child: Icon(
+                                Icons.check,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            )
+                                : null,
                             label: Text(
                               l10n.strengthExercisePickerAdvanced,
                               style: TextStyle(
                                 color: _advanced ? Colors.white : null,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             visualDensity: VisualDensity.compact,
-                            labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                            side: BorderSide(
-                              color: _advanced ? advancedRed : Theme.of(context).colorScheme.outline,
-                              width: 1.2,
-                            ),
-                            avatar: _advanced
-                                ? const CircleAvatar(
-                              radius: 12,
-                              backgroundColor: advancedRedDark,
-                              child: Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            )
-                                : null,
-                            backgroundColor: Colors.transparent,
+                            labelPadding: const EdgeInsets.symmetric(horizontal: 3),
+                            side: BorderSide.none,
+                            backgroundColor: Colors.white.withValues(alpha: 0.12),
                             selectedColor: advancedRed,
                             onSelected: (selected) {
                               setState(() {
@@ -555,7 +553,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                         color: Theme.of(context)
                             .colorScheme
                             .shadow
-                            .withOpacity(0.08),
+                            .withValues(alpha: 0.08),
                       ),
                     ],
                   ),
@@ -639,19 +637,21 @@ class _ExerciseGridCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withOpacity(0.55),
+          color: selected
+              ? Colors.white.withValues(alpha: 0.14)
+              : Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: selected
                 ? colorScheme.onSurface
-                : colorScheme.outline.withOpacity(0.18),
+                : colorScheme.outline.withValues(alpha: 0.18),
             width: selected ? 2.2 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               blurRadius: 10,
               offset: const Offset(0, 4),
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08)
             ),
           ],
         ),
@@ -706,13 +706,13 @@ class _ExerciseListRow extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: selected
-              ? colorScheme.primaryContainer.withOpacity(0.45)
-              : colorScheme.surfaceContainerHighest.withOpacity(0.35),
+              ? Colors.white.withValues(alpha: 0.14)
+              : Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: selected
                 ? colorScheme.onSurface
-                : colorScheme.outline.withOpacity(0.15),
+                : colorScheme.outline.withValues(alpha: 0.15),
           ),
         ),
         padding: const EdgeInsets.all(10),
@@ -775,11 +775,11 @@ class _FilterDropdown extends StatelessWidget {
 
     final baseBorderColor = highlighted
         ? advancedRed
-        : colorScheme.outline.withOpacity(0.65);
+        : colorScheme.outline.withValues(alpha: 0.65);
 
     final focusedBorderColor = highlighted
         ? advancedRed
-        : colorScheme.onSurface.withOpacity(0.82);
+        : colorScheme.onSurface.withValues(alpha: 0.82);
 
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(7),
