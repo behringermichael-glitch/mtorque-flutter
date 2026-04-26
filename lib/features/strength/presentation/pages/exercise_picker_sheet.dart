@@ -181,35 +181,88 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
     return values;
   }
 
-  void _normalizeSelections() {
-    final muscles = _facetValues(selector: (e) => e.muscleGroup, facet: 'muscle');
-    final bases = _facetValues(selector: (e) => e.baseExercise, facet: 'base');
-    final devices = _facetValues(selector: (e) => e.device, facet: 'device');
-    final primary = _advanced ? _involvedMuscleFacetValues() : const <String>[];
+  void _normalizeSelections({bool autoSelectBasicFacets = false}) {
+    var guard = 0;
 
-    if (_selectedMuscleGroup != null &&
-        !muscles.any((e) => e.equalsIgnoreCase(_selectedMuscleGroup!))) {
-      _selectedMuscleGroup = null;
-    }
+    while (guard < 5) {
+      guard++;
 
-    if (_selectedBaseExercise != null &&
-        !bases.any((e) => e.equalsIgnoreCase(_selectedBaseExercise!))) {
-      _selectedBaseExercise = null;
-    }
+      final muscles = _facetValues(
+        selector: (e) => e.muscleGroup,
+        facet: 'muscle',
+      );
+      final bases = _facetValues(
+        selector: (e) => e.baseExercise,
+        facet: 'base',
+      );
+      final devices = _facetValues(
+        selector: (e) => e.device,
+        facet: 'device',
+      );
+      final involvedMuscles = _advanced
+          ? _involvedMuscleFacetValues()
+          : const <String>[];
 
-    if (_selectedDevice != null &&
-        !devices.any((e) => e.equalsIgnoreCase(_selectedDevice!))) {
-      _selectedDevice = null;
-    }
+      var changed = false;
 
-    if (_advanced &&
-        _selectedInvolvedMuscleLatin != null &&
-        !primary.any((e) => e.equalsIgnoreCase(_selectedInvolvedMuscleLatin!))) {
-      _selectedInvolvedMuscleLatin = null;
-    }
+      if (_selectedMuscleGroup != null &&
+          !muscles.any((e) => e.equalsIgnoreCase(_selectedMuscleGroup!))) {
+        _selectedMuscleGroup = null;
+        changed = true;
+      }
 
-    if (!_advanced) {
-      _selectedInvolvedMuscleLatin = null;
+      if (_selectedBaseExercise != null &&
+          !bases.any((e) => e.equalsIgnoreCase(_selectedBaseExercise!))) {
+        _selectedBaseExercise = null;
+        changed = true;
+      }
+
+      if (_selectedDevice != null &&
+          !devices.any((e) => e.equalsIgnoreCase(_selectedDevice!))) {
+        _selectedDevice = null;
+        changed = true;
+      }
+
+      if (_advanced &&
+          _selectedInvolvedMuscleLatin != null &&
+          !involvedMuscles.any(
+                (e) => e.equalsIgnoreCase(_selectedInvolvedMuscleLatin!),
+          )) {
+        _selectedInvolvedMuscleLatin = null;
+        changed = true;
+      }
+
+      if (!_advanced && _selectedInvolvedMuscleLatin != null) {
+        _selectedInvolvedMuscleLatin = null;
+        changed = true;
+      }
+
+      if (autoSelectBasicFacets) {
+        if (muscles.length == 1 &&
+            (_selectedMuscleGroup == null ||
+                !muscles.first.equalsIgnoreCase(_selectedMuscleGroup!))) {
+          _selectedMuscleGroup = muscles.first;
+          changed = true;
+        }
+
+        if (bases.length == 1 &&
+            (_selectedBaseExercise == null ||
+                !bases.first.equalsIgnoreCase(_selectedBaseExercise!))) {
+          _selectedBaseExercise = bases.first;
+          changed = true;
+        }
+
+        if (devices.length == 1 &&
+            (_selectedDevice == null ||
+                !devices.first.equalsIgnoreCase(_selectedDevice!))) {
+          _selectedDevice = devices.first;
+          changed = true;
+        }
+      }
+
+      if (!changed) {
+        break;
+      }
     }
   }
 
@@ -394,6 +447,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                         onChanged: (value) {
                           setState(() {
                             _selectedMuscleGroup = value == _allValue ? null : value;
+                            _normalizeSelections(autoSelectBasicFacets: true);
                           });
                           _rebuildVisibleItems();
                         },
@@ -436,8 +490,8 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                         items: <String>[_allValue, ...baseExercises],
                         onChanged: (value) {
                           setState(() {
-                            _selectedBaseExercise =
-                            value == _allValue ? null : value;
+                            _selectedBaseExercise = value == _allValue ? null : value;
+                            _normalizeSelections(autoSelectBasicFacets: true);
                           });
                           _rebuildVisibleItems();
                         },
@@ -452,6 +506,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                         onChanged: (value) {
                           setState(() {
                             _selectedDevice = value == _allValue ? null : value;
+                            _normalizeSelections(autoSelectBasicFacets: true);
                           });
                           _rebuildVisibleItems();
                         },
