@@ -118,6 +118,15 @@
 
   "strengthCommonCancel": "Abbrechen",
   "strengthCommonDelete": "Löschen",
+  "strengthCommonShare": "Teilen",
+  "strengthSharePlanFailed": "Trainingsplan konnte nicht geteilt werden: {error}",
+  "@strengthSharePlanFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "strengthCommonSave": "Speichern",
   "strengthCommonOk": "OK",
   "strengthCommonKgLabel": "kg",

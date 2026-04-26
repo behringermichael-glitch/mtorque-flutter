@@ -118,6 +118,15 @@
 
   "strengthCommonCancel": "Cancel",
   "strengthCommonDelete": "Delete",
+  "strengthCommonShare": "Share",
+  "strengthSharePlanFailed": "Could not share training plan: {error}",
+  "@strengthSharePlanFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "strengthCommonSave": "Save",
   "strengthCommonOk": "OK",
   "strengthCommonKgLabel": "kg",

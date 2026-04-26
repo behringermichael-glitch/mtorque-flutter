@@ -300,6 +300,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthCommonDelete => 'Löschen';
 
   @override
+  String get strengthCommonShare => 'Teilen';
+
+  @override
+  String strengthSharePlanFailed(String error) {
+    return 'Trainingsplan konnte nicht geteilt werden: $error';
+  }
+
+  @override
   String get strengthCommonSave => 'Speichern';
 
   @override

@@ -665,6 +665,18 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get strengthCommonDelete;
 
+  /// No description provided for @strengthCommonShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get strengthCommonShare;
+
+  /// No description provided for @strengthSharePlanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share training plan: {error}'**
+  String strengthSharePlanFailed(String error);
+
   /// No description provided for @strengthCommonSave.
   ///
   /// In en, this message translates to:

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ import '../widgets/strength_plan_editor_sheet.dart';
 import '../widgets/strength_plan_print_dialogs.dart';
 import '../../domain/services/strength_plan_editor_service.dart';
 import '../../domain/services/strength_plan_print_service.dart';
+import '../../domain/services/strength_plan_share_service.dart';
 import 'exercise_asset_resolver.dart';
 import 'exercise_page.dart';
 import 'exercise_picker_sheet.dart';
@@ -335,30 +337,71 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         for (final plan in plans)
           Card(
             child: ListTile(
-              title: Text(plan.name),
+              leading: Transform.translate(
+                offset: const Offset(-6, 0),
+                child: _PlanInitialsBadge(planName: plan.name),
+              ),
+              title: Text(
+                plan.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+              ),
               onTap: () {
                 controller.loadPlan(
                   planName: plan.name,
                   todayEpochDay: _todayEpochDay(),
                 );
               },
-              trailing: PopupMenuButton<String>(
-                onSelected: (value) async {
-                  if (value == 'delete') {
-                    await controller.deletePlan(plan.name);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Text(l10n.strengthCommonDelete),
-                  ),
-                ],
+              trailing: Transform.translate(
+                offset: const Offset(16, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: l10n.strengthCommonShare,
+                      icon: const Icon(Icons.share_outlined),
+                      onPressed: () => _sharePlanFromOverview(context, plan.name),
+                    ),
+                    IconButton(
+                      tooltip: l10n.strengthCommonDelete,
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () async {
+                        final confirm = await _confirmDeletePlan(
+                          context,
+                          plan.name,
+                        );
+                        if (confirm == true) {
+                          await controller.deletePlan(plan.name);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
       ],
     );
+  }
+
+  Future<void> _sharePlanFromOverview(
+    BuildContext context,
+    String planName,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      await ref.read(strengthPlanShareServiceProvider).sharePlan(planName);
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.strengthSharePlanFailed(error.toString()))),
+      );
+    }
   }
 
   Widget _buildPager(
@@ -401,7 +444,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                         offset: Offset(
                           0,
                           (_timerMetronomePanelHeight +
-                              _timerMetronomePanelPadding.vertical) /
+                                  _timerMetronomePanelPadding.vertical) /
                               2,
                         ),
                         child: Column(
@@ -414,10 +457,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                                 minimumSize: const Size(74, 74),
                               ),
                               onPressed: () => _openExercisePicker(context),
-                              child: const Icon(
-                                Icons.add,
-                                size: 34,
-                              ),
+                              child: const Icon(Icons.add, size: 34),
                             ),
                             const SizedBox(height: 18),
                             Text(
@@ -2151,6 +2191,92 @@ class _Dot extends StatelessWidget {
 }
 
 enum _CloseAction { continueEditing, discard, saveAndClose }
+
+const Color _planInitialBlue = Color(0xFF3B82F6);
+const Color _planInitialRed = Color(0xFFEF4444);
+
+class _PlanInitialsBadge extends StatelessWidget {
+  const _PlanInitialsBadge({required this.planName});
+
+  final String planName;
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = _planInitials(planName);
+    final backgroundColor = _planInitialColor(planName);
+
+    return Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(
+        initials,
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  static String _planInitials(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return '?';
+
+    final words = trimmed
+        .split(RegExp(r'\s+'))
+        .where((word) => word.trim().isNotEmpty)
+        .toList();
+
+    if (words.isEmpty) return '?';
+
+    if (words.length == 1) {
+      final word = words.first;
+      return word.characters.take(2).toString().toUpperCase();
+    }
+
+    final first = words.first.characters.take(1).toString();
+    final second = words[1].characters.take(1).toString();
+
+    return '$first$second'.toUpperCase();
+  }
+
+  static Color _planInitialColor(String value) {
+    final letterIndex = _firstAlphabetIndex(value);
+    final t = letterIndex == null ? 0.0 : letterIndex / 25.0;
+
+    return Color.lerp(_planInitialBlue, _planInitialRed, t.clamp(0.0, 1.0))!;
+  }
+
+  static int? _firstAlphabetIndex(String value) {
+    final upper = value.trim().toUpperCase();
+
+    for (final char in upper.characters) {
+      final codeUnit = char.codeUnitAt(0);
+      if (codeUnit >= 65 && codeUnit <= 90) {
+        return codeUnit - 65;
+      }
+
+      switch (char) {
+        case 'Ä':
+          return 0;
+        case 'Ö':
+          return 14;
+        case 'Ü':
+          return 20;
+      }
+    }
+
+    return null;
+  }
+}
 
 enum _StrengthMenuAction {
   savePlan,
