@@ -361,6 +361,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
+                      tooltip: l10n.strengthPlanInfoTooltip,
+                      icon: const Icon(Icons.info_outline),
+                      onPressed: () => _openPlanInfoSheet(context, plan.name),
+                    ),
+                    IconButton(
                       tooltip: l10n.strengthCommonShare,
                       icon: const Icon(Icons.share_outlined),
                       onPressed: () => _sharePlanFromOverview(context, plan.name),
@@ -384,6 +389,32 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             ),
           ),
       ],
+    );
+  }
+
+  Future<void> _openPlanInfoSheet(
+      BuildContext context,
+      String planName,
+      ) async {
+    final exerciseIds = await ref
+        .read(strengthRepositoryProvider)
+        .loadPlanExerciseIds(planName) ??
+        const <String>[];
+
+    if (!mounted) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) {
+        return StrengthPlanEditorSheet(
+          initialExerciseOrder: exerciseIds,
+          initialSupersetGroupByExercise: const <String, String>{},
+          planTitle: planName,
+          readOnly: true,
+        );
+      },
     );
   }
 

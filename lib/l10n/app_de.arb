@@ -328,6 +328,7 @@
     }
   },
     "strengthPlanEditorStructureTooltip": "Planstruktur bearbeiten",
+    "strengthPlanInfoTooltip": "Plandetails anzeigen",
     "strengthPlanEditorTitle": "Planstruktur bearbeiten",
     "strengthPlanEditorNoExercises": "Dieser Plan enthält noch keine Übungen.",
     "strengthPlanEditorCreateSuperset": "Supersatz erstellen",

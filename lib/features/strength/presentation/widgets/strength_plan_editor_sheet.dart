@@ -11,10 +11,14 @@ class StrengthPlanEditorSheet extends ConsumerStatefulWidget {
     super.key,
     required this.initialExerciseOrder,
     required this.initialSupersetGroupByExercise,
+    this.planTitle,
+    this.readOnly = false,
   });
 
   final List<String> initialExerciseOrder;
   final Map<String, String> initialSupersetGroupByExercise;
+  final String? planTitle;
+  final bool readOnly;
 
   @override
   ConsumerState<StrengthPlanEditorSheet> createState() =>
@@ -170,7 +174,11 @@ class _StrengthPlanEditorSheetState
               ),
               const SizedBox(height: 16),
               Text(
-                l10n.strengthPlanEditorTitle,
+                widget.planTitle?.trim().isNotEmpty == true
+                    ? widget.planTitle!.trim()
+                    : l10n.strengthPlanEditorTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -185,6 +193,32 @@ class _StrengthPlanEditorSheetState
                     if (_exerciseOrder.isEmpty) {
                       return Center(
                         child: Text(l10n.strengthPlanEditorNoExercises),
+                      );
+                    }
+
+                    if (widget.readOnly) {
+                      return ListView.builder(
+                        itemCount: _exerciseOrder.length,
+                        itemBuilder: (context, index) {
+                          final exerciseId = _exerciseOrder[index];
+                          final label = labels[exerciseId] ?? exerciseId;
+                          final supersetLabel = _service.supersetLabelForExercise(
+                            exerciseId: exerciseId,
+                            exerciseOrder: _exerciseOrder,
+                            supersetGroupByExercise: _supersetGroupByExercise,
+                          );
+
+                          return _PlanEditorRow(
+                            key: ValueKey('plan_info_$exerciseId'),
+                            index: index,
+                            exerciseId: exerciseId,
+                            label: label,
+                            selected: false,
+                            supersetLabel: supersetLabel,
+                            readOnly: true,
+                            onSelectedChanged: (_) {},
+                          );
+                        },
                       );
                     }
 
@@ -236,15 +270,18 @@ class _StrengthPlanEditorSheetState
                 ),
               ),
               const SizedBox(height: 12),
-              _PlanEditorActionBar(
-                selectedCount: _selectedExerciseIds.length,
-                canCreateSuperset: selectionState.canCreateSuperset,
-                canDissolveSuperset: selectionState.canDissolveSuperset,
-                onCreateSuperset: _createSuperset,
-                onDissolveSuperset: _dissolveSuperset,
-              ),
-              const SizedBox(height: 10),
+              if (!widget.readOnly) ...[
+                _PlanEditorActionBar(
+                  selectedCount: _selectedExerciseIds.length,
+                  canCreateSuperset: selectionState.canCreateSuperset,
+                  canDissolveSuperset: selectionState.canDissolveSuperset,
+                  onCreateSuperset: _createSuperset,
+                  onDissolveSuperset: _dissolveSuperset,
+                ),
+                const SizedBox(height: 10),
+              ],
               _PlanEditorFooter(
+                readOnly: widget.readOnly,
                 onCancel: () => Navigator.of(context).pop(),
                 onDone: _finish,
               ),
@@ -265,6 +302,7 @@ class _PlanEditorRow extends StatelessWidget {
     required this.selected,
     required this.supersetLabel,
     required this.onSelectedChanged,
+    this.readOnly = false,
   });
 
   final int index;
@@ -273,6 +311,7 @@ class _PlanEditorRow extends StatelessWidget {
   final bool selected;
   final String? supersetLabel;
   final ValueChanged<bool> onSelectedChanged;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -282,27 +321,29 @@ class _PlanEditorRow extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => onSelectedChanged(!selected),
+        onTap: readOnly ? null : () => onSelectedChanged(!selected),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             children: [
-              ReorderableDragStartListener(
-                index: index,
-                child: Tooltip(
-                  message: AppLocalizations.of(context)!
-                      .strengthPlanEditorDragHandleTooltip,
-                  child: const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Icon(Icons.drag_handle),
+              if (!readOnly) ...[
+                ReorderableDragStartListener(
+                  index: index,
+                  child: Tooltip(
+                    message: AppLocalizations.of(context)!
+                        .strengthPlanEditorDragHandleTooltip,
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Icon(Icons.drag_handle),
+                    ),
                   ),
                 ),
-              ),
-              Checkbox(
-                value: selected,
-                onChanged: (value) => onSelectedChanged(value ?? false),
-              ),
-              const SizedBox(width: 6),
+                Checkbox(
+                  value: selected,
+                  onChanged: (value) => onSelectedChanged(value ?? false),
+                ),
+                const SizedBox(width: 6),
+              ],
               DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -459,14 +500,26 @@ class _PlanEditorFooter extends StatelessWidget {
   const _PlanEditorFooter({
     required this.onCancel,
     required this.onDone,
+    this.readOnly = false,
   });
 
   final VoidCallback onCancel;
   final VoidCallback onDone;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    if (readOnly) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: FilledButton(
+          onPressed: onCancel,
+          child: Text(l10n.strengthCommonDone),
+        ),
+      );
+    }
 
     return Row(
       children: [

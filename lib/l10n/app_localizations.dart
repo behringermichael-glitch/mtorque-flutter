@@ -1301,6 +1301,12 @@ abstract class AppLocalizations {
   /// **'Edit plan structure'**
   String get strengthPlanEditorStructureTooltip;
 
+  /// No description provided for @strengthPlanInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Show plan details'**
+  String get strengthPlanInfoTooltip;
+
   /// No description provided for @strengthPlanEditorTitle.
   ///
   /// In en, this message translates to:

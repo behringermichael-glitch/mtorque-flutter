@@ -642,6 +642,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get strengthPlanEditorStructureTooltip => 'Edit plan structure';
 
   @override
+  String get strengthPlanInfoTooltip => 'Show plan details';
+
+  @override
   String get strengthPlanEditorTitle => 'Edit plan structure';
 
   @override

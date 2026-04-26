@@ -329,6 +329,7 @@
     }
   },
     "strengthPlanEditorStructureTooltip": "Edit plan structure",
+    "strengthPlanInfoTooltip": "Show plan details",
     "strengthPlanEditorTitle": "Edit plan structure",
     "strengthPlanEditorNoExercises": "This plan does not contain exercises yet.",
     "strengthPlanEditorCreateSuperset": "Create superset",
