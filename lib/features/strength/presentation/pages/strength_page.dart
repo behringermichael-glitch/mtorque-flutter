@@ -230,78 +230,66 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return Scaffold(
       appBar: hostView == StrengthHostView.pager
           ? AppBar(
-              toolbarHeight: 64,
-              backgroundColor: panelColor,
-              surfaceTintColor: Colors.transparent,
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              shadowColor: Colors.transparent,
-              titleSpacing: 16,
-              shape: Border(
-                bottom: BorderSide(color: panelBorderColor, width: 1),
+        toolbarHeight: 64,
+        backgroundColor: panelColor,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        titleSpacing: 16,
+        shape: Border(
+          bottom: BorderSide(color: panelBorderColor, width: 1),
+        ),
+        title: _SessionHeader(
+          title: _sessionTitle(context),
+          dateText: _sessionDateText(
+            activeDbSessionStart: activeDbSessionStart,
+            draftDateEpochDay: draftDateEpochDay,
+          ),
+          onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: FilledButton(
+              onPressed: hasDraft ? () => _showFinishDialog(context) : null,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 38),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(19),
+                ),
+                elevation: 0,
               ),
-              title: _SessionHeader(
-                title: _sessionTitle(context),
-                dateText: _sessionDateText(
-                  activeDbSessionStart: activeDbSessionStart,
-                  draftDateEpochDay: draftDateEpochDay,
-                ),
-                onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: FilledButton(
-                    onPressed: () => _showFinishDialog(context),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 38),
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(19),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(_endLabel(context)),
-                  ),
-                ),
-                PopupMenuButton<_StrengthMenuAction>(
-                  tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-                  color: panelColor,
-                  onSelected: (value) => _handleMenuAction(value),
-                  itemBuilder: (context) => _buildMenuItems(
-                    context,
-                    hostView: hostView,
-                    hasDraft: hasDraft,
-                    hasPlanSelection: hasPlanSelection,
-                  ),
-                ),
-              ],
-            )
-          : AppBar(
-              backgroundColor: panelColor,
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              shadowColor: Colors.transparent,
-              shape: Border(
-                bottom: BorderSide(color: panelBorderColor, width: 1),
-              ),
-              title: Text(AppLocalizations.of(context)!.navStrength),
-              actions: [
-                PopupMenuButton<_StrengthMenuAction>(
-                  tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-                  color: panelColor,
-                  onSelected: (value) => _handleMenuAction(value),
-                  itemBuilder: (context) => _buildMenuItems(
-                    context,
-                    hostView: hostView,
-                    hasDraft: hasDraft,
-                    hasPlanSelection: hasPlanSelection,
-                  ),
-                ),
-              ],
+              child: Text(_endLabel(context)),
             ),
+          ),
+          if (hasDraft)
+            PopupMenuButton<_StrengthMenuAction>(
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              color: panelColor,
+              onSelected: (value) => _handleMenuAction(value),
+              itemBuilder: (context) => _buildMenuItems(
+                context,
+                hostView: hostView,
+                hasDraft: hasDraft,
+                hasPlanSelection: hasPlanSelection,
+              ),
+            ),
+        ],
+      )
+          : AppBar(
+        backgroundColor: panelColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        shape: Border(
+          bottom: BorderSide(color: panelBorderColor, width: 1),
+        ),
+        title: Text(AppLocalizations.of(context)!.navStrength),
+      ),
       body: SafeArea(
         child: NotificationListener<StartRestTimerNotification>(
           onNotification: (notification) {
@@ -581,132 +569,32 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   List<PopupMenuEntry<_StrengthMenuAction>> _buildMenuItems(
-    BuildContext context, {
-    required StrengthHostView hostView,
-    required bool hasDraft,
-    required bool hasPlanSelection,
-  }) {
-    final items = <PopupMenuEntry<_StrengthMenuAction>>[];
-
-    items.add(
-      PopupMenuItem(
-        value: _StrengthMenuAction.startEmpty,
-        child: Text(_menuLabel(context, _StrengthMenuAction.startEmpty)),
-      ),
-    );
-
-    if (hostView == StrengthHostView.pager) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.closePlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.closePlan)),
-        ),
-      );
-    }
-
-    if (hasDraft) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.saveAsPlan,
-          child: Text(_menuLabel(context, _StrengthMenuAction.saveAsPlan)),
-        ),
-      );
-    }
-
-    items.add(
-      PopupMenuItem(
+      BuildContext context, {
+        required StrengthHostView hostView,
+        required bool hasDraft,
+        required bool hasPlanSelection,
+      }) {
+    return [
+      PopupMenuItem<_StrengthMenuAction>(
         value: _StrengthMenuAction.editPlan,
         enabled: hasDraft,
         child: Text(_menuLabel(context, _StrengthMenuAction.editPlan)),
       ),
-    );
-
-    if (hasDraft) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.printPlanPdf,
-          child: Text(_menuLabel(context, _StrengthMenuAction.printPlanPdf)),
-        ),
-      );
-    }
-
-    if (hostView == StrengthHostView.pager) {
-      items.add(
-        PopupMenuItem(
-          value: _StrengthMenuAction.addExercise,
-          child: Text(_menuLabel(context, _StrengthMenuAction.addExercise)),
-        ),
-      );
-    }
-
-    return items;
+      PopupMenuItem<_StrengthMenuAction>(
+        value: _StrengthMenuAction.printPlanPdf,
+        enabled: hasDraft,
+        child: Text(_menuLabel(context, _StrengthMenuAction.printPlanPdf)),
+      ),
+    ];
   }
 
   Future<void> _handleMenuAction(_StrengthMenuAction action) async {
-    final state = ref.read(strengthFlowControllerProvider);
-    final controller = ref.read(strengthFlowControllerProvider.notifier);
     switch (action) {
-      case _StrengthMenuAction.addExercise:
-        await _openExercisePicker(context);
-        return;
-      case _StrengthMenuAction.savePlan:
-        final name = state.selectedPlanName;
-        if (name == null || name.trim().isEmpty) return;
-        await controller.savePlanFromCurrent(planName: name, overwrite: true);
-        return;
-      case _StrengthMenuAction.startEmpty:
-        if (!await _confirmReplaceCurrent(context)) return;
-        await controller.startEmptySession(todayEpochDay: _todayEpochDay());
-        return;
-      case _StrengthMenuAction.closePlan:
-        await _handleClosePressed();
-        return;
-      case _StrengthMenuAction.saveAsPlan:
-        final name = await _promptForPlanName(
-          context,
-          initialValue: state.selectedPlanName ?? '',
-        );
-        if (name == null || name.trim().isEmpty) return;
-        await controller.savePlanFromCurrent(
-          planName: name.trim(),
-          overwrite: false,
-        );
-        return;
       case _StrengthMenuAction.editPlan:
         await _openPlanEditorSheet(context);
         return;
       case _StrengthMenuAction.printPlanPdf:
         await _handlePrintPlanPdf();
-        return;
-      case _StrengthMenuAction.loadPlan:
-        final selected = await _showLoadPlanDialog(context, state);
-        if (selected == null || selected.trim().isEmpty) return;
-        if (!await _confirmReplaceCurrent(context)) return;
-        await controller.loadPlan(
-          planName: selected,
-          todayEpochDay: _todayEpochDay(),
-        );
-        return;
-      case _StrengthMenuAction.renamePlan:
-        final current = state.selectedPlanName;
-        if (current == null || current.trim().isEmpty) return;
-        final next = await _promptForPlanName(context, initialValue: current);
-        if (next == null || next.trim().isEmpty || next.trim() == current) {
-          return;
-        }
-        await controller.renamePlan(
-          oldName: current,
-          newName: next.trim(),
-          overwrite: false,
-        );
-        return;
-      case _StrengthMenuAction.deletePlan:
-        final current = state.selectedPlanName;
-        if (current == null || current.trim().isEmpty) return;
-        final confirm = await _confirmDeletePlan(context, current);
-        if (confirm == true) {
-          await controller.deletePlan(current);
-        }
         return;
     }
   }
@@ -715,26 +603,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final l10n = AppLocalizations.of(context)!;
 
     switch (action) {
-      case _StrengthMenuAction.savePlan:
-        return l10n.strengthMenuSaveCurrentPlan;
-      case _StrengthMenuAction.startEmpty:
-        return l10n.strengthMenuStartEmptyPlan;
-      case _StrengthMenuAction.closePlan:
-        return l10n.strengthMenuCloseSession;
-      case _StrengthMenuAction.saveAsPlan:
-        return l10n.strengthMenuSaveAsPlan;
       case _StrengthMenuAction.editPlan:
         return l10n.strengthMenuEditTrainingPlan;
       case _StrengthMenuAction.printPlanPdf:
         return l10n.strengthMenuPrintPlanPdf;
-      case _StrengthMenuAction.loadPlan:
-        return l10n.strengthMenuLoadPlan;
-      case _StrengthMenuAction.renamePlan:
-        return l10n.strengthMenuRenamePlan;
-      case _StrengthMenuAction.deletePlan:
-        return l10n.strengthMenuDeletePlan;
-      case _StrengthMenuAction.addExercise:
-        return l10n.strengthMenuAddExercise;
     }
   }
 
@@ -2471,14 +2343,6 @@ class _PlanInitialsBadge extends StatelessWidget {
 }
 
 enum _StrengthMenuAction {
-  savePlan,
-  startEmpty,
-  closePlan,
-  saveAsPlan,
   editPlan,
   printPlanPdf,
-  loadPlan,
-  renamePlan,
-  deletePlan,
-  addExercise,
 }
