@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../state/strength_providers.dart';
 import 'exercise_asset_resolver.dart';
@@ -16,7 +17,7 @@ class ExercisePickerSheet extends ConsumerStatefulWidget {
 }
 
 class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
-  static const String _allValue = 'All';
+  static const String _allValue = '__all__';
 
   final TextEditingController _searchController = TextEditingController();
   final Set<String> _selectedIds = <String>{};
@@ -31,7 +32,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
   String? _selectedMuscleGroup;
   String? _selectedBaseExercise;
   String? _selectedDevice;
-  String? _selectedPrimaryMuscle;
+  String? _selectedInvolvedMuscleLatin;
 
   @override
   void initState() {
@@ -101,7 +102,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
       muscle: _selectedMuscleGroup,
       base: _selectedBaseExercise,
       device: _selectedDevice,
-      primaryMuscle: _advanced ? _selectedPrimaryMuscle : null,
+      primaryMuscle: _advanced ? _selectedInvolvedMuscleLatin : null,
     ).where((item) {
       if (query.isEmpty) {
         return true;
@@ -144,8 +145,8 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
 
       if (facet != 'primary' &&
           _advanced &&
-          _selectedPrimaryMuscle != null &&
-          !item.primaryMuscles.any((m) => m.equalsIgnoreCase(_selectedPrimaryMuscle!))) {
+          _selectedInvolvedMuscleLatin != null &&
+          !item.primaryMuscles.any((m) => m.equalsIgnoreCase(_selectedInvolvedMuscleLatin!))) {
         return false;
       }
 
@@ -156,7 +157,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
     return values;
   }
 
-  List<String> _primaryFacetValues() {
+  List<String> _involvedMuscleFacetValues() {
     final values = _allItems.where((item) {
       if (_selectedMuscleGroup != null &&
           !item.muscleGroup.equalsIgnoreCase(_selectedMuscleGroup!)) {
@@ -184,7 +185,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
     final muscles = _facetValues(selector: (e) => e.muscleGroup, facet: 'muscle');
     final bases = _facetValues(selector: (e) => e.baseExercise, facet: 'base');
     final devices = _facetValues(selector: (e) => e.device, facet: 'device');
-    final primary = _advanced ? _primaryFacetValues() : const <String>[];
+    final primary = _advanced ? _involvedMuscleFacetValues() : const <String>[];
 
     if (_selectedMuscleGroup != null &&
         !muscles.any((e) => e.equalsIgnoreCase(_selectedMuscleGroup!))) {
@@ -202,13 +203,13 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
     }
 
     if (_advanced &&
-        _selectedPrimaryMuscle != null &&
-        !primary.any((e) => e.equalsIgnoreCase(_selectedPrimaryMuscle!))) {
-      _selectedPrimaryMuscle = null;
+        _selectedInvolvedMuscleLatin != null &&
+        !primary.any((e) => e.equalsIgnoreCase(_selectedInvolvedMuscleLatin!))) {
+      _selectedInvolvedMuscleLatin = null;
     }
 
     if (!_advanced) {
-      _selectedPrimaryMuscle = null;
+      _selectedInvolvedMuscleLatin = null;
     }
   }
 
@@ -239,13 +240,21 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
     });
   }
 
+  void _clearSelection() {
+    if (_selectedIds.isEmpty) return;
+
+    setState(() {
+      _selectedIds.clear();
+    });
+  }
+
   void _clearFilters() {
     setState(() {
       _searchController.clear();
       _selectedMuscleGroup = null;
       _selectedBaseExercise = null;
       _selectedDevice = null;
-      _selectedPrimaryMuscle = null;
+      _selectedInvolvedMuscleLatin = null;
       _advanced = false;
     });
 
@@ -254,8 +263,10 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
-    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final mediaQuery = MediaQuery.of(context);
+    final bottom = mediaQuery.viewInsets.bottom;
+    final safeBottom = mediaQuery.padding.bottom;
 
     _normalizeSelections();
 
@@ -271,63 +282,116 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
       selector: (e) => e.device,
       facet: 'device',
     );
-    final primaryMuscles = _advanced ? _primaryFacetValues() : const <String>[];
+    final involvedMuscles = _advanced
+        ? _involvedMuscleFacetValues()
+        : const <String>[];
 
     return SafeArea(
+      top: false,
+      bottom: false,
       child: Padding(
         padding: EdgeInsets.only(bottom: bottom),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.90,
+          height: MediaQuery.of(context).size.height,
           child: Material(
             color: Theme.of(context).scaffoldBackgroundColor,
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(10, 12, 10, 8),
                   child: TextField(
                     controller: _searchController,
-                    decoration: const InputDecoration(
-                      hintText: 'Search (exercise name)',
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: l10n.strengthExercisePickerSearchHint,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 0,
+                        vertical: 8,
+                      ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
                   child: Row(
                     children: [
                       Text(
-                        'Filter',
+                        l10n.strengthExercisePickerFilter,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      const SizedBox(width: 12),
-                      FilterChip(
-                        selected: _advanced,
-                        label: const Text('Advanced'),
-                        onSelected: (selected) {
-                          setState(() {
-                            _advanced = selected;
-                            if (!_advanced) {
-                              _selectedPrimaryMuscle = null;
-                            }
-                          });
-                          _rebuildVisibleItems();
+                      const SizedBox(width: 8),
+                      Builder(
+                        builder: (context) {
+                          const advancedRed = Color(0xFFFF5A5F);
+                          const advancedRedDark = Color(0xFF9E2F2F);
+
+                          return FilterChip(
+                            selected: _advanced,
+                            showCheckmark: true,
+                            checkmarkColor: Colors.white,
+                            label: Text(
+                              l10n.strengthExercisePickerAdvanced,
+                              style: TextStyle(
+                                color: _advanced ? Colors.white : null,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                            side: BorderSide(
+                              color: _advanced ? advancedRed : Theme.of(context).colorScheme.outline,
+                              width: 1.2,
+                            ),
+                            avatar: _advanced
+                                ? const CircleAvatar(
+                              radius: 12,
+                              backgroundColor: advancedRedDark,
+                              child: Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            )
+                                : null,
+                            backgroundColor: Colors.transparent,
+                            selectedColor: advancedRed,
+                            onSelected: (selected) {
+                              setState(() {
+                                _advanced = selected;
+                                if (!_advanced) {
+                                  _selectedInvolvedMuscleLatin = null;
+                                }
+                              });
+                              _rebuildVisibleItems();
+                            },
+                          );
                         },
                       ),
                       const Spacer(),
                       TextButton(
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          minimumSize: const Size(0, 32),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                         onPressed: _clearFilters,
-                        child: const Text('Clear filters'),
+                        child: Text(l10n.strengthExercisePickerClearFilters),
                       ),
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 2),
                   child: Column(
                     children: [
                       _FilterDropdown(
-                        label: 'Primary muscle group',
+                        label: l10n.strengthExercisePickerPrimaryMuscleGroup,
                         value: _selectedMuscleGroup ?? _allValue,
+                        allValue: _allValue,
+                        allLabel: l10n.strengthExercisePickerAll,
                         items: <String>[_allValue, ...muscleGroups],
                         onChanged: (value) {
                           setState(() {
@@ -336,7 +400,7 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                           _rebuildVisibleItems();
                         },
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 180),
                         child: !_advanced
@@ -345,36 +409,47 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                           key: const ValueKey('advanced_primary_filter'),
                           children: [
                             _FilterDropdown(
-                              label: 'Primary muscle',
-                              value: _selectedPrimaryMuscle ?? _allValue,
-                              items: <String>[_allValue, ...primaryMuscles],
+                              label: l10n.strengthExercisePickerInvolvedMuscleLatin,
+                              value: _selectedInvolvedMuscleLatin ?? _allValue,
+                              allValue: _allValue,
+                              allLabel: l10n.strengthExercisePickerAll,
+                              items: <String>[
+                                _allValue,
+                                ...involvedMuscles,
+                              ],
+                              highlighted: true,
                               onChanged: (value) {
                                 setState(() {
-                                  _selectedPrimaryMuscle =
+                                  _selectedInvolvedMuscleLatin =
                                   value == _allValue ? null : value;
                                 });
                                 _rebuildVisibleItems();
                               },
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
                       _FilterDropdown(
-                        label: 'Base exercise',
+                        label: l10n.strengthExercisePickerBaseExercise,
                         value: _selectedBaseExercise ?? _allValue,
+                        allValue: _allValue,
+                        allLabel: l10n.strengthExercisePickerAll,
                         items: <String>[_allValue, ...baseExercises],
                         onChanged: (value) {
                           setState(() {
-                            _selectedBaseExercise = value == _allValue ? null : value;
+                            _selectedBaseExercise =
+                            value == _allValue ? null : value;
                           });
                           _rebuildVisibleItems();
                         },
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       _FilterDropdown(
-                        label: 'Device',
+                        label: l10n.strengthExercisePickerDevice,
                         value: _selectedDevice ?? _allValue,
+                        allValue: _allValue,
+                        allLabel: l10n.strengthExercisePickerAll,
                         items: <String>[_allValue, ...devices],
                         onChanged: (value) {
                           setState(() {
@@ -387,23 +462,34 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                   child: Row(
                     children: [
                       Text(
-                        'Results',
-                        style: Theme.of(context).textTheme.headlineSmall,
+                        l10n.strengthExercisePickerResults,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const Spacer(),
                       SegmentedButton<bool>(
-                        segments: const <ButtonSegment<bool>>[
+                        style: ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          tapTargetSize:
+                          MaterialTapTargetSize.shrinkWrap,
+                          padding: WidgetStateProperty.all(
+                            const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                          minimumSize: WidgetStateProperty.all(
+                            const Size(0, 34),
+                          ),
+                        ),
+                        segments: <ButtonSegment<bool>>[
                           ButtonSegment<bool>(
                             value: false,
-                            label: Text('List'),
+                            label: Text(l10n.strengthExercisePickerList),
                           ),
                           ButtonSegment<bool>(
                             value: true,
-                            label: Text('Images'),
+                            label: Text(l10n.strengthExercisePickerImages),
                           ),
                         ],
                         selected: <bool>{_gridMode},
@@ -421,13 +507,13 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                       ? const Center(child: CircularProgressIndicator())
                       : _gridMode
                       ? GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                     gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.86,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.95,
                     ),
                     itemCount: _visibleItems.length,
                     itemBuilder: (context, index) {
@@ -442,9 +528,10 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                     },
                   )
                       : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                     itemCount: _visibleItems.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, __) =>
+                    const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final item = _visibleItems[index];
                       final selected = _selectedIds.contains(item.id);
@@ -458,14 +545,17 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  padding: EdgeInsets.fromLTRB(10, 6, 10, safeBottom + 8),
                   decoration: BoxDecoration(
                     color: Theme.of(context).scaffoldBackgroundColor,
                     boxShadow: [
                       BoxShadow(
-                        blurRadius: 10,
+                        blurRadius: 8,
                         offset: const Offset(0, -2),
-                        color: Colors.black.withOpacity(0.08),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .shadow
+                            .withOpacity(0.08),
                       ),
                     ],
                   ),
@@ -473,20 +563,48 @@ class _ExercisePickerSheetState extends ConsumerState<ExercisePickerSheet> {
                     children: [
                       Expanded(
                         child: TextButton(
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            minimumSize: const Size(0, 36),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cancel'),
+                          child: Text(l10n.strengthCommonCancel),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: FilledButton(
-                          onPressed: _selectedIds.isEmpty ? null : _confirmSelection,
+                          style: FilledButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            minimumSize: const Size(0, 36),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed:
+                          _selectedIds.isEmpty ? null : _confirmSelection,
                           child: Text(
                             _selectedIds.isEmpty
-                                ? 'Add'
-                                : 'Add (${_selectedIds.length})',
+                                ? l10n.strengthExercisePickerAdd
+                                : l10n.strengthExercisePickerAddCount(
+                              _selectedIds.length,
+                            ),
                           ),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        tooltip: l10n.strengthExercisePickerClearSelection,
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 40,
+                          height: 36,
+                        ),
+                        onPressed:
+                        _selectedIds.isEmpty ? null : _clearSelection,
+                        icon: const Icon(Icons.delete_outline),
                       ),
                     ],
                   ),
@@ -538,13 +656,13 @@ class _ExerciseGridCard extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(4),
                   child: ExerciseAssetImage(
                     exerciseId: item.id,
                     fit: BoxFit.contain,
@@ -555,7 +673,7 @@ class _ExerciseGridCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 item.label,
-                maxLines: 3,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
@@ -631,29 +749,106 @@ class _FilterDropdown extends StatelessWidget {
   const _FilterDropdown({
     required this.label,
     required this.value,
+    required this.allValue,
+    required this.allLabel,
     required this.items,
     required this.onChanged,
+    this.highlighted = false,
   });
 
   final String label;
   final String value;
+  final String allValue;
+  final String allLabel;
   final List<String> items;
   final ValueChanged<String> onChanged;
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
     final uniqueItems = items.toSet().toList();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    const advancedRed = Color(0xFFFF5A5F);
+    const advancedRedDark = Color(0xFF9E2F2F);
+    const advancedRedFill = Color(0x22FF5A5F);
+
+    final baseBorderColor = highlighted
+        ? advancedRed
+        : colorScheme.outline.withOpacity(0.65);
+
+    final focusedBorderColor = highlighted
+        ? advancedRed
+        : colorScheme.onSurface.withOpacity(0.82);
+
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(7),
+      borderSide: BorderSide(
+        color: baseBorderColor,
+        width: highlighted ? 1.2 : 1,
+      ),
+    );
 
     return DropdownButtonFormField<String>(
       value: uniqueItems.contains(value) ? value : uniqueItems.first,
+      isDense: true,
+      isExpanded: true,
+      iconEnabledColor: highlighted ? advancedRed : null,
+      dropdownColor: colorScheme.surface,
       decoration: InputDecoration(
         labelText: label,
+        isDense: true,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        contentPadding: const EdgeInsets.fromLTRB(10, 12, 8, 9),
+        constraints: const BoxConstraints(
+          minHeight: 45,
+        ),
+        filled: true,
+        fillColor: highlighted ? advancedRedFill : Colors.transparent,
+        labelStyle: TextStyle(
+          color: highlighted ? advancedRed : null,
+          fontWeight: highlighted ? FontWeight.w600 : null,
+        ),
+        enabledBorder: border,
+        focusedBorder: border.copyWith(
+          borderSide: BorderSide(
+            color: focusedBorderColor,
+            width: 1.2,
+          ),
+        ),
+        border: border,
       ),
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        color: highlighted ? Colors.white : null,
+      ),
+      selectedItemBuilder: (context) {
+        return uniqueItems.map((item) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              item == allValue ? allLabel : item,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: highlighted ? Colors.white : null,
+                fontWeight: highlighted ? FontWeight.w600 : null,
+              ),
+            ),
+          );
+        }).toList();
+      },
       items: uniqueItems
           .map(
             (item) => DropdownMenuItem<String>(
           value: item,
-          child: Text(item),
+          child: Text(
+            item == allValue ? allLabel : item,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: highlighted ? Colors.white : null,
+            ),
+          ),
         ),
       )
           .toList(),

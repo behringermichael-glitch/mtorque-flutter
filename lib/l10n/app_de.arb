@@ -124,6 +124,30 @@
   "strengthCommonRepsShort": "Wdh.",
   "strengthCommonDurationShort": "Sek.",
 
+    "strengthExercisePickerSearchHint": "Suche (Übungsname)",
+    "strengthExercisePickerFilter": "Filter",
+    "strengthExercisePickerAdvanced": "Erweitert",
+    "strengthExercisePickerInvolvedMuscleLatin": "Beteiligter Muskel (Latein)",
+    "strengthExercisePickerClearFilters": "Filter löschen",
+    "strengthExercisePickerPrimaryMuscleGroup": "Primäre Muskelgruppe",
+    "strengthExercisePickerInvolvedMuscle": "Beteiligter Muskel",
+    "strengthExercisePickerBaseExercise": "Basisübung",
+    "strengthExercisePickerDevice": "Gerät",
+    "strengthExercisePickerAll": "Alle",
+    "strengthExercisePickerResults": "Ergebnisse",
+    "strengthExercisePickerList": "Liste",
+    "strengthExercisePickerImages": "Bilder",
+    "strengthExercisePickerAdd": "Hinzufügen",
+    "strengthExercisePickerAddCount": "Hinzufügen ({count})",
+    "@strengthExercisePickerAddCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "strengthExercisePickerClearSelection": "Auswahl leeren",
+
   "strengthExerciseAddSetButton": "+ Satz hinzufügen",
   "strengthExerciseDeleteExerciseTitle": "Übung löschen?",
   "strengthExerciseDeleteExerciseMessage": "Möchtest du diese Übung wirklich aus der Einheit entfernen?",

@@ -695,6 +695,102 @@ abstract class AppLocalizations {
   /// **'Sec'**
   String get strengthCommonDurationShort;
 
+  /// No description provided for @strengthExercisePickerSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search (exercise name)'**
+  String get strengthExercisePickerSearchHint;
+
+  /// No description provided for @strengthExercisePickerFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get strengthExercisePickerFilter;
+
+  /// No description provided for @strengthExercisePickerAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get strengthExercisePickerAdvanced;
+
+  /// No description provided for @strengthExercisePickerInvolvedMuscleLatin.
+  ///
+  /// In en, this message translates to:
+  /// **'Involved muscle (Latin)'**
+  String get strengthExercisePickerInvolvedMuscleLatin;
+
+  /// No description provided for @strengthExercisePickerClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get strengthExercisePickerClearFilters;
+
+  /// No description provided for @strengthExercisePickerPrimaryMuscleGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary muscle group'**
+  String get strengthExercisePickerPrimaryMuscleGroup;
+
+  /// No description provided for @strengthExercisePickerInvolvedMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Involved muscle'**
+  String get strengthExercisePickerInvolvedMuscle;
+
+  /// No description provided for @strengthExercisePickerBaseExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Base exercise'**
+  String get strengthExercisePickerBaseExercise;
+
+  /// No description provided for @strengthExercisePickerDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get strengthExercisePickerDevice;
+
+  /// No description provided for @strengthExercisePickerAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get strengthExercisePickerAll;
+
+  /// No description provided for @strengthExercisePickerResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get strengthExercisePickerResults;
+
+  /// No description provided for @strengthExercisePickerList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get strengthExercisePickerList;
+
+  /// No description provided for @strengthExercisePickerImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get strengthExercisePickerImages;
+
+  /// No description provided for @strengthExercisePickerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get strengthExercisePickerAdd;
+
+  /// No description provided for @strengthExercisePickerAddCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ({count})'**
+  String strengthExercisePickerAddCount(int count);
+
+  /// No description provided for @strengthExercisePickerClearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear selection'**
+  String get strengthExercisePickerClearSelection;
+
   /// No description provided for @strengthExerciseAddSetButton.
   ///
   /// In en, this message translates to:

@@ -315,6 +315,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get strengthCommonDurationShort => 'Sec';
 
   @override
+  String get strengthExercisePickerSearchHint => 'Search (exercise name)';
+
+  @override
+  String get strengthExercisePickerFilter => 'Filter';
+
+  @override
+  String get strengthExercisePickerAdvanced => 'Advanced';
+
+  @override
+  String get strengthExercisePickerInvolvedMuscleLatin => 'Involved muscle (Latin)';
+
+  @override
+  String get strengthExercisePickerClearFilters => 'Clear filters';
+
+  @override
+  String get strengthExercisePickerPrimaryMuscleGroup => 'Primary muscle group';
+
+  @override
+  String get strengthExercisePickerInvolvedMuscle => 'Involved muscle';
+
+  @override
+  String get strengthExercisePickerBaseExercise => 'Base exercise';
+
+  @override
+  String get strengthExercisePickerDevice => 'Device';
+
+  @override
+  String get strengthExercisePickerAll => 'All';
+
+  @override
+  String get strengthExercisePickerResults => 'Results';
+
+  @override
+  String get strengthExercisePickerList => 'List';
+
+  @override
+  String get strengthExercisePickerImages => 'Images';
+
+  @override
+  String get strengthExercisePickerAdd => 'Add';
+
+  @override
+  String strengthExercisePickerAddCount(int count) {
+    return 'Add ($count)';
+  }
+
+  @override
+  String get strengthExercisePickerClearSelection => 'Clear selection';
+
+  @override
   String get strengthExerciseAddSetButton => '+ Add set';
 
   @override

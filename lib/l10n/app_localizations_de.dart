@@ -315,6 +315,56 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthCommonDurationShort => 'Sek.';
 
   @override
+  String get strengthExercisePickerSearchHint => 'Suche (Übungsname)';
+
+  @override
+  String get strengthExercisePickerFilter => 'Filter';
+
+  @override
+  String get strengthExercisePickerAdvanced => 'Erweitert';
+
+  @override
+  String get strengthExercisePickerInvolvedMuscleLatin => 'Beteiligter Muskel (Latein)';
+
+  @override
+  String get strengthExercisePickerClearFilters => 'Filter löschen';
+
+  @override
+  String get strengthExercisePickerPrimaryMuscleGroup => 'Primäre Muskelgruppe';
+
+  @override
+  String get strengthExercisePickerInvolvedMuscle => 'Beteiligter Muskel';
+
+  @override
+  String get strengthExercisePickerBaseExercise => 'Basisübung';
+
+  @override
+  String get strengthExercisePickerDevice => 'Gerät';
+
+  @override
+  String get strengthExercisePickerAll => 'Alle';
+
+  @override
+  String get strengthExercisePickerResults => 'Ergebnisse';
+
+  @override
+  String get strengthExercisePickerList => 'Liste';
+
+  @override
+  String get strengthExercisePickerImages => 'Bilder';
+
+  @override
+  String get strengthExercisePickerAdd => 'Hinzufügen';
+
+  @override
+  String strengthExercisePickerAddCount(int count) {
+    return 'Hinzufügen ($count)';
+  }
+
+  @override
+  String get strengthExercisePickerClearSelection => 'Auswahl leeren';
+
+  @override
   String get strengthExerciseAddSetButton => '+ Satz hinzufügen';
 
   @override

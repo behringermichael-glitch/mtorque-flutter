@@ -124,6 +124,30 @@
   "strengthCommonRepsShort": "Reps",
   "strengthCommonDurationShort": "Sec",
 
+    "strengthExercisePickerSearchHint": "Search (exercise name)",
+    "strengthExercisePickerFilter": "Filter",
+    "strengthExercisePickerAdvanced": "Advanced",
+    "strengthExercisePickerInvolvedMuscleLatin": "Involved muscle (Latin)",
+    "strengthExercisePickerClearFilters": "Clear filters",
+    "strengthExercisePickerPrimaryMuscleGroup": "Primary muscle group",
+    "strengthExercisePickerInvolvedMuscle": "Involved muscle",
+    "strengthExercisePickerBaseExercise": "Base exercise",
+    "strengthExercisePickerDevice": "Device",
+    "strengthExercisePickerAll": "All",
+    "strengthExercisePickerResults": "Results",
+    "strengthExercisePickerList": "List",
+    "strengthExercisePickerImages": "Images",
+    "strengthExercisePickerAdd": "Add",
+    "strengthExercisePickerAddCount": "Add ({count})",
+    "@strengthExercisePickerAddCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "strengthExercisePickerClearSelection": "Clear selection",
+
   "strengthExerciseAddSetButton": "+ Add set",
   "strengthExerciseDeleteExerciseTitle": "Delete exercise?",
   "strengthExerciseDeleteExerciseMessage": "Do you really want to remove this exercise from the session?",

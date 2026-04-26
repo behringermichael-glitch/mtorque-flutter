@@ -20,8 +20,7 @@ import 'exercise_picker_sheet.dart';
 
 Color _panelSurfaceColor(BuildContext context) {
   final theme = Theme.of(context);
-  return theme.cardTheme.color ??
-      theme.colorScheme.surfaceContainerLow;
+  return theme.cardTheme.color ?? theme.colorScheme.surfaceContainerLow;
 }
 
 class StrengthPage extends ConsumerStatefulWidget {
@@ -38,7 +37,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   final PageController _pageController = PageController();
   final GlobalKey _pagerStackKey = GlobalKey();
   final GlobalKey<_TimerMetronomePanelState> _timerPanelKey =
-  GlobalKey<_TimerMetronomePanelState>();
+      GlobalKey<_TimerMetronomePanelState>();
   bool _initialized = false;
   double? _swipeHintTopOffset;
   int _currentPageIndex = 0;
@@ -61,11 +60,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     super.dispose();
   }
 
-
   void _handlePagerChanged(int index) {
     final exercises = ref.read(
       strengthFlowControllerProvider.select(
-            (state) => state.draftSession?.exerciseOrder ?? const <String>[],
+        (state) => state.draftSession?.exerciseOrder ?? const <String>[],
       ),
     );
 
@@ -76,10 +74,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     ref.read(strengthFlowControllerProvider.notifier).updatePagerIndex(index);
 
-    _precacheAroundPage(
-      exerciseIds: exercises,
-      centerIndex: index,
-    );
+    _precacheAroundPage(exerciseIds: exercises, centerIndex: index);
   }
 
   void _handleHeaderDividerGlobalYChanged(double globalY) {
@@ -115,8 +110,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   int _todayEpochDay() {
     final now = DateTime.now();
     final utcMidnight = DateTime.utc(now.year, now.month, now.day);
-    return utcMidnight.millisecondsSinceEpoch ~/
-        Duration.millisecondsPerDay;
+    return utcMidnight.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
   }
 
   bool _sameExerciseOrder(List<String> a, List<String> b) {
@@ -134,11 +128,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }) {
     if (exerciseIds.isEmpty) return;
 
-    final candidates = <int>{
-      centerIndex,
-      centerIndex - 1,
-      centerIndex + 1,
-    };
+    final candidates = <int>{centerIndex, centerIndex - 1, centerIndex + 1};
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -163,9 +153,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     );
 
     if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final hostView = ref.watch(
@@ -174,7 +162,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     final exercises = ref.watch(
       strengthFlowControllerProvider.select(
-            (state) => state.draftSession?.exerciseOrder ?? const <String>[],
+        (state) => state.draftSession?.exerciseOrder ?? const <String>[],
       ),
     );
 
@@ -188,13 +176,13 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
     final activeDbSessionStart = ref.watch(
       strengthFlowControllerProvider.select(
-            (state) => state.activeDbSessionStart,
+        (state) => state.activeDbSessionStart,
       ),
     );
 
     final draftDateEpochDay = ref.watch(
       strengthFlowControllerProvider.select(
-            (state) => state.draftSession?.dateEpochDay,
+        (state) => state.draftSession?.dateEpochDay,
       ),
     );
 
@@ -220,8 +208,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     }
 
     final panelColor = _panelSurfaceColor(context);
-    final panelBorderColor =
-    Theme.of(context).dividerColor.withValues(alpha: 0.35);
+    final panelBorderColor = Theme.of(
+      context,
+    ).dividerColor.withValues(alpha: 0.35);
 
     // PATCH 5: jumpToPage komplett aus build() entfernt.
     // _currentPageIndex wird durch orderChanged bereits korrekt geclippt.
@@ -231,84 +220,78 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return Scaffold(
       appBar: hostView == StrengthHostView.pager
           ? AppBar(
-        toolbarHeight: 64,
-        backgroundColor: panelColor,
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        shadowColor: Colors.transparent,
-        titleSpacing: 16,
-        shape: Border(
-          bottom: BorderSide(
-            color: panelBorderColor,
-            width: 1,
-          ),
-        ),
-        title: _SessionHeader(
-          title: _sessionTitle(context),
-          dateText: _sessionDateText(
-            activeDbSessionStart: activeDbSessionStart,
-            draftDateEpochDay: draftDateEpochDay,
-          ),
-          onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: FilledButton(
-              onPressed: () => _showFinishDialog(context),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 38),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(19),
-                ),
-                elevation: 0,
+              toolbarHeight: 64,
+              backgroundColor: panelColor,
+              surfaceTintColor: Colors.transparent,
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              shadowColor: Colors.transparent,
+              titleSpacing: 16,
+              shape: Border(
+                bottom: BorderSide(color: panelBorderColor, width: 1),
               ),
-              child: Text(_endLabel(context)),
-            ),
-          ),
-          PopupMenuButton<_StrengthMenuAction>(
-            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-            color: panelColor,
-            onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) => _buildMenuItems(
-              context,
-              hostView: hostView,
-              hasDraft: hasDraft,
-              hasPlanSelection: hasPlanSelection,
-            ),
-          ),
-        ],
-      )
+              title: _SessionHeader(
+                title: _sessionTitle(context),
+                dateText: _sessionDateText(
+                  activeDbSessionStart: activeDbSessionStart,
+                  draftDateEpochDay: draftDateEpochDay,
+                ),
+                onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: FilledButton(
+                    onPressed: () => _showFinishDialog(context),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 38),
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(19),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(_endLabel(context)),
+                  ),
+                ),
+                PopupMenuButton<_StrengthMenuAction>(
+                  tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                  color: panelColor,
+                  onSelected: (value) => _handleMenuAction(value),
+                  itemBuilder: (context) => _buildMenuItems(
+                    context,
+                    hostView: hostView,
+                    hasDraft: hasDraft,
+                    hasPlanSelection: hasPlanSelection,
+                  ),
+                ),
+              ],
+            )
           : AppBar(
-        backgroundColor: panelColor,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        shadowColor: Colors.transparent,
-        shape: Border(
-          bottom: BorderSide(
-            color: panelBorderColor,
-            width: 1,
-          ),
-        ),
-        title: Text(AppLocalizations.of(context)!.navStrength),
-        actions: [
-          PopupMenuButton<_StrengthMenuAction>(
-            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-            color: panelColor,
-            onSelected: (value) => _handleMenuAction(value),
-            itemBuilder: (context) => _buildMenuItems(
-              context,
-              hostView: hostView,
-              hasDraft: hasDraft,
-              hasPlanSelection: hasPlanSelection,
+              backgroundColor: panelColor,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              shadowColor: Colors.transparent,
+              shape: Border(
+                bottom: BorderSide(color: panelBorderColor, width: 1),
+              ),
+              title: Text(AppLocalizations.of(context)!.navStrength),
+              actions: [
+                PopupMenuButton<_StrengthMenuAction>(
+                  tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                  color: panelColor,
+                  onSelected: (value) => _handleMenuAction(value),
+                  itemBuilder: (context) => _buildMenuItems(
+                    context,
+                    hostView: hostView,
+                    hasDraft: hasDraft,
+                    hasPlanSelection: hasPlanSelection,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: NotificationListener<StartRestTimerNotification>(
           onNotification: (notification) {
@@ -317,19 +300,13 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           },
           child: hostView == StrengthHostView.planGrid
               ? _buildPlanGrid(context, plans)
-              : _buildPager(
-            context,
-            exerciseIds: exercises,
-          ),
+              : _buildPager(context, exerciseIds: exercises),
         ),
       ),
     );
   }
 
-  Widget _buildPlanGrid(
-      BuildContext context,
-      List<dynamic> plans,
-      ) {
+  Widget _buildPlanGrid(BuildContext context, List<dynamic> plans) {
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(strengthFlowControllerProvider.notifier);
 
@@ -340,9 +317,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           height: 64,
           child: OutlinedButton.icon(
             onPressed: () {
-              controller.startEmptySession(
-                todayEpochDay: _todayEpochDay(),
-              );
+              controller.startEmptySession(todayEpochDay: _todayEpochDay());
             },
             icon: const Icon(Icons.add_circle_outline),
             label: Text(l10n.strengthStartEmptyPlan),
@@ -379,12 +354,14 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Widget _buildPager(
-      BuildContext context, {
-        required List<String> exerciseIds,
-      }) {
+    BuildContext context, {
+    required List<String> exerciseIds,
+  }) {
     final l10n = AppLocalizations.of(context)!;
-    final pageIndex =
-    _currentPageIndex.clamp(0, math.max(exerciseIds.length, 0));
+    final pageIndex = _currentPageIndex.clamp(
+      0,
+      math.max(exerciseIds.length, 0),
+    );
     final showExercisePage =
         exerciseIds.isNotEmpty && pageIndex < exerciseIds.length;
     final showSwipeLeft = showExercisePage && pageIndex > 0;
@@ -426,8 +403,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                     key: ValueKey('exercise_page_$exerciseId'),
                     exerciseId: exerciseId,
                     onEditPlanStructure: () => _openPlanEditorSheet(context),
-                    onHeaderDividerGlobalYChanged:
-                    index == pageIndex
+                    onHeaderDividerGlobalYChanged: index == pageIndex
                         ? _handleHeaderDividerGlobalYChanged
                         : null,
                   );
@@ -446,14 +422,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           duration: const Duration(milliseconds: 180),
           child: showExercisePage
               ? Padding(
-            key: const ValueKey('timer_panel'),
-            padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
-            child: _TimerMetronomePanel(key: _timerPanelKey),
-          )
-              : const SizedBox(
-            key: ValueKey('timer_panel_hidden'),
-            height: 0,
-          ),
+                  key: const ValueKey('timer_panel'),
+                  padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
+                  child: _TimerMetronomePanel(key: _timerPanelKey),
+                )
+              : const SizedBox(key: ValueKey('timer_panel_hidden'), height: 0),
         ),
       ],
     );
@@ -463,13 +436,19 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => const ExercisePickerSheet(),
+      useRootNavigator: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height,
+      ),
+      builder: (sheetContext) => const ExercisePickerSheet(),
     );
 
     if (result == null || result is! List || result.isEmpty) return;
-    await ref.read(strengthFlowControllerProvider.notifier).addExercises(
-      List<StrengthExerciseSummary>.from(result),
-    );
+    await ref
+        .read(strengthFlowControllerProvider.notifier)
+        .addExercises(List<StrengthExerciseSummary>.from(result));
   }
 
   Future<void> _pickSessionDate(BuildContext context) async {
@@ -496,19 +475,17 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   List<PopupMenuEntry<_StrengthMenuAction>> _buildMenuItems(
-      BuildContext context, {
-        required StrengthHostView hostView,
-        required bool hasDraft,
-        required bool hasPlanSelection,
-      }) {
+    BuildContext context, {
+    required StrengthHostView hostView,
+    required bool hasDraft,
+    required bool hasPlanSelection,
+  }) {
     final items = <PopupMenuEntry<_StrengthMenuAction>>[];
 
     items.add(
       PopupMenuItem(
         value: _StrengthMenuAction.startEmpty,
-        child: Text(
-          _menuLabel(context, _StrengthMenuAction.startEmpty),
-        ),
+        child: Text(_menuLabel(context, _StrengthMenuAction.startEmpty)),
       ),
     );
 
@@ -516,9 +493,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.closePlan,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.closePlan),
-          ),
+          child: Text(_menuLabel(context, _StrengthMenuAction.closePlan)),
         ),
       );
     }
@@ -527,9 +502,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.saveAsPlan,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.saveAsPlan),
-          ),
+          child: Text(_menuLabel(context, _StrengthMenuAction.saveAsPlan)),
         ),
       );
     }
@@ -538,9 +511,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       PopupMenuItem(
         value: _StrengthMenuAction.editPlan,
         enabled: hasDraft,
-        child: Text(
-          _menuLabel(context, _StrengthMenuAction.editPlan),
-        ),
+        child: Text(_menuLabel(context, _StrengthMenuAction.editPlan)),
       ),
     );
 
@@ -548,9 +519,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.printPlanPdf,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.printPlanPdf),
-          ),
+          child: Text(_menuLabel(context, _StrengthMenuAction.printPlanPdf)),
         ),
       );
     }
@@ -559,9 +528,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       items.add(
         PopupMenuItem(
           value: _StrengthMenuAction.addExercise,
-          child: Text(
-            _menuLabel(context, _StrengthMenuAction.addExercise),
-          ),
+          child: Text(_menuLabel(context, _StrengthMenuAction.addExercise)),
         ),
       );
     }
@@ -579,16 +546,11 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       case _StrengthMenuAction.savePlan:
         final name = state.selectedPlanName;
         if (name == null || name.trim().isEmpty) return;
-        await controller.savePlanFromCurrent(
-          planName: name,
-          overwrite: true,
-        );
+        await controller.savePlanFromCurrent(planName: name, overwrite: true);
         return;
       case _StrengthMenuAction.startEmpty:
         if (!await _confirmReplaceCurrent(context)) return;
-        await controller.startEmptySession(
-          todayEpochDay: _todayEpochDay(),
-        );
+        await controller.startEmptySession(todayEpochDay: _todayEpochDay());
         return;
       case _StrengthMenuAction.closePlan:
         await _handleClosePressed();
@@ -622,13 +584,8 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       case _StrengthMenuAction.renamePlan:
         final current = state.selectedPlanName;
         if (current == null || current.trim().isEmpty) return;
-        final next = await _promptForPlanName(
-          context,
-          initialValue: current,
-        );
-        if (next == null ||
-            next.trim().isEmpty ||
-            next.trim() == current) {
+        final next = await _promptForPlanName(context, initialValue: current);
+        if (next == null || next.trim().isEmpty || next.trim() == current) {
           return;
         }
         await controller.renamePlan(
@@ -704,9 +661,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     await ref
         .read(strengthFlowControllerProvider.notifier)
         .applyPlanStructureEdit(
-      exerciseOrder: result.exerciseOrder,
-      supersetGroupByExercise: result.supersetGroupByExercise,
-    );
+          exerciseOrder: result.exerciseOrder,
+          supersetGroupByExercise: result.supersetGroupByExercise,
+        );
 
     final maxIndex = result.exerciseOrder.isEmpty
         ? 0
@@ -736,16 +693,19 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       context,
       plans: state.plans,
     );
-    if (!mounted || selectedPlanName == null || selectedPlanName.trim().isEmpty) {
+    if (!mounted ||
+        selectedPlanName == null ||
+        selectedPlanName.trim().isEmpty) {
       return;
     }
 
     final setsPerExercise =
-    await StrengthPlanPrintDialogs.selectSetsPerExercise(context);
+        await StrengthPlanPrintDialogs.selectSetsPerExercise(context);
     if (!mounted || setsPerExercise == null) return;
 
-    final comment =
-    await StrengthPlanPrintDialogs.enterOptionalComment(context);
+    final comment = await StrengthPlanPrintDialogs.enterOptionalComment(
+      context,
+    );
     if (!mounted) return;
 
     try {
@@ -767,27 +727,21 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.strengthPrintPlanNoExercises),
-        ),
+        SnackBar(content: Text(l10n.strengthPrintPlanNoExercises)),
       );
     } catch (error) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.strengthPrintPlanFailed(error.toString()),
-          ),
-        ),
+        SnackBar(content: Text(l10n.strengthPrintPlanFailed(error.toString()))),
       );
     }
   }
 
   Future<String?> _promptForPlanName(
-      BuildContext context, {
-        required String initialValue,
-      }) async {
+    BuildContext context, {
+    required String initialValue,
+  }) async {
     final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: initialValue);
 
@@ -799,9 +753,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           content: TextField(
             controller: controller,
             autofocus: true,
-            decoration: InputDecoration(
-              hintText: l10n.strengthPlanNameHint,
-            ),
+            decoration: InputDecoration(hintText: l10n.strengthPlanNameHint),
           ),
           actions: [
             TextButton(
@@ -820,9 +772,9 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
   }
 
   Future<String?> _showLoadPlanDialog(
-      BuildContext context,
-      StrengthFlowState state,
-      ) {
+    BuildContext context,
+    StrengthFlowState state,
+  ) {
     final l10n = AppLocalizations.of(context)!;
 
     return showDialog<String>(
@@ -835,16 +787,16 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             child: state.plans.isEmpty
                 ? Text(l10n.strengthNoPlansAvailable)
                 : ListView.builder(
-              shrinkWrap: true,
-              itemCount: state.plans.length,
-              itemBuilder: (context, index) {
-                final plan = state.plans[index];
-                return ListTile(
-                  title: Text(plan.name),
-                  onTap: () => Navigator.of(dialogContext).pop(plan.name),
-                );
-              },
-            ),
+                    shrinkWrap: true,
+                    itemCount: state.plans.length,
+                    itemBuilder: (context, index) {
+                      final plan = state.plans[index];
+                      return ListTile(
+                        title: Text(plan.name),
+                        onTap: () => Navigator.of(dialogContext).pop(plan.name),
+                      );
+                    },
+                  ),
           ),
           actions: [
             TextButton(
@@ -889,10 +841,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     return result == true;
   }
 
-  Future<bool?> _confirmDeletePlan(
-      BuildContext context,
-      String planName,
-      ) {
+  Future<bool?> _confirmDeletePlan(BuildContext context, String planName) {
     final l10n = AppLocalizations.of(context)!;
 
     return showDialog<bool>(
@@ -922,9 +871,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final draft = state.draftSession;
 
     if (draft == null) {
-      await ref
-          .read(strengthFlowControllerProvider.notifier)
-          .showPlanGrid();
+      await ref.read(strengthFlowControllerProvider.notifier).showPlanGrid();
       return;
     }
 
@@ -945,8 +892,8 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           content: Text(l10n.strengthClosePlanMessage),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .pop(_CloseAction.continueEditing),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CloseAction.continueEditing),
               child: Text(l10n.strengthContinueEditing),
             ),
             TextButton(
@@ -955,8 +902,8 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
               child: Text(l10n.strengthDiscard),
             ),
             FilledButton(
-              onPressed: () => Navigator.of(dialogContext)
-                  .pop(_CloseAction.saveAndClose),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(_CloseAction.saveAndClose),
               child: Text(l10n.strengthSaveAndClose),
             ),
           ],
@@ -985,9 +932,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           content: TextField(
             controller: notesController,
             maxLines: 4,
-            decoration: InputDecoration(
-              labelText: l10n.strengthNotes,
-            ),
+            decoration: InputDecoration(labelText: l10n.strengthNotes),
           ),
           actions: [
             TextButton(
@@ -1007,10 +952,10 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       await ref
           .read(strengthFlowControllerProvider.notifier)
           .finalizeSession(
-        notes: notesController.text.trim().isEmpty
-            ? null
-            : notesController.text.trim(),
-      );
+            notes: notesController.text.trim().isEmpty
+                ? null
+                : notesController.text.trim(),
+          );
     }
   }
 
@@ -1117,12 +1062,10 @@ class _PagerSwipeHintOverlay extends StatefulWidget {
   final bool showRight;
 
   @override
-  State<_PagerSwipeHintOverlay> createState() =>
-      _PagerSwipeHintOverlayState();
+  State<_PagerSwipeHintOverlay> createState() => _PagerSwipeHintOverlayState();
 }
 
-class _PagerSwipeHintOverlayState
-    extends State<_PagerSwipeHintOverlay>
+class _PagerSwipeHintOverlayState extends State<_PagerSwipeHintOverlay>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _leftDx;
@@ -1136,21 +1079,23 @@ class _PagerSwipeHintOverlayState
       vsync: this,
       duration: const Duration(milliseconds: 760),
     );
-    _leftDx = Tween<double>(begin: 0, end: -10).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _rightDx = Tween<double>(begin: 0, end: 10).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _opacity = Tween<double>(begin: 0.52, end: 0.88).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _leftDx = Tween<double>(
+      begin: 0,
+      end: -10,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _rightDx = Tween<double>(
+      begin: 0,
+      end: 10,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _opacity = Tween<double>(
+      begin: 0.52,
+      end: 0.88,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _animateIfNeeded();
   }
 
   @override
-  void didUpdateWidget(
-      covariant _PagerSwipeHintOverlay oldWidget) {
+  void didUpdateWidget(covariant _PagerSwipeHintOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.showLeft != widget.showLeft ||
         oldWidget.showRight != widget.showRight) {
@@ -1180,8 +1125,9 @@ class _PagerSwipeHintOverlayState
 
   @override
   Widget build(BuildContext context) {
-    final baseColor =
-    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.52);
+    final baseColor = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.52);
 
     return Positioned(
       left: 0,
@@ -1198,11 +1144,7 @@ class _PagerSwipeHintOverlayState
                 if (widget.showLeft)
                   Transform.translate(
                     offset: Offset(_leftDx.value, 0),
-                    child: Icon(
-                      Icons.chevron_left,
-                      color: color,
-                      size: 34,
-                    ),
+                    child: Icon(Icons.chevron_left, color: color, size: 34),
                   )
                 else
                   const SizedBox(width: 34),
@@ -1210,11 +1152,7 @@ class _PagerSwipeHintOverlayState
                 if (widget.showRight)
                   Transform.translate(
                     offset: Offset(_rightDx.value, 0),
-                    child: Icon(
-                      Icons.chevron_right,
-                      color: color,
-                      size: 34,
-                    ),
+                    child: Icon(Icons.chevron_right, color: color, size: 34),
                   )
                 else
                   const SizedBox(width: 34),
@@ -1231,8 +1169,7 @@ class _TimerMetronomePanel extends StatefulWidget {
   const _TimerMetronomePanel({super.key});
 
   @override
-  State<_TimerMetronomePanel> createState() =>
-      _TimerMetronomePanelState();
+  State<_TimerMetronomePanel> createState() => _TimerMetronomePanelState();
 }
 
 class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
@@ -1240,16 +1177,21 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
   final _soundService = MtorqueSoundService.instance;
 
   final PageController _pageController = PageController();
-  final TextEditingController _restController =
-  TextEditingController(text: '60');
-  final TextEditingController _conController =
-  TextEditingController(text: '1.5');
-  final TextEditingController _holdTopController =
-  TextEditingController(text: '0');
-  final TextEditingController _eccController =
-  TextEditingController(text: '1.5');
-  final TextEditingController _holdBottomController =
-  TextEditingController(text: '0');
+  final TextEditingController _restController = TextEditingController(
+    text: '60',
+  );
+  final TextEditingController _conController = TextEditingController(
+    text: '1.5',
+  );
+  final TextEditingController _holdTopController = TextEditingController(
+    text: '0',
+  );
+  final TextEditingController _eccController = TextEditingController(
+    text: '1.5',
+  );
+  final TextEditingController _holdBottomController = TextEditingController(
+    text: '0',
+  );
 
   Timer? _timer;
 
@@ -1315,8 +1257,9 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final panelColor = _panelSurfaceColor(context);
-    final panelBorderColor =
-    Theme.of(context).dividerColor.withValues(alpha: 0.35);
+    final panelBorderColor = Theme.of(
+      context,
+    ).dividerColor.withValues(alpha: 0.35);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1325,10 +1268,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
           decoration: BoxDecoration(
             color: panelColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: panelBorderColor,
-              width: 1,
-            ),
+            border: Border.all(color: panelBorderColor, width: 1),
           ),
           child: SizedBox(
             height: 120,
@@ -1361,39 +1301,33 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               l10n.strengthTimerTitle,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(height: 10),
                             Row(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   width: 96,
                                   child: TextField(
                                     controller: _restController,
                                     keyboardType: TextInputType.number,
-                                    textInputAction:
-                                    TextInputAction.done,
+                                    textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
                                       isDense: true,
                                       hintText: l10n.strengthTimerSecondsHint,
                                       hintStyle: TextStyle(
-                                        color: cs.onSurface.withValues(alpha: 0.42),
+                                        color: cs.onSurface.withValues(
+                                          alpha: 0.42,
+                                        ),
                                       ),
                                     ),
-                                    onChanged: (_) =>
-                                        _applyTimerInputIfIdle(),
+                                    onChanged: (_) => _applyTimerInputIfIdle(),
                                     onSubmitted: (_) =>
                                         _applyTimerInputIfIdle(),
                                   ),
@@ -1403,15 +1337,10 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                                   height: 42,
                                   child: OutlinedButton(
                                     onPressed: _resetTimer,
-                                    style:
-                                    OutlinedButton.styleFrom(
-                                      minimumSize:
-                                      const Size(96, 42),
-                                      shape:
-                                      RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(
-                                            22),
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size(96, 42),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(22),
                                       ),
                                     ),
                                     child: Text(l10n.strengthTimerReset),
@@ -1424,13 +1353,10 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                               l10n.strengthTimerRingHint,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
-                                color: cs.onSurface
-                                    .withValues(alpha: 0.68),
-                              ),
+                                    color: cs.onSurface.withValues(alpha: 0.68),
+                                  ),
                             ),
                           ],
                         ),
@@ -1445,21 +1371,25 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                     children: [
                       Expanded(
                         child: Column(
-                          mainAxisAlignment:
-                          MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
                               height: 74,
                               child: _MetronomeMaze(
                                 elapsed: _metronomeElapsed,
-                                concentricMs:
-                                _phaseMs(_conController.text, 1500),
-                                holdTopMs:
-                                _phaseMs(_holdTopController.text, 0),
-                                eccentricMs:
-                                _phaseMs(_eccController.text, 1500),
-                                holdBottomMs:
-                                _phaseMs(_holdBottomController.text, 0),
+                                concentricMs: _phaseMs(
+                                  _conController.text,
+                                  1500,
+                                ),
+                                holdTopMs: _phaseMs(_holdTopController.text, 0),
+                                eccentricMs: _phaseMs(
+                                  _eccController.text,
+                                  1500,
+                                ),
+                                holdBottomMs: _phaseMs(
+                                  _holdBottomController.text,
+                                  0,
+                                ),
                                 running: _metronomeRunning,
                                 onTap: _toggleMetronome,
                               ),
@@ -1472,13 +1402,10 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
-                                color: cs.onSurface
-                                    .withValues(alpha: 0.74),
-                              ),
+                                    color: cs.onSurface.withValues(alpha: 0.74),
+                                  ),
                             ),
                           ],
                         ),
@@ -1486,8 +1413,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
-                          mainAxisAlignment:
-                          MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -1571,7 +1497,6 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
     _startTimer(Duration(seconds: seconds));
   }
 
-
   void _applyTimerInputIfIdle() {
     final seconds = int.tryParse(_restController.text.trim());
     if (seconds == null || seconds < 1 || seconds > 7200) return;
@@ -1589,16 +1514,14 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
       return;
     }
 
-    final shouldResume =
-        _remaining > Duration.zero && _remaining < _total;
+    final shouldResume = _remaining > Duration.zero && _remaining < _total;
     if (shouldResume) {
       _resumeTimer();
       return;
     }
 
     final seconds =
-        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ??
-            60;
+        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
     _startTimer(Duration(seconds: seconds));
   }
 
@@ -1612,31 +1535,30 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
       _lastSignalSecond = duration.inSeconds + 1;
     });
 
-    _timer = Timer.periodic(const Duration(milliseconds: 200),
-            (timer) {
-          final next = _remaining - const Duration(milliseconds: 200);
-          if (next <= Duration.zero) {
-            timer.cancel();
-            _playDoneAlert();
-            setState(() {
-              _remaining = Duration.zero;
-              _timerRunning = false;
-            });
-            return;
-          }
-
-          final sec = (next.inMilliseconds / 1000).ceil();
-          if (sec != _lastSignalSecond) {
-            if (sec >= 1 && sec <= 4) {
-              _playWarningBeep();
-            }
-            _lastSignalSecond = sec;
-          }
-
-          setState(() {
-            _remaining = next;
-          });
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      final next = _remaining - const Duration(milliseconds: 200);
+      if (next <= Duration.zero) {
+        timer.cancel();
+        _playDoneAlert();
+        setState(() {
+          _remaining = Duration.zero;
+          _timerRunning = false;
         });
+        return;
+      }
+
+      final sec = (next.inMilliseconds / 1000).ceil();
+      if (sec != _lastSignalSecond) {
+        if (sec >= 1 && sec <= 4) {
+          _playWarningBeep();
+        }
+        _lastSignalSecond = sec;
+      }
+
+      setState(() {
+        _remaining = next;
+      });
+    });
   }
 
   void _resumeTimer() {
@@ -1648,31 +1570,30 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
       _lastSignalSecond = _remaining.inSeconds + 1;
     });
 
-    _timer = Timer.periodic(const Duration(milliseconds: 200),
-            (timer) {
-          final next = _remaining - const Duration(milliseconds: 200);
-          if (next <= Duration.zero) {
-            timer.cancel();
-            _playDoneAlert();
-            setState(() {
-              _remaining = Duration.zero;
-              _timerRunning = false;
-            });
-            return;
-          }
-
-          final sec = (next.inMilliseconds / 1000).ceil();
-          if (sec != _lastSignalSecond) {
-            if (sec >= 1 && sec <= 4) {
-              _playWarningBeep();
-            }
-            _lastSignalSecond = sec;
-          }
-
-          setState(() {
-            _remaining = next;
-          });
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      final next = _remaining - const Duration(milliseconds: 200);
+      if (next <= Duration.zero) {
+        timer.cancel();
+        _playDoneAlert();
+        setState(() {
+          _remaining = Duration.zero;
+          _timerRunning = false;
         });
+        return;
+      }
+
+      final sec = (next.inMilliseconds / 1000).ceil();
+      if (sec != _lastSignalSecond) {
+        if (sec >= 1 && sec <= 4) {
+          _playWarningBeep();
+        }
+        _lastSignalSecond = sec;
+      }
+
+      setState(() {
+        _remaining = next;
+      });
+    });
   }
 
   void _stopTimer() {
@@ -1686,8 +1607,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
   void _resetTimer() {
     _stopTimer();
     final seconds =
-        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ??
-            60;
+        int.tryParse(_restController.text.trim())?.clamp(1, 7200) ?? 60;
     setState(() {
       _total = Duration(seconds: seconds);
       _remaining = _total;
@@ -1784,13 +1704,12 @@ class _TimerDial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final danger =
-        remaining.inMilliseconds <= dangerThresholdSec * 1000;
+    final danger = remaining.inMilliseconds <= dangerThresholdSec * 1000;
     final elapsedFactor = total.inMilliseconds <= 0
         ? 1.0
         : ((total.inMilliseconds - remaining.inMilliseconds) /
-        total.inMilliseconds)
-        .clamp(0.0, 1.0);
+                  total.inMilliseconds)
+              .clamp(0.0, 1.0);
 
     return Material(
       color: Colors.transparent,
@@ -1816,14 +1735,11 @@ class _TimerDial extends StatelessWidget {
                 children: [
                   Text(
                     '${(remaining.inMilliseconds / 1000).ceil().clamp(0, 9999)}',
-                    style:
-                    Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       height: 1.0,
                       color: danger
                           ? Colors.redAccent
-                          : Theme.of(context)
-                          .colorScheme
-                          .primary,
+                          : Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1917,8 +1833,10 @@ class _MetronomeMaze extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cycle =
-    math.max(1, concentricMs + holdTopMs + eccentricMs + holdBottomMs);
+    final cycle = math.max(
+      1,
+      concentricMs + holdTopMs + eccentricMs + holdBottomMs,
+    );
 
     return InkWell(
       onTap: onTap,
@@ -1974,8 +1892,9 @@ class _MetronomeMazePainter extends CustomPainter {
       phases.add(const _MazePhase(_MazeKind.concentric, 1));
     }
 
-    final cycleMs =
-    phases.fold<int>(0, (sum, p) => sum + p.ms).clamp(1, 1000000);
+    final cycleMs = phases
+        .fold<int>(0, (sum, p) => sum + p.ms)
+        .clamp(1, 1000000);
 
     final pathPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -1992,8 +1911,7 @@ class _MetronomeMazePainter extends CustomPainter {
     const extraInset = 1.0;
     const startXShift = 12.0;
 
-    final safe =
-        math.max(ballRadius, pathPaint.strokeWidth * 0.5) + extraInset;
+    final safe = math.max(ballRadius, pathPaint.strokeWidth * 0.5) + extraInset;
     final xStartBase = safe;
     final xEnd = size.width - safe;
     final cycleW = (xEnd - xStartBase).clamp(1.0, double.infinity);
@@ -2047,8 +1965,7 @@ class _MetronomeMazePainter extends CustomPainter {
         final dur = ph.ms.toDouble();
         final next = acc + dur;
         if (tMs <= next || ph == phases.last) {
-          final u =
-          dur <= 0 ? 0.0 : ((tMs - acc) / dur).clamp(0.0, 1.0);
+          final u = dur <= 0 ? 0.0 : ((tMs - acc) / dur).clamp(0.0, 1.0);
           switch (ph.kind) {
             case _MazeKind.concentric:
               return yBottom + (yTop - yBottom) * u;
@@ -2147,24 +2064,17 @@ class _TempoFieldBlockState extends State<_TempoFieldBlock> {
             controller: widget.controller,
             focusNode: _focusNode,
             textAlign: TextAlign.center,
-            keyboardType:
-            const TextInputType.numberWithOptions(decimal: true),
-            style: theme.textTheme.titleMedium?.copyWith(
-              height: 1.0,
-            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: theme.textTheme.titleMedium?.copyWith(height: 1.0),
             decoration: const InputDecoration(
               isDense: true,
-              contentPadding:
-              EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+              contentPadding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
               border: InputBorder.none,
             ),
             onChanged: widget.onChanged,
           ),
         ),
-        Container(
-          height: underlineWidth,
-          color: underlineColor,
-        ),
+        Container(height: underlineWidth, color: underlineColor),
         const SizedBox(height: 3),
         SizedBox(
           height: 13,
@@ -2184,38 +2094,28 @@ class _TempoFieldBlockState extends State<_TempoFieldBlock> {
 }
 
 class _Dot extends StatelessWidget {
-  const _Dot({
-    required this.active,
-    required this.onTap,
-  });
+  const _Dot({required this.active, required this.onTap});
 
   final bool active;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface.withValues(
-      alpha: active ? 0.8 : 0.28,
-    );
+    final color = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: active ? 0.8 : 0.28);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 8,
         height: 8,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       ),
     );
   }
 }
 
-enum _CloseAction {
-  continueEditing,
-  discard,
-  saveAndClose,
-}
+enum _CloseAction { continueEditing, discard, saveAndClose }
 
 enum _StrengthMenuAction {
   savePlan,
