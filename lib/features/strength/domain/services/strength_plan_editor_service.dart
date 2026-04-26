@@ -63,7 +63,7 @@ class StrengthPlanEditorService {
     }
 
     return StrengthPlanEditorSelectionState(
-      canCreateSuperset: canCreate,
+      canCreateSuperset: selected.length >= 2 && !canDissolve,
       canDissolveSuperset: canDissolve,
       replacesExistingSuperset: replacesExisting,
       dissolveGroupId: dissolveGroupId,
