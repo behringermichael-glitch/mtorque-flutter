@@ -1030,16 +1030,175 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final l10n = AppLocalizations.of(context)!;
     final notesController = TextEditingController();
 
-    final save = await showDialog<bool>(
+    final state = ref.read(strengthFlowControllerProvider);
+    final offerSavePlan = await _shouldOfferSavePlanWithSession(state);
+    final selectedPlanName = state.selectedPlanName?.trim();
+    final hasSelectedPlan = selectedPlanName != null && selectedPlanName.isNotEmpty;
+
+    if (!mounted) return;
+
+    final action = await showDialog<_FinishSessionAction>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        final colorScheme = theme.colorScheme;
+
+        return AlertDialog(
+          title: Text(l10n.strengthFinishSessionTitle),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.strengthFinishSessionMessage),
+                if (offerSavePlan) ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    hasSelectedPlan
+                        ? l10n.strengthFinishUpdatePlanHint
+                        : l10n.strengthFinishSavePlanHint,
+                  ),
+                ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: notesController,
+                  maxLines: 4,
+                  decoration: InputDecoration(labelText: l10n.strengthNotes),
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(
+                    _FinishSessionAction.discardSession,
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.error,
+                  ),
+                  child: Text(l10n.strengthFinishDiscardWithoutSaving),
+                ),
+                const SizedBox(height: 4),
+                OutlinedButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(l10n.strengthCommonCancel),
+                ),
+                if (offerSavePlan) ...[
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(
+                      _FinishSessionAction.saveSessionAndPlan,
+                    ),
+                    child: Text(
+                      hasSelectedPlan
+                          ? l10n.strengthFinishSaveSessionAndUpdatePlan
+                          : l10n.strengthFinishSaveSessionAndSavePlan,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(
+                    _FinishSessionAction.saveSession,
+                  ),
+                  child: Text(l10n.strengthFinishSaveSessionOnly),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (!mounted || action == null) return;
+
+    if (action == _FinishSessionAction.discardSession) {
+      final discardConfirmed = await _confirmDiscardFinishedSession(context);
+      if (!mounted || !discardConfirmed) return;
+
+      await ref
+          .read(strengthFlowControllerProvider.notifier)
+          .discardCurrentSession();
+      return;
+    }
+
+    if (action == _FinishSessionAction.saveSessionAndPlan) {
+      final savedPlan = await _saveCurrentDraftAsPlanBeforeFinish(context);
+      if (!mounted || !savedPlan) return;
+    }
+
+    await ref.read(strengthFlowControllerProvider.notifier).finalizeSession(
+      notes: notesController.text.trim().isEmpty
+          ? null
+          : notesController.text.trim(),
+    );
+  }
+
+  Future<bool> _shouldOfferSavePlanWithSession(
+      StrengthFlowState state,
+      ) async {
+    final draft = state.draftSession;
+    if (draft == null || draft.exerciseOrder.isEmpty) {
+      return false;
+    }
+
+    final selectedPlanName = state.selectedPlanName?.trim();
+
+    if (selectedPlanName == null || selectedPlanName.isEmpty) {
+      return true;
+    }
+
+    final savedExerciseIds = await ref
+        .read(strengthRepositoryProvider)
+        .loadPlanExerciseIds(selectedPlanName);
+
+    if (savedExerciseIds == null) {
+      return true;
+    }
+
+    return !_sameExerciseOrder(savedExerciseIds, draft.exerciseOrder);
+  }
+
+  Future<bool> _saveCurrentDraftAsPlanBeforeFinish(
+      BuildContext context,
+      ) async {
+    final state = ref.read(strengthFlowControllerProvider);
+    final controller = ref.read(strengthFlowControllerProvider.notifier);
+
+    final selectedPlanName = state.selectedPlanName?.trim();
+
+    if (selectedPlanName != null && selectedPlanName.isNotEmpty) {
+      await controller.savePlanFromCurrent(
+        planName: selectedPlanName,
+        overwrite: true,
+      );
+      return true;
+    }
+
+    final newPlanName = await _promptForPlanName(
+      context,
+      initialValue: '',
+    );
+
+    if (!mounted || newPlanName == null || newPlanName.trim().isEmpty) {
+      return false;
+    }
+
+    await controller.savePlanFromCurrent(
+      planName: newPlanName.trim(),
+      overwrite: false,
+    );
+
+    return true;
+  }
+
+  Future<bool> _confirmDiscardFinishedSession(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(l10n.strengthFinishSessionTitle),
-          content: TextField(
-            controller: notesController,
-            maxLines: 4,
-            decoration: InputDecoration(labelText: l10n.strengthNotes),
-          ),
+          title: Text(l10n.strengthFinishDiscardConfirmTitle),
+          content: Text(l10n.strengthFinishDiscardConfirmMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -1047,22 +1206,18 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(l10n.strengthCommonSave),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
+                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+              ),
+              child: Text(l10n.strengthFinishDiscardConfirmButton),
             ),
           ],
         );
       },
     );
 
-    if (save == true) {
-      await ref
-          .read(strengthFlowControllerProvider.notifier)
-          .finalizeSession(
-            notes: notesController.text.trim().isEmpty
-                ? null
-                : notesController.text.trim(),
-          );
-    }
+    return result == true;
   }
 
   String _sessionTitle(BuildContext context) {
@@ -2222,6 +2377,12 @@ class _Dot extends StatelessWidget {
 }
 
 enum _CloseAction { continueEditing, discard, saveAndClose }
+
+enum _FinishSessionAction {
+  discardSession,
+  saveSessionAndPlan,
+  saveSession,
+}
 
 const Color _planInitialBlue = Color(0xFF3B82F6);
 const Color _planInitialRed = Color(0xFFEF4444);

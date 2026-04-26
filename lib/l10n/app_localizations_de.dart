@@ -294,6 +294,36 @@ class AppLocalizationsDe extends AppLocalizations {
   String get strengthNotes => 'Notizen';
 
   @override
+  String get strengthFinishSessionMessage => 'Deine Trainingsdaten werden gespeichert, wenn du diese Einheit beendest.';
+
+  @override
+  String get strengthFinishSavePlanHint => 'Wenn du die aktuelle Übungsauswahl zusätzlich als Trainingsplan speichern möchtest, wähle die Plan-Option.';
+
+  @override
+  String get strengthFinishUpdatePlanHint => 'Die aktuelle Übungsauswahl unterscheidet sich vom gespeicherten Plan. Du kannst den Plan beim Speichern dieser Einheit aktualisieren.';
+
+  @override
+  String get strengthFinishSaveSessionOnly => 'Einheit speichern';
+
+  @override
+  String get strengthFinishSaveSessionAndSavePlan => 'Einheit speichern & Plan speichern';
+
+  @override
+  String get strengthFinishSaveSessionAndUpdatePlan => 'Einheit speichern & Plan aktualisieren';
+
+  @override
+  String get strengthFinishDiscardWithoutSaving => 'Ohne Speichern beenden';
+
+  @override
+  String get strengthFinishDiscardConfirmTitle => 'Training ohne Speichern beenden?';
+
+  @override
+  String get strengthFinishDiscardConfirmMessage => 'Deine eingetragenen Trainingsdaten werden verworfen. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get strengthFinishDiscardConfirmButton => 'Ohne Speichern beenden';
+
+  @override
   String get strengthCommonCancel => 'Abbrechen';
 
   @override

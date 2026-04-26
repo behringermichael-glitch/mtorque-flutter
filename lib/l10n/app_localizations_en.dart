@@ -294,6 +294,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get strengthNotes => 'Notes';
 
   @override
+  String get strengthFinishSessionMessage => 'Your training data will be saved when you finish this session.';
+
+  @override
+  String get strengthFinishSavePlanHint => 'If you also want to save the current exercise selection as a training plan, choose the plan option.';
+
+  @override
+  String get strengthFinishUpdatePlanHint => 'The current exercise selection differs from the saved plan. You can update the plan while saving this session.';
+
+  @override
+  String get strengthFinishSaveSessionOnly => 'Save session';
+
+  @override
+  String get strengthFinishSaveSessionAndSavePlan => 'Save session & save plan';
+
+  @override
+  String get strengthFinishSaveSessionAndUpdatePlan => 'Save session & update plan';
+
+  @override
+  String get strengthFinishDiscardWithoutSaving => 'End without saving';
+
+  @override
+  String get strengthFinishDiscardConfirmTitle => 'End training without saving?';
+
+  @override
+  String get strengthFinishDiscardConfirmMessage => 'Your entered training data will be discarded. This cannot be undone.';
+
+  @override
+  String get strengthFinishDiscardConfirmButton => 'End without saving';
+
+  @override
   String get strengthCommonCancel => 'Cancel';
 
   @override

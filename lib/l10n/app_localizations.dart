@@ -653,6 +653,66 @@ abstract class AppLocalizations {
   /// **'Notes'**
   String get strengthNotes;
 
+  /// No description provided for @strengthFinishSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your training data will be saved when you finish this session.'**
+  String get strengthFinishSessionMessage;
+
+  /// No description provided for @strengthFinishSavePlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If you also want to save the current exercise selection as a training plan, choose the plan option.'**
+  String get strengthFinishSavePlanHint;
+
+  /// No description provided for @strengthFinishUpdatePlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The current exercise selection differs from the saved plan. You can update the plan while saving this session.'**
+  String get strengthFinishUpdatePlanHint;
+
+  /// No description provided for @strengthFinishSaveSessionOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Save session'**
+  String get strengthFinishSaveSessionOnly;
+
+  /// No description provided for @strengthFinishSaveSessionAndSavePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save session & save plan'**
+  String get strengthFinishSaveSessionAndSavePlan;
+
+  /// No description provided for @strengthFinishSaveSessionAndUpdatePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save session & update plan'**
+  String get strengthFinishSaveSessionAndUpdatePlan;
+
+  /// No description provided for @strengthFinishDiscardWithoutSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'End without saving'**
+  String get strengthFinishDiscardWithoutSaving;
+
+  /// No description provided for @strengthFinishDiscardConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End training without saving?'**
+  String get strengthFinishDiscardConfirmTitle;
+
+  /// No description provided for @strengthFinishDiscardConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your entered training data will be discarded. This cannot be undone.'**
+  String get strengthFinishDiscardConfirmMessage;
+
+  /// No description provided for @strengthFinishDiscardConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'End without saving'**
+  String get strengthFinishDiscardConfirmButton;
+
   /// No description provided for @strengthCommonCancel.
   ///
   /// In en, this message translates to:
