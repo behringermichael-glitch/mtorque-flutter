@@ -23,6 +23,14 @@ Color _panelSurfaceColor(BuildContext context) {
   return theme.cardTheme.color ?? theme.colorScheme.surfaceContainerLow;
 }
 
+const double _timerMetronomePanelHeight = 120;
+const EdgeInsets _timerMetronomePanelPadding = EdgeInsets.fromLTRB(
+  14,
+  4,
+  14,
+  12,
+);
+
 class StrengthPage extends ConsumerStatefulWidget {
   static const String routePath = '/strength';
   static const String routeName = 'strength';
@@ -389,10 +397,36 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                 itemBuilder: (context, index) {
                   if (index == exerciseIds.length) {
                     return Center(
-                      child: FilledButton.icon(
-                        onPressed: () => _openExercisePicker(context),
-                        icon: const Icon(Icons.add),
-                        label: Text(l10n.strengthAddExercise),
+                      child: Transform.translate(
+                        offset: Offset(
+                          0,
+                          (_timerMetronomePanelHeight +
+                              _timerMetronomePanelPadding.vertical) /
+                              2,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FilledButton(
+                              style: FilledButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(22),
+                                minimumSize: const Size(74, 74),
+                              ),
+                              onPressed: () => _openExercisePicker(context),
+                              child: const Icon(
+                                Icons.add,
+                                size: 34,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              l10n.strengthAddExercise,
+                              style: Theme.of(context).textTheme.titleLarge,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -418,15 +452,16 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
             ],
           ),
         ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 180),
-          child: showExercisePage
-              ? Padding(
-                  key: const ValueKey('timer_panel'),
-                  padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
-                  child: _TimerMetronomePanel(key: _timerPanelKey),
-                )
-              : const SizedBox(key: ValueKey('timer_panel_hidden'), height: 0),
+        Padding(
+          padding: _timerMetronomePanelPadding,
+          child: IgnorePointer(
+            ignoring: !showExercisePage,
+            child: AnimatedOpacity(
+              opacity: showExercisePage ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 120),
+              child: _TimerMetronomePanel(key: _timerPanelKey),
+            ),
+          ),
         ),
       ],
     );
@@ -1271,7 +1306,7 @@ class _TimerMetronomePanelState extends State<_TimerMetronomePanel>
             border: Border.all(color: panelBorderColor, width: 1),
           ),
           child: SizedBox(
-            height: 120,
+            height: _timerMetronomePanelHeight,
             child: PageView(
               controller: _pageController,
               onPageChanged: (value) {
