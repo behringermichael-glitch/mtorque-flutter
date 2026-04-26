@@ -417,6 +417,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get strengthExerciseMuscleZoomHint => 'Double tap to zoom';
 
   @override
+  String strengthExerciseSupersetSubtitle(String group, int position, int total) {
+    return 'Superset $group $position/$total';
+  }
+
+  @override
   String get muscleLabelFunction => 'Function';
 
   @override

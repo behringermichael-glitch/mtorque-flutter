@@ -262,6 +262,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
                 : null,
             icon: const Icon(Icons.account_tree_outlined),
           ),
+          const SizedBox(width: 12),
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: FilledButton(

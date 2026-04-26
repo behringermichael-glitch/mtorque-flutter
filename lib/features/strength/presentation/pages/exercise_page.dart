@@ -9,6 +9,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/repositories/strength_repository.dart';
+import '../../domain/services/strength_plan_editor_service.dart';
 import '../state/strength_flow_controller.dart';
 import '../state/strength_providers.dart';
 import 'exercise_asset_resolver.dart';
@@ -228,6 +229,38 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
     _scheduleHeaderDividerReport();
   }
 
+  String? _buildSupersetSubtitle({
+    required BuildContext context,
+    required String exerciseId,
+    required List<String> exerciseOrder,
+    required Map<String, String> supersetGroupByExercise,
+  }) {
+    final groupId = supersetGroupByExercise[exerciseId];
+    if (groupId == null || groupId.trim().isEmpty) return null;
+
+    final groupExerciseIds = exerciseOrder
+        .where((currentExerciseId) =>
+    supersetGroupByExercise[currentExerciseId] == groupId)
+        .toList();
+
+    if (groupExerciseIds.length < 2) return null;
+
+    final position = groupExerciseIds.indexOf(exerciseId) + 1;
+    if (position <= 0) return null;
+
+    final groupLabel = const StrengthPlanEditorService().supersetLabelForGroup(
+      groupId: groupId,
+      exerciseOrder: exerciseOrder,
+      supersetGroupByExercise: supersetGroupByExercise,
+    );
+
+    return AppLocalizations.of(context)!.strengthExerciseSupersetSubtitle(
+      groupLabel,
+      position,
+      groupExerciseIds.length,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -240,6 +273,27 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
             (state) => state.draftSession?.setsByExercise[widget.exerciseId] ??
             const <SetEntry>[],
       ),
+    );
+
+    final exerciseOrder = ref.watch(
+      strengthFlowControllerProvider.select(
+            (state) => state.draftSession?.exerciseOrder ?? const <String>[],
+      ),
+    );
+
+    final supersetGroupByExercise = ref.watch(
+      strengthFlowControllerProvider.select(
+            (state) =>
+        state.draftSession?.supersetGroupByExercise ??
+            const <String, String>{},
+      ),
+    );
+
+    final supersetSubtitle = _buildSupersetSubtitle(
+      context: context,
+      exerciseId: widget.exerciseId,
+      exerciseOrder: exerciseOrder,
+      supersetGroupByExercise: supersetGroupByExercise,
     );
 
     // PATCH 3-F: `final compactHeader = _focusedRows.isNotEmpty` entfernt.
@@ -276,6 +330,7 @@ class _ExercisePageState extends ConsumerState<ExercisePage>
                           _ExerciseHeader(
                             exerciseId: widget.exerciseId,
                             exerciseName: exerciseName,
+                            supersetSubtitle: supersetSubtitle,
                             animateImage: true,
                             onInfo: () => _showInfoBottomSheet(
                               context: context,
@@ -973,6 +1028,7 @@ class _ExerciseHeader extends StatelessWidget {
   const _ExerciseHeader({
     required this.exerciseId,
     required this.exerciseName,
+    required this.supersetSubtitle,
     required this.animateImage,
     required this.onInfo,
     required this.onMuscles,
@@ -982,6 +1038,7 @@ class _ExerciseHeader extends StatelessWidget {
 
   final String exerciseId;
   final String exerciseName;
+  final String? supersetSubtitle;
   final bool animateImage;
   final VoidCallback onInfo;
   final VoidCallback onMuscles;
@@ -1029,16 +1086,57 @@ class _ExerciseHeader extends StatelessWidget {
                             : exerciseName.length > 24
                             ? 20.0
                             : 22.0;
-                        return Text(
-                          exerciseName,
-                          textAlign: TextAlign.right,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            height: 1.20,
-                            fontSize: compactFontSize,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              exerciseName,
+                              textAlign: TextAlign.right,
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                height: 1.20,
+                                fontSize: compactFontSize,
+                              ),
+                              maxLines: supersetSubtitle == null ? 3 : 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (supersetSubtitle != null) ...[
+                              const SizedBox(height: 6),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary.withValues(
+                                      alpha: 0.18,
+                                    ),
+                                    borderRadius: BorderRadius.circular(999),
+                                    border: Border.all(
+                                      color: Theme.of(context).colorScheme.primary.withValues(
+                                        alpha: 0.38,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    supersetSubtitle!,
+                                    textAlign: TextAlign.right,
+                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w800,
+                                      height: 1.10,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         );
                       },
                     ),

@@ -887,6 +887,12 @@ abstract class AppLocalizations {
   /// **'Double tap to zoom'**
   String get strengthExerciseMuscleZoomHint;
 
+  /// No description provided for @strengthExerciseSupersetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Superset {group} {position}/{total}'**
+  String strengthExerciseSupersetSubtitle(String group, int position, int total);
+
   /// No description provided for @muscleLabelFunction.
   ///
   /// In en, this message translates to:

@@ -177,7 +177,20 @@
     }
   },
   "strengthExerciseMuscleZoomHint": "Doppeltippen zum Zoomen",
-
+  "strengthExerciseSupersetSubtitle": "Supersatz {group} {position}/{total}",
+  "@strengthExerciseSupersetSubtitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "muscleLabelFunction": "Funktion",
   "muscleLabelOrigin": "Ursprung",
   "muscleLabelInsertion": "Ansatz",
