@@ -236,34 +236,17 @@ class _StrengthPlanEditorSheetState
                 ),
               ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l10n.strengthCommonCancel),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: selectionState.canDissolveSuperset
-                        ? _dissolveSuperset
-                        : null,
-                    icon: const Icon(Icons.link_off),
-                    label: Text(l10n.strengthPlanEditorDissolveSuperset),
-                  ),
-                  FilledButton.icon(
-                    onPressed: selectionState.canCreateSuperset
-                        ? _createSuperset
-                        : null,
-                    icon: const Icon(Icons.link),
-                    label: Text(l10n.strengthPlanEditorCreateSuperset),
-                  ),
-                  FilledButton(
-                    onPressed: _finish,
-                    child: Text(l10n.strengthCommonDone),
-                  ),
-                ],
+              _PlanEditorActionBar(
+                selectedCount: _selectedExerciseIds.length,
+                canCreateSuperset: selectionState.canCreateSuperset,
+                canDissolveSuperset: selectionState.canDissolveSuperset,
+                onCreateSuperset: _createSuperset,
+                onDissolveSuperset: _dissolveSuperset,
+              ),
+              const SizedBox(height: 10),
+              _PlanEditorFooter(
+                onCancel: () => Navigator.of(context).pop(),
+                onDone: _finish,
               ),
             ],
           ),
@@ -369,6 +352,134 @@ class _PlanEditorRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PlanEditorActionBar extends StatelessWidget {
+  const _PlanEditorActionBar({
+    required this.selectedCount,
+    required this.canCreateSuperset,
+    required this.canDissolveSuperset,
+    required this.onCreateSuperset,
+    required this.onDissolveSuperset,
+  });
+
+  final int selectedCount;
+  final bool canCreateSuperset;
+  final bool canDissolveSuperset;
+  final VoidCallback onCreateSuperset;
+  final VoidCallback onDissolveSuperset;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    if (selectedCount == 0) {
+      return const SizedBox.shrink();
+    }
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.72,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 380;
+
+            final selectedLabel = Text(
+              selectedCount == 1
+                  ? l10n.strengthPlanEditorOneSelected
+                  : l10n.strengthPlanEditorMultipleSelected(selectedCount),
+              style: theme.textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.onSurface,
+              ),
+            );
+
+            final actions = [
+              FilledButton.tonalIcon(
+                onPressed: canCreateSuperset ? onCreateSuperset : null,
+                icon: const Icon(Icons.link),
+                label: Text(l10n.strengthPlanEditorCreateSuperset),
+              ),
+              OutlinedButton.icon(
+                onPressed: canDissolveSuperset ? onDissolveSuperset : null,
+                icon: const Icon(Icons.link_off),
+                label: Text(l10n.strengthPlanEditorDissolveSuperset),
+              ),
+            ];
+
+            if (compact) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  selectedLabel,
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.end,
+                    children: actions,
+                  ),
+                ],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: selectedLabel),
+                const SizedBox(width: 8),
+                ...actions.expand(
+                      (widget) => [
+                    widget,
+                    const SizedBox(width: 8),
+                  ],
+                ).toList()
+                  ..removeLast(),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanEditorFooter extends StatelessWidget {
+  const _PlanEditorFooter({
+    required this.onCancel,
+    required this.onDone,
+  });
+
+  final VoidCallback onCancel;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Row(
+      children: [
+        OutlinedButton(
+          onPressed: onCancel,
+          child: Text(l10n.strengthCommonCancel),
+        ),
+        const Spacer(),
+        FilledButton(
+          onPressed: onDone,
+          child: Text(l10n.strengthCommonDone),
+        ),
+      ],
     );
   }
 }

@@ -1240,6 +1240,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get strengthCommonDone;
+
+  /// No description provided for @strengthPlanEditorOneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'1 selected'**
+  String get strengthPlanEditorOneSelected;
+
+  /// No description provided for @strengthPlanEditorMultipleSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String strengthPlanEditorMultipleSelected(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

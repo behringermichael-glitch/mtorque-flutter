@@ -290,5 +290,14 @@
     "strengthPlanEditorReplaceSupersetTitle": "Bestehenden Supersatz ersetzen?",
     "strengthPlanEditorReplaceSupersetMessage": "Mindestens eine ausgewählte Übung ist bereits Teil eines Supersatzes. Beim Erstellen eines neuen Supersatzes wird die bisherige Zuordnung für die ausgewählten Übungen ersetzt.",
     "strengthPlanEditorReplaceSupersetConfirm": "Ersetzen",
-    "strengthCommonDone": "Fertig"
+    "strengthCommonDone": "Fertig",
+    "strengthPlanEditorOneSelected": "1 ausgewählt",
+    "strengthPlanEditorMultipleSelected": "{count} ausgewählt",
+    "@strengthPlanEditorMultipleSelected": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    }
 }

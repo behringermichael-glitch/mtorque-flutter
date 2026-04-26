@@ -604,4 +604,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get strengthCommonDone => 'Fertig';
+
+  @override
+  String get strengthPlanEditorOneSelected => '1 ausgewählt';
+
+  @override
+  String strengthPlanEditorMultipleSelected(int count) {
+    return '$count ausgewählt';
+  }
 }
