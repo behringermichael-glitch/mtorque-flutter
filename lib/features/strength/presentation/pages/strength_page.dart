@@ -10,7 +10,9 @@ import '../../../../l10n/app_localizations.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../state/strength_providers.dart';
+import '../widgets/strength_plan_editor_sheet.dart';
 import '../widgets/strength_plan_print_dialogs.dart';
+import '../../domain/services/strength_plan_editor_service.dart';
 import '../../domain/services/strength_plan_print_service.dart';
 import 'exercise_asset_resolver.dart';
 import 'exercise_page.dart';
@@ -252,6 +254,14 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
           onDateTap: hasDraft ? () => _pickSessionDate(context) : null,
         ),
         actions: [
+          IconButton(
+            tooltip: AppLocalizations.of(context)!
+                .strengthPlanEditorStructureTooltip,
+            onPressed: hasDraft && exercises.isNotEmpty
+                ? () => _openPlanEditorSheet(context)
+                : null,
+            icon: const Icon(Icons.account_tree_outlined),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: FilledButton(
@@ -534,6 +544,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     items.add(
       PopupMenuItem(
         value: _StrengthMenuAction.editPlan,
+        enabled: hasDraft,
         child: Text(
           _menuLabel(context, _StrengthMenuAction.editPlan),
         ),
@@ -601,7 +612,7 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
         );
         return;
       case _StrengthMenuAction.editPlan:
-        await controller.showPlanGrid();
+        await _openPlanEditorSheet(context);
         return;
       case _StrengthMenuAction.printPlanPdf:
         await _handlePrintPlanPdf();
@@ -673,6 +684,55 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
 
   String _endLabel(BuildContext context) {
     return AppLocalizations.of(context)!.strengthEndSessionButton;
+  }
+
+  Future<void> _openPlanEditorSheet(BuildContext context) async {
+    final state = ref.read(strengthFlowControllerProvider);
+    final draft = state.draftSession;
+
+    if (draft == null || draft.exerciseOrder.isEmpty) {
+      return;
+    }
+
+    final result = await showModalBottomSheet<StrengthPlanEditorResult>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) {
+        return StrengthPlanEditorSheet(
+          initialExerciseOrder: draft.exerciseOrder,
+          initialSupersetGroupByExercise: draft.supersetGroupByExercise,
+        );
+      },
+    );
+
+    if (!mounted || result == null) return;
+
+    await ref
+        .read(strengthFlowControllerProvider.notifier)
+        .applyPlanStructureEdit(
+      exerciseOrder: result.exerciseOrder,
+      supersetGroupByExercise: result.supersetGroupByExercise,
+    );
+
+    final maxIndex = result.exerciseOrder.isEmpty
+        ? 0
+        : result.exerciseOrder.length - 1;
+
+    final nextIndex = _currentPageIndex.clamp(0, maxIndex);
+
+    setState(() {
+      _currentPageIndex = nextIndex;
+      _lastExerciseOrder = List<String>.from(result.exerciseOrder);
+    });
+
+    if (_pageController.hasClients) {
+      await _pageController.animateToPage(
+        nextIndex,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Future<void> _handlePrintPlanPdf() async {

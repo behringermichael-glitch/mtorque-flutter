@@ -574,4 +574,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String strengthPrintPdfPageXOfY(int pageNumber, int pageCount) {
     return 'Seite $pageNumber von $pageCount';
   }
+
+  @override
+  String get strengthPlanEditorStructureTooltip => 'Planstruktur bearbeiten';
+
+  @override
+  String get strengthPlanEditorTitle => 'Planstruktur bearbeiten';
+
+  @override
+  String get strengthPlanEditorNoExercises => 'Dieser Plan enthält noch keine Übungen.';
+
+  @override
+  String get strengthPlanEditorCreateSuperset => 'Supersatz erstellen';
+
+  @override
+  String get strengthPlanEditorDissolveSuperset => 'Supersatz lösen';
+
+  @override
+  String get strengthPlanEditorDragHandleTooltip => 'Übung verschieben';
+
+  @override
+  String get strengthPlanEditorReplaceSupersetTitle => 'Bestehenden Supersatz ersetzen?';
+
+  @override
+  String get strengthPlanEditorReplaceSupersetMessage => 'Mindestens eine ausgewählte Übung ist bereits Teil eines Supersatzes. Beim Erstellen eines neuen Supersatzes wird die bisherige Zuordnung für die ausgewählten Übungen ersetzt.';
+
+  @override
+  String get strengthPlanEditorReplaceSupersetConfirm => 'Ersetzen';
+
+  @override
+  String get strengthCommonDone => 'Fertig';
 }

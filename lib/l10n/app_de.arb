@@ -280,5 +280,15 @@
         "type": "int"
       }
     }
-  }
+  },
+    "strengthPlanEditorStructureTooltip": "Planstruktur bearbeiten",
+    "strengthPlanEditorTitle": "Planstruktur bearbeiten",
+    "strengthPlanEditorNoExercises": "Dieser Plan enthält noch keine Übungen.",
+    "strengthPlanEditorCreateSuperset": "Supersatz erstellen",
+    "strengthPlanEditorDissolveSuperset": "Supersatz lösen",
+    "strengthPlanEditorDragHandleTooltip": "Übung verschieben",
+    "strengthPlanEditorReplaceSupersetTitle": "Bestehenden Supersatz ersetzen?",
+    "strengthPlanEditorReplaceSupersetMessage": "Mindestens eine ausgewählte Übung ist bereits Teil eines Supersatzes. Beim Erstellen eines neuen Supersatzes wird die bisherige Zuordnung für die ausgewählten Übungen ersetzt.",
+    "strengthPlanEditorReplaceSupersetConfirm": "Ersetzen",
+    "strengthCommonDone": "Fertig"
 }

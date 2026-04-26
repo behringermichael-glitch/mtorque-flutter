@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import '../../domain/models/set_entry.dart';
 import '../../domain/models/strength_flow_state.dart';
 import '../../domain/repositories/strength_repository.dart';
+import '../../domain/services/strength_plan_editor_service.dart';
 
 class StrengthFlowController extends StateNotifier<StrengthFlowState> {
   StrengthFlowController(this._repository) : super(StrengthFlowState.initial());
@@ -212,6 +213,63 @@ class StrengthFlowController extends StateNotifier<StrengthFlowState> {
       nextOrder.isEmpty ? StrengthHostView.planGrid : StrengthHostView.pager,
       pagerIndex:
       nextOrder.isEmpty ? 0 : state.pagerIndex.clamp(0, nextOrder.length - 1),
+    );
+  }
+
+  Future<void> applyPlanStructureEdit({
+    required List<String> exerciseOrder,
+    required Map<String, String> supersetGroupByExercise,
+  }) async {
+    final draft = state.draftSession;
+    if (draft == null) return;
+
+    final service = const StrengthPlanEditorService();
+
+    final cleanedOrder = <String>[];
+    for (final exerciseId in exerciseOrder) {
+      final trimmed = exerciseId.trim();
+      if (trimmed.isEmpty) continue;
+      if (cleanedOrder.contains(trimmed)) continue;
+      if (!draft.exerciseOrder.contains(trimmed)) continue;
+      cleanedOrder.add(trimmed);
+    }
+
+    for (final exerciseId in draft.exerciseOrder) {
+      if (!cleanedOrder.contains(exerciseId)) {
+        cleanedOrder.add(exerciseId);
+      }
+    }
+
+    final cleanedSets = <String, List<SetEntry>>{};
+    for (final exerciseId in cleanedOrder) {
+      cleanedSets[exerciseId] =
+          draft.setsByExercise[exerciseId] ?? const <SetEntry>[];
+    }
+
+    final cleanedSupersets = service.normalizeSupersets(
+      exerciseOrder: cleanedOrder,
+      supersetGroupByExercise: supersetGroupByExercise,
+    );
+
+    final updated = draft.copyWith(
+      exerciseOrder: cleanedOrder,
+      setsByExercise: cleanedSets,
+      supersetGroupByExercise: cleanedSupersets,
+    );
+
+    await _repository.saveDraftSession(updated);
+
+    final maxIndex = cleanedOrder.isEmpty ? 0 : cleanedOrder.length - 1;
+
+    state = state.copyWith(
+      draftSession: updated,
+      hostView:
+      cleanedOrder.isEmpty ? StrengthHostView.planGrid : StrengthHostView.pager,
+      loadedPlanBaselineIds: state.loadedPlanBaselineIds == null
+          ? null
+          : List<String>.from(cleanedOrder),
+      keepPagerForEmptyQuickstart: cleanedOrder.isEmpty,
+      pagerIndex: state.pagerIndex.clamp(0, maxIndex),
     );
   }
 

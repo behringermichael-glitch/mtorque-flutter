@@ -1180,6 +1180,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page {pageNumber} of {pageCount}'**
   String strengthPrintPdfPageXOfY(int pageNumber, int pageCount);
+
+  /// No description provided for @strengthPlanEditorStructureTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit plan structure'**
+  String get strengthPlanEditorStructureTooltip;
+
+  /// No description provided for @strengthPlanEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit plan structure'**
+  String get strengthPlanEditorTitle;
+
+  /// No description provided for @strengthPlanEditorNoExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan does not contain exercises yet.'**
+  String get strengthPlanEditorNoExercises;
+
+  /// No description provided for @strengthPlanEditorCreateSuperset.
+  ///
+  /// In en, this message translates to:
+  /// **'Create superset'**
+  String get strengthPlanEditorCreateSuperset;
+
+  /// No description provided for @strengthPlanEditorDissolveSuperset.
+  ///
+  /// In en, this message translates to:
+  /// **'Dissolve superset'**
+  String get strengthPlanEditorDissolveSuperset;
+
+  /// No description provided for @strengthPlanEditorDragHandleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Move exercise'**
+  String get strengthPlanEditorDragHandleTooltip;
+
+  /// No description provided for @strengthPlanEditorReplaceSupersetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace existing superset?'**
+  String get strengthPlanEditorReplaceSupersetTitle;
+
+  /// No description provided for @strengthPlanEditorReplaceSupersetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one selected exercise is already part of a superset. Creating a new superset will replace the previous assignment for the selected exercises.'**
+  String get strengthPlanEditorReplaceSupersetMessage;
+
+  /// No description provided for @strengthPlanEditorReplaceSupersetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get strengthPlanEditorReplaceSupersetConfirm;
+
+  /// No description provided for @strengthCommonDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get strengthCommonDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

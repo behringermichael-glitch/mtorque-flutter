@@ -280,5 +280,15 @@
         "type": "int"
       }
     }
-  }
+  },
+    "strengthPlanEditorStructureTooltip": "Edit plan structure",
+    "strengthPlanEditorTitle": "Edit plan structure",
+    "strengthPlanEditorNoExercises": "This plan does not contain exercises yet.",
+    "strengthPlanEditorCreateSuperset": "Create superset",
+    "strengthPlanEditorDissolveSuperset": "Dissolve superset",
+    "strengthPlanEditorDragHandleTooltip": "Move exercise",
+    "strengthPlanEditorReplaceSupersetTitle": "Replace existing superset?",
+    "strengthPlanEditorReplaceSupersetMessage": "At least one selected exercise is already part of a superset. Creating a new superset will replace the previous assignment for the selected exercises.",
+    "strengthPlanEditorReplaceSupersetConfirm": "Replace",
+    "strengthCommonDone": "Done"
 }
