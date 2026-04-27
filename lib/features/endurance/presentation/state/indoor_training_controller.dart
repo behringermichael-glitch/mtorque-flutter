@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/endurance_session.dart';
 import '../../domain/models/endurance_sport.dart';
+import '../../domain/models/indoor_interval_phase.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
 import '../../domain/services/indoor_settings_codec.dart';
 import 'endurance_repository_provider.dart';
@@ -38,6 +39,7 @@ class IndoorTrainingState {
     required this.protocol,
     required this.elapsedMs,
     required this.isBusy,
+    required this.selectedPhaseIndex,
     this.session,
     this.errorMessage,
   });
@@ -46,6 +48,7 @@ class IndoorTrainingState {
   final IndoorIntervalProtocol protocol;
   final int elapsedMs;
   final bool isBusy;
+  final int selectedPhaseIndex;
   final EnduranceSession? session;
   final String? errorMessage;
 
@@ -57,6 +60,7 @@ class IndoorTrainingState {
     IndoorIntervalProtocol? protocol,
     int? elapsedMs,
     bool? isBusy,
+    int? selectedPhaseIndex,
     EnduranceSession? session,
     bool clearSession = false,
     String? errorMessage,
@@ -67,6 +71,7 @@ class IndoorTrainingState {
       protocol: protocol ?? this.protocol,
       elapsedMs: elapsedMs ?? this.elapsedMs,
       isBusy: isBusy ?? this.isBusy,
+      selectedPhaseIndex: selectedPhaseIndex ?? this.selectedPhaseIndex,
       session: clearSession ? null : session ?? this.session,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
@@ -78,6 +83,7 @@ class IndoorTrainingState {
       protocol: IndoorIntervalProtocol.defaultForSportCode(sport.code),
       elapsedMs: 0,
       isBusy: false,
+      selectedPhaseIndex: 0,
     );
   }
 }
@@ -250,6 +256,94 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         errorMessage: error.toString(),
       );
     }
+  }
+
+  void selectPhase(int index) {
+    if (index < 0 || index >= state.protocol.phases.length) {
+      return;
+    }
+
+    state = state.copyWith(
+      selectedPhaseIndex: index,
+      clearError: true,
+    );
+  }
+
+  Future<void> addDefaultPhase() async {
+    final phases = [...state.protocol.phases];
+    final previous = phases.isEmpty ? null : phases.last;
+
+    phases.add(
+      IndoorIntervalPhase(
+        durSec: previous?.durSec ?? 120,
+        intensity: previous?.intensity ?? 100,
+        extra: previous?.extra ?? const <String, double>{},
+      ),
+    );
+
+    final nextProtocol = IndoorIntervalProtocol(
+      axisKey: state.protocol.axisKey,
+      protocolName: state.protocol.protocolName,
+      phases: phases,
+    );
+
+    state = state.copyWith(
+      selectedPhaseIndex: phases.length - 1,
+    );
+
+    await persistProtocol(nextProtocol);
+  }
+
+  Future<void> deleteSelectedPhase() async {
+    final index = state.selectedPhaseIndex;
+    final phases = [...state.protocol.phases];
+
+    if (phases.length <= 1 || index < 0 || index >= phases.length) {
+      return;
+    }
+
+    phases.removeAt(index);
+
+    final nextIndex = index.clamp(0, phases.length - 1);
+
+    final nextProtocol = IndoorIntervalProtocol(
+      axisKey: state.protocol.axisKey,
+      protocolName: state.protocol.protocolName,
+      phases: phases,
+    );
+
+    state = state.copyWith(
+      selectedPhaseIndex: nextIndex,
+    );
+
+    await persistProtocol(nextProtocol);
+  }
+
+  Future<void> updateSelectedPhase({
+    int? durSec,
+    double? intensity,
+    Map<String, double>? extra,
+  }) async {
+    final index = state.selectedPhaseIndex;
+    final phases = [...state.protocol.phases];
+
+    if (index < 0 || index >= phases.length) {
+      return;
+    }
+
+    phases[index] = phases[index].copyWith(
+      durSec: durSec,
+      intensity: intensity,
+      extra: extra,
+    );
+
+    final nextProtocol = IndoorIntervalProtocol(
+      axisKey: state.protocol.axisKey,
+      protocolName: state.protocol.protocolName,
+      phases: phases,
+    );
+
+    await persistProtocol(nextProtocol);
   }
 
   Future<void> persistProtocol(IndoorIntervalProtocol protocol) async {

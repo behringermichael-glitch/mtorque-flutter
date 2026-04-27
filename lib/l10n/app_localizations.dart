@@ -1672,6 +1672,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The operation could not be completed.'**
   String get enduranceOperationFailed;
+
+  /// No description provided for @enduranceLoadPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Load plan'**
+  String get enduranceLoadPlan;
+
+  /// No description provided for @enduranceSelectedPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected phase'**
+  String get enduranceSelectedPhase;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

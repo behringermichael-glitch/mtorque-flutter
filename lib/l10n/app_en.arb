@@ -414,5 +414,7 @@
     "enduranceAxisIncline": "Incline",
     "enduranceAxisIntensity": "Intensity",
     "enduranceIndoorCompatibilityHint": "Indoor sessions are stored in the Android-compatible run_session table. Interval settings are saved as indoor_settings_json.",
-    "enduranceOperationFailed": "The operation could not be completed."
+    "enduranceOperationFailed": "The operation could not be completed.",
+    "enduranceLoadPlan": "Load plan",
+    "enduranceSelectedPhase": "Selected phase"
 }

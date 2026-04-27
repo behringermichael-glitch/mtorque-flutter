@@ -838,4 +838,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get enduranceOperationFailed => 'Der Vorgang konnte nicht abgeschlossen werden.';
+
+  @override
+  String get enduranceLoadPlan => 'Plan laden';
+
+  @override
+  String get enduranceSelectedPhase => 'Ausgewählte Phase';
 }
