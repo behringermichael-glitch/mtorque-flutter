@@ -100,12 +100,47 @@ class IndoorTrainingPage extends ConsumerWidget {
                 icon: const Icon(Icons.play_arrow),
                 label: Text(l10n.enduranceStartSession),
               )
-            else
+            else ...[
+              FilledButton.icon(
+                onPressed: state.isBusy
+                    ? null
+                    : () async {
+                  final result = await _showFinishIndoorSessionDialog(
+                    context: context,
+                    elapsedText: _formatElapsed(state.elapsedMs),
+                  );
+
+                  if (result == null) {
+                    return;
+                  }
+
+                  await controller.finishSession(
+                    rpe0to10: result.rpe0to10,
+                    notes: result.notes,
+                  );
+
+                  if (context.mounted) {
+                    Navigator.of(context).maybePop();
+                  }
+                },
+                icon: const Icon(Icons.stop),
+                label: Text(l10n.enduranceFinishSession),
+              ),
+              const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: state.isBusy
                     ? null
                     : () async {
+                  final confirmed = await _confirmDiscardIndoorSession(
+                    context,
+                  );
+
+                  if (!confirmed) {
+                    return;
+                  }
+
                   await controller.discardSession();
+
                   if (context.mounted) {
                     Navigator.of(context).maybePop();
                   }
@@ -113,6 +148,7 @@ class IndoorTrainingPage extends ConsumerWidget {
                 icon: const Icon(Icons.delete_outline),
                 label: Text(l10n.enduranceDiscardSession),
               ),
+            ],
             const SizedBox(height: 12),
             Text(
               l10n.enduranceIndoorCompatibilityHint,
@@ -717,4 +753,207 @@ class _InfoRow extends StatelessWidget {
       ],
     );
   }
+}
+
+class _FinishIndoorSessionResult {
+  const _FinishIndoorSessionResult({
+    required this.rpe0to10,
+    required this.notes,
+  });
+
+  final int? rpe0to10;
+  final String? notes;
+}
+
+Future<_FinishIndoorSessionResult?> _showFinishIndoorSessionDialog({
+  required BuildContext context,
+  required String elapsedText,
+}) {
+  return showDialog<_FinishIndoorSessionResult>(
+    context: context,
+    builder: (context) {
+      return _FinishIndoorSessionDialog(
+        elapsedText: elapsedText,
+      );
+    },
+  );
+}
+
+class _FinishIndoorSessionDialog extends StatefulWidget {
+  const _FinishIndoorSessionDialog({
+    required this.elapsedText,
+  });
+
+  final String elapsedText;
+
+  @override
+  State<_FinishIndoorSessionDialog> createState() =>
+      _FinishIndoorSessionDialogState();
+}
+
+class _FinishIndoorSessionDialogState
+    extends State<_FinishIndoorSessionDialog> {
+  int? _rpe0to10;
+  late final TextEditingController _notesController;
+
+  @override
+  void initState() {
+    super.initState();
+    _notesController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return AlertDialog(
+      title: Text(l10n.enduranceFinishSession),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _FinishInfoRow(
+              label: l10n.enduranceIndoorProtocolDuration,
+              value: widget.elapsedText,
+            ),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                l10n.enduranceRpeLabel,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int?>(
+              value: _rpe0to10,
+              decoration: InputDecoration(
+                labelText: l10n.enduranceRpeHint,
+              ),
+              items: [
+                DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text(l10n.enduranceRpeNotSet),
+                ),
+                for (var value = 0; value <= 10; value++)
+                  DropdownMenuItem<int?>(
+                    value: value,
+                    child: Text(value.toString()),
+                  ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _rpe0to10 = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _notesController,
+              minLines: 2,
+              maxLines: 4,
+              textInputAction: TextInputAction.newline,
+              decoration: InputDecoration(
+                labelText: l10n.enduranceNotesLabel,
+                alignLabelWithHint: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.of(context).pop(
+              _FinishIndoorSessionResult(
+                rpe0to10: _rpe0to10,
+                notes: _notesController.text,
+              ),
+            );
+          },
+          child: Text(l10n.enduranceFinishSession),
+        ),
+      ],
+    );
+  }
+}
+
+class _FinishInfoRow extends StatelessWidget {
+  const _FinishInfoRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          value,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Future<bool> _confirmDiscardIndoorSession(BuildContext context) async {
+  final l10n = AppLocalizations.of(context)!;
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(l10n.enduranceDiscardSession),
+        content: Text(l10n.enduranceDiscardSessionMessage),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: Text(l10n.enduranceDiscardSession),
+          ),
+        ],
+      );
+    },
+  );
+
+  return confirmed ?? false;
 }

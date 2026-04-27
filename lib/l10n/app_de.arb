@@ -415,5 +415,11 @@
     "enduranceIndoorCompatibilityHint": "Indoor-Einheiten werden in der Android-kompatiblen Tabelle run_session gespeichert. Intervall-Einstellungen werden als indoor_settings_json gesichert.",
     "enduranceOperationFailed": "Der Vorgang konnte nicht abgeschlossen werden.",
     "enduranceLoadPlan": "Plan laden",
-    "enduranceSelectedPhase": "Ausgewählte Phase"
+    "enduranceSelectedPhase": "Ausgewählte Phase",
+    "enduranceFinishSession": "Einheit beenden",
+    "enduranceRpeLabel": "Subjektive Belastung",
+    "enduranceRpeHint": "RPE 0–10",
+    "enduranceRpeNotSet": "Nicht gesetzt",
+    "enduranceNotesLabel": "Notizen",
+    "enduranceDiscardSessionMessage": "Diese aktive Einheit verwerfen? Sie wird dauerhaft gelöscht."
 }

@@ -258,6 +258,64 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
     }
   }
 
+  Future<void> finishSession({
+    required int? rpe0to10,
+    required String? notes,
+  }) async {
+    final session = state.session;
+    if (session == null || state.isBusy) {
+      return;
+    }
+
+    state = state.copyWith(
+      isBusy: true,
+      clearError: true,
+    );
+
+    try {
+      final repository = ref.read(enduranceRepositoryProvider);
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final durationMs = (now - session.startEpochMs).clamp(0, 1 << 53).toInt();
+
+      await repository.finalizeSession(
+        sessionId: session.id,
+        endEpochMs: now,
+        durationMs: durationMs,
+        distanceM: 0.0,
+        avgHr: null,
+        maxHr: null,
+        elevationGainM: null,
+      );
+
+      await repository.updateRpe(
+        sessionId: session.id,
+        rpe0to10: rpe0to10,
+      );
+
+      final cleanedNotes = notes?.trim();
+      await repository.updateNotes(
+        sessionId: session.id,
+        notes: cleanedNotes == null || cleanedNotes.isEmpty
+            ? null
+            : cleanedNotes,
+      );
+
+      _stopTicker();
+
+      state = state.copyWith(
+        elapsedMs: durationMs,
+        isBusy: false,
+        clearSession: true,
+        clearError: true,
+      );
+    } catch (error) {
+      state = state.copyWith(
+        isBusy: false,
+        errorMessage: error.toString(),
+      );
+    }
+  }
+
   void selectPhase(int index) {
     if (index < 0 || index >= state.protocol.phases.length) {
       return;

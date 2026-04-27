@@ -844,4 +844,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get enduranceSelectedPhase => 'Ausgewählte Phase';
+
+  @override
+  String get enduranceFinishSession => 'Einheit beenden';
+
+  @override
+  String get enduranceRpeLabel => 'Subjektive Belastung';
+
+  @override
+  String get enduranceRpeHint => 'RPE 0–10';
+
+  @override
+  String get enduranceRpeNotSet => 'Nicht gesetzt';
+
+  @override
+  String get enduranceNotesLabel => 'Notizen';
+
+  @override
+  String get enduranceDiscardSessionMessage => 'Diese aktive Einheit verwerfen? Sie wird dauerhaft gelöscht.';
 }

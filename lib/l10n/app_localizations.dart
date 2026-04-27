@@ -1684,6 +1684,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Selected phase'**
   String get enduranceSelectedPhase;
+
+  /// No description provided for @enduranceFinishSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish session'**
+  String get enduranceFinishSession;
+
+  /// No description provided for @enduranceRpeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Perceived exertion'**
+  String get enduranceRpeLabel;
+
+  /// No description provided for @enduranceRpeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'RPE 0–10'**
+  String get enduranceRpeHint;
+
+  /// No description provided for @enduranceRpeNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get enduranceRpeNotSet;
+
+  /// No description provided for @enduranceNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get enduranceNotesLabel;
+
+  /// No description provided for @enduranceDiscardSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this active session? This will delete it permanently.'**
+  String get enduranceDiscardSessionMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

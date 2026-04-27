@@ -844,4 +844,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enduranceSelectedPhase => 'Selected phase';
+
+  @override
+  String get enduranceFinishSession => 'Finish session';
+
+  @override
+  String get enduranceRpeLabel => 'Perceived exertion';
+
+  @override
+  String get enduranceRpeHint => 'RPE 0–10';
+
+  @override
+  String get enduranceRpeNotSet => 'Not set';
+
+  @override
+  String get enduranceNotesLabel => 'Notes';
+
+  @override
+  String get enduranceDiscardSessionMessage => 'Discard this active session? This will delete it permanently.';
 }
