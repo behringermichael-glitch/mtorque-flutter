@@ -5,6 +5,7 @@ import 'package:mtorque_flutter/l10n/app_localizations.dart';
 import '../../domain/models/endurance_sport.dart';
 import '../../domain/models/indoor_axis_spec.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
+import '../../domain/services/indoor_protocol_timeline.dart';
 import '../state/indoor_training_controller.dart';
 import '../widgets/interval_protocol_chart.dart';
 
@@ -53,6 +54,13 @@ class IndoorTrainingPage extends ConsumerWidget {
     final sportLabel = _sportLabel(l10n, sport);
     final axis = IndoorAxisSpec.forSportCode(sport.code);
 
+    final timeline = IndoorProtocolTimeline.resolve(
+      protocol: state.protocol,
+      elapsedMs: state.elapsedMs,
+    );
+
+    final effectivePhaseIndex = state.selectedPhaseIndex;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: panelColor,
@@ -75,13 +83,23 @@ class IndoorTrainingPage extends ConsumerWidget {
               elapsedText: _formatElapsed(state.elapsedMs),
               isActive: state.isActive,
               isBusy: state.isBusy,
+              phaseText: state.isActive
+                  ? l10n.enduranceCurrentPhase(
+                timeline.currentPhaseIndex + 1,
+                state.protocol.phases.length,
+              )
+                  : null,
+              phaseRemainingText: state.isActive
+                  ? _formatElapsed(timeline.phaseRemainingSec * 1000)
+                  : null,
+              protocolCompleted: timeline.protocolCompleted,
             ),
             const SizedBox(height: 16),
             _ProtocolCard(
               protocol: state.protocol,
               axis: axis,
               elapsedMs: state.elapsedMs,
-              selectedIndex: state.selectedPhaseIndex,
+              selectedIndex: effectivePhaseIndex,
               onAddPhase: controller.addDefaultPhase,
               onPhaseSelected: controller.selectPhase,
             ),
@@ -89,7 +107,8 @@ class IndoorTrainingPage extends ConsumerWidget {
             _PhaseEditorCard(
               protocol: state.protocol,
               axis: axis,
-              selectedIndex: state.selectedPhaseIndex,
+              selectedIndex: effectivePhaseIndex,
+              isReadOnly: false,
               onChanged: controller.updateSelectedPhase,
               onDelete: controller.deleteSelectedPhase,
             ),
@@ -214,12 +233,18 @@ class _StatusCard extends StatelessWidget {
     required this.elapsedText,
     required this.isActive,
     required this.isBusy,
+    required this.phaseText,
+    required this.phaseRemainingText,
+    required this.protocolCompleted,
   });
 
   final String sportLabel;
   final String elapsedText;
   final bool isActive;
   final bool isBusy;
+  final String? phaseText;
+  final String? phaseRemainingText;
+  final bool protocolCompleted;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +285,9 @@ class _StatusCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     isActive
-                        ? l10n.enduranceSessionActive
+                        ? protocolCompleted
+                        ? l10n.enduranceProtocolCompleted
+                        : l10n.enduranceSessionActive
                         : l10n.enduranceSessionNotStarted,
                     style: theme.textTheme.bodyMedium,
                   ),
@@ -273,6 +300,29 @@ class _StatusCard extends StatelessWidget {
                   ),
               ],
             ),
+            if (phaseText != null && phaseRemainingText != null) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      phaseText!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    protocolCompleted
+                        ? l10n.enduranceProtocolTargetReached
+                        : l10n.endurancePhaseRemaining(phaseRemainingText!),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -488,6 +538,7 @@ class _PhaseEditorCard extends StatelessWidget {
     required this.protocol,
     required this.axis,
     required this.selectedIndex,
+    required this.isReadOnly,
     required this.onChanged,
     required this.onDelete,
   });
@@ -495,6 +546,7 @@ class _PhaseEditorCard extends StatelessWidget {
   final IndoorIntervalProtocol protocol;
   final IndoorAxisSpec axis;
   final int selectedIndex;
+  final bool isReadOnly;
   final Future<void> Function({
   int? durSec,
   double? intensity,
@@ -533,8 +585,9 @@ class _PhaseEditorCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  onPressed:
-                  protocol.phases.length <= 1 ? null : () => onDelete(),
+                  onPressed: isReadOnly || protocol.phases.length <= 1
+                      ? null
+                      : () => onDelete(),
                   icon: const Icon(Icons.delete_outline),
                 ),
               ],
@@ -547,6 +600,7 @@ class _PhaseEditorCard extends StatelessWidget {
                 axis.decimals,
                 _axisUnit(axis.key),
               ),
+              enabled: !isReadOnly,
               onDecrease: () {
                 final next = (phase.intensity - axis.step)
                     .clamp(axis.min, axis.max)
@@ -575,6 +629,7 @@ class _PhaseEditorCard extends StatelessWidget {
                   axis.extra!.decimals,
                   _axisUnit(axis.extra!.key),
                 ),
+                enabled: !isReadOnly,
                 onDecrease: () {
                   final current =
                       phase.extra[axis.extra!.key] ?? axis.extra!.defaultValue;
@@ -616,6 +671,7 @@ class _PhaseEditorCard extends StatelessWidget {
                 final next = (phase.durSec - 30).clamp(30, 24 * 3600);
                 return onChanged(durSec: next);
               },
+              enabled: !isReadOnly,
               onIncrease: () {
                 final next = (phase.durSec + 30).clamp(30, 24 * 3600);
                 return onChanged(durSec: next);
@@ -674,12 +730,14 @@ class _ValueStepper extends StatelessWidget {
   const _ValueStepper({
     required this.label,
     required this.value,
+    required this.enabled,
     required this.onDecrease,
     required this.onIncrease,
   });
 
   final String label;
   final String value;
+  final bool enabled;
   final Future<void> Function() onDecrease;
   final Future<void> Function() onIncrease;
 
@@ -698,7 +756,7 @@ class _ValueStepper extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: onDecrease,
+          onPressed: enabled ? onDecrease : null,
           icon: const Icon(Icons.remove),
         ),
         SizedBox(
@@ -712,7 +770,7 @@ class _ValueStepper extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: onIncrease,
+          onPressed: enabled ? onIncrease : null,
           icon: const Icon(Icons.add),
         ),
       ],

@@ -1720,6 +1720,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discard this active session? This will delete it permanently.'**
   String get enduranceDiscardSessionMessage;
+
+  /// No description provided for @enduranceCurrentPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Phase {current} of {total}'**
+  String enduranceCurrentPhase(int current, int total);
+
+  /// No description provided for @endurancePhaseRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} remaining'**
+  String endurancePhaseRemaining(String time);
+
+  /// No description provided for @enduranceProtocolCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Protocol completed'**
+  String get enduranceProtocolCompleted;
+
+  /// No description provided for @enduranceProtocolTargetReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Target reached'**
+  String get enduranceProtocolTargetReached;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

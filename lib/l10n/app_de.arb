@@ -421,5 +421,26 @@
     "enduranceRpeHint": "RPE 0–10",
     "enduranceRpeNotSet": "Nicht gesetzt",
     "enduranceNotesLabel": "Notizen",
-    "enduranceDiscardSessionMessage": "Diese aktive Einheit verwerfen? Sie wird dauerhaft gelöscht."
+    "enduranceDiscardSessionMessage": "Diese aktive Einheit verwerfen? Sie wird dauerhaft gelöscht.",
+    "enduranceCurrentPhase": "Phase {current} von {total}",
+    "@enduranceCurrentPhase": {
+      "placeholders": {
+        "current": {
+          "type": "int"
+        },
+        "total": {
+          "type": "int"
+        }
+      }
+    },
+    "endurancePhaseRemaining": "{time} verbleibend",
+    "@endurancePhaseRemaining": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "enduranceProtocolCompleted": "Protokoll abgeschlossen",
+    "enduranceProtocolTargetReached": "Ziel erreicht"
 }

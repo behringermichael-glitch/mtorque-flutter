@@ -862,4 +862,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enduranceDiscardSessionMessage => 'Discard this active session? This will delete it permanently.';
+
+  @override
+  String enduranceCurrentPhase(int current, int total) {
+    return 'Phase $current of $total';
+  }
+
+  @override
+  String endurancePhaseRemaining(String time) {
+    return '$time remaining';
+  }
+
+  @override
+  String get enduranceProtocolCompleted => 'Protocol completed';
+
+  @override
+  String get enduranceProtocolTargetReached => 'Target reached';
 }

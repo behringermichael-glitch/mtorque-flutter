@@ -422,5 +422,26 @@
     "enduranceRpeHint": "RPE 0–10",
     "enduranceRpeNotSet": "Not set",
     "enduranceNotesLabel": "Notes",
-    "enduranceDiscardSessionMessage": "Discard this active session? This will delete it permanently."
+    "enduranceDiscardSessionMessage": "Discard this active session? This will delete it permanently.",
+    "enduranceCurrentPhase": "Phase {current} of {total}",
+    "@enduranceCurrentPhase": {
+      "placeholders": {
+        "current": {
+          "type": "int"
+        },
+        "total": {
+          "type": "int"
+        }
+      }
+    },
+    "endurancePhaseRemaining": "{time} remaining",
+    "@endurancePhaseRemaining": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "enduranceProtocolCompleted": "Protocol completed",
+    "enduranceProtocolTargetReached": "Target reached"
 }
