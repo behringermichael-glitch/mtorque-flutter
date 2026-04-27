@@ -1,10 +1,18 @@
 import 'package:drift/drift.dart';
 
+@TableIndex(
+  name: 'index_run_session_startEpochMs',
+  columns: {#startEpochMs},
+)
+@TableIndex(
+  name: 'index_run_session_endEpochMs',
+  columns: {#endEpochMs},
+)
 class RunSessions extends Table {
   @override
   String get tableName => 'run_session';
 
-  IntColumn get id => integer()();
+  IntColumn get id => integer().autoIncrement()();
 
   IntColumn get startEpochMs => integer().named('startEpochMs')();
 
@@ -54,7 +62,4 @@ class RunSessions extends Table {
 
   TextColumn get hrZoneBoundsJson =>
       text().named('hr_zone_bounds_json').nullable()();
-
-  @override
-  Set<Column<Object>> get primaryKey => {id};
 }

@@ -779,4 +779,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get enduranceSportAirBike => 'Air Bike';
+
+  @override
+  String get enduranceIndoorComingSoon => 'Das Indoor-Ausdauertraining wird als Nächstes ergänzt. Die kompatible Datenbankschicht ist bereits vorbereitet.';
+
+  @override
+  String get enduranceOutdoorComingSoon => 'Das Outdoor-Tracking wird als Nächstes ergänzt. Die kompatible Datenbankschicht ist bereits vorbereitet.';
+
+  @override
+  String get enduranceActiveSessionRestored => 'Aktive Ausdauereinheit wiederhergestellt.';
 }

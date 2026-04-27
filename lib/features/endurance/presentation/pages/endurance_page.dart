@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mtorque_flutter/l10n/app_localizations.dart';
 
+import 'indoor_training_page.dart';
+import 'outdoor_tracking_page.dart';
+
 import '../../domain/models/endurance_sport.dart';
 import '../widgets/endurance_sport_card.dart';
 
@@ -67,13 +70,17 @@ class EndurancePage extends StatelessWidget {
       BuildContext context,
       EnduranceSport sport,
       ) {
-    final l10n = AppLocalizations.of(context)!;
+    final page = sport.mode == EnduranceMode.indoor
+        ? IndoorTrainingPage(
+      sport: sport,
+    )
+        : OutdoorTrackingPage(
+      sport: sport,
+    );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n.enduranceSportComingSoon(_sportLabel(l10n, sport)),
-        ),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => page,
       ),
     );
   }

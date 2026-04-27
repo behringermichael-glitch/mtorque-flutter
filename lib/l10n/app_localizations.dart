@@ -1570,6 +1570,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Air bike'**
   String get enduranceSportAirBike;
+
+  /// No description provided for @enduranceIndoorComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor endurance training will be added next. The database compatibility layer is already prepared.'**
+  String get enduranceIndoorComingSoon;
+
+  /// No description provided for @enduranceOutdoorComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Outdoor tracking will be added next. The database compatibility layer is already prepared.'**
+  String get enduranceOutdoorComingSoon;
+
+  /// No description provided for @enduranceActiveSessionRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Active endurance session restored.'**
+  String get enduranceActiveSessionRestored;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

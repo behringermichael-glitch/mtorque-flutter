@@ -2,11 +2,19 @@ import 'package:drift/drift.dart';
 
 import 'run_sessions_table.dart';
 
+@TableIndex(
+  name: 'index_run_sample_sessionId',
+  columns: {#sessionId},
+)
+@TableIndex(
+  name: 'index_run_sample_tEpochMs',
+  columns: {#tEpochMs},
+)
 class RunSamples extends Table {
   @override
   String get tableName => 'run_sample';
 
-  IntColumn get sid => integer()();
+  IntColumn get sid => integer().autoIncrement()();
 
   IntColumn get sessionId => integer()
       .named('sessionId')
@@ -25,7 +33,4 @@ class RunSamples extends Table {
   RealColumn get speedMps => real().named('speedMps').nullable()();
 
   RealColumn get elevM => real().named('elev_m').nullable()();
-
-  @override
-  Set<Column<Object>> get primaryKey => {sid};
 }

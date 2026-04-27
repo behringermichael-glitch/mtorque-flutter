@@ -15,8 +15,12 @@ class $RunSessionsTable extends RunSessions
     'id',
     aliasedName,
     false,
+    hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
   );
   static const VerificationMeta _startEpochMsMeta = const VerificationMeta(
     'startEpochMs',
@@ -1168,8 +1172,12 @@ class $RunSamplesTable extends RunSamples
     'sid',
     aliasedName,
     false,
+    hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
   );
   static const VerificationMeta _sessionIdMeta = const VerificationMeta(
     'sessionId',
@@ -4398,6 +4406,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DailyStepsTable dailySteps = $DailyStepsTable(this);
   late final $HrSettingsTable hrSettings = $HrSettingsTable(this);
   late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
+  late final Index indexRunSessionStartEpochMs = Index(
+    'index_run_session_startEpochMs',
+    'CREATE INDEX index_run_session_startEpochMs ON run_session (startEpochMs)',
+  );
+  late final Index indexRunSessionEndEpochMs = Index(
+    'index_run_session_endEpochMs',
+    'CREATE INDEX index_run_session_endEpochMs ON run_session (endEpochMs)',
+  );
+  late final Index indexRunSampleSessionId = Index(
+    'index_run_sample_sessionId',
+    'CREATE INDEX index_run_sample_sessionId ON run_sample (sessionId)',
+  );
+  late final Index indexRunSampleTEpochMs = Index(
+    'index_run_sample_tEpochMs',
+    'CREATE INDEX index_run_sample_tEpochMs ON run_sample (tEpochMs)',
+  );
   late final RunDao runDao = RunDao(this as AppDatabase);
   late final StrengthSessionDao strengthSessionDao = StrengthSessionDao(
     this as AppDatabase,
@@ -4422,6 +4446,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     dailySteps,
     hrSettings,
     userProfiles,
+    indexRunSessionStartEpochMs,
+    indexRunSessionEndEpochMs,
+    indexRunSampleSessionId,
+    indexRunSampleTEpochMs,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

@@ -387,5 +387,9 @@
     "enduranceSportJumpRope": "Seilspringen",
     "enduranceSportSkiErgometer": "Ski-Ergometer",
     "enduranceSportArmErgometer": "Armergometer",
-    "enduranceSportAirBike": "Air Bike"
+    "enduranceSportAirBike": "Air Bike",
+
+    "enduranceIndoorComingSoon": "Das Indoor-Ausdauertraining wird als Nächstes ergänzt. Die kompatible Datenbankschicht ist bereits vorbereitet.",
+    "enduranceOutdoorComingSoon": "Das Outdoor-Tracking wird als Nächstes ergänzt. Die kompatible Datenbankschicht ist bereits vorbereitet.",
+    "enduranceActiveSessionRestored": "Aktive Ausdauereinheit wiederhergestellt."
 }

@@ -388,5 +388,9 @@
     "enduranceSportJumpRope": "Jump rope",
     "enduranceSportSkiErgometer": "Ski ergometer",
     "enduranceSportArmErgometer": "Arm ergometer",
-    "enduranceSportAirBike": "Air bike"
+    "enduranceSportAirBike": "Air bike",
+
+    "enduranceIndoorComingSoon": "Indoor endurance training will be added next. The database compatibility layer is already prepared.",
+    "enduranceOutdoorComingSoon": "Outdoor tracking will be added next. The database compatibility layer is already prepared.",
+    "enduranceActiveSessionRestored": "Active endurance session restored."
 }

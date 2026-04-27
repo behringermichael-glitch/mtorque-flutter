@@ -15,6 +15,10 @@ class EnduranceSport {
   final String assetName;
 
   String get assetPath => 'assets/images/endurance/$assetName';
+
+  bool get isIndoor => mode == EnduranceMode.indoor;
+
+  bool get isOutdoor => mode == EnduranceMode.outdoor;
 }
 
 abstract final class EnduranceSports {
@@ -161,4 +165,28 @@ abstract final class EnduranceSports {
     ...outdoor,
     ...indoor,
   ];
+
+  static EnduranceSport? byCode(String? code) {
+    if (code == null || code.trim().isEmpty) {
+      return null;
+    }
+
+    final normalized = code.trim().toUpperCase();
+
+    for (final sport in all) {
+      if (sport.code == normalized) {
+        return sport;
+      }
+    }
+
+    return null;
+  }
+
+  static bool isIndoorCode(String? code) {
+    return byCode(code)?.mode == EnduranceMode.indoor;
+  }
+
+  static bool isOutdoorCode(String? code) {
+    return byCode(code)?.mode == EnduranceMode.outdoor;
+  }
 }
