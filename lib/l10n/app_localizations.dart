@@ -1432,6 +1432,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} selected'**
   String strengthPlanEditorMultipleSelected(int count);
+
+  /// No description provided for @enduranceSportPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose sport'**
+  String get enduranceSportPickerTitle;
+
+  /// No description provided for @enduranceOutdoorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Outdoor'**
+  String get enduranceOutdoorTitle;
+
+  /// No description provided for @enduranceIndoorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor'**
+  String get enduranceIndoorTitle;
+
+  /// No description provided for @enduranceSportComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{sport} will be added in the next step.'**
+  String enduranceSportComingSoon(String sport);
+
+  /// No description provided for @enduranceSportRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get enduranceSportRun;
+
+  /// No description provided for @enduranceSportMountainBike.
+  ///
+  /// In en, this message translates to:
+  /// **'Mountain bike'**
+  String get enduranceSportMountainBike;
+
+  /// No description provided for @enduranceSportRoadBike.
+  ///
+  /// In en, this message translates to:
+  /// **'Road cycling'**
+  String get enduranceSportRoadBike;
+
+  /// No description provided for @enduranceSportRowingOutdoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Rowing'**
+  String get enduranceSportRowingOutdoor;
+
+  /// No description provided for @enduranceSportWalking.
+  ///
+  /// In en, this message translates to:
+  /// **'Walking'**
+  String get enduranceSportWalking;
+
+  /// No description provided for @enduranceSportNordicWalking.
+  ///
+  /// In en, this message translates to:
+  /// **'Nordic walking'**
+  String get enduranceSportNordicWalking;
+
+  /// No description provided for @enduranceSportInlineSkating.
+  ///
+  /// In en, this message translates to:
+  /// **'Inline skating'**
+  String get enduranceSportInlineSkating;
+
+  /// No description provided for @enduranceSportTreadmill.
+  ///
+  /// In en, this message translates to:
+  /// **'Treadmill'**
+  String get enduranceSportTreadmill;
+
+  /// No description provided for @enduranceSportTreadmillWalking.
+  ///
+  /// In en, this message translates to:
+  /// **'Treadmill walking'**
+  String get enduranceSportTreadmillWalking;
+
+  /// No description provided for @enduranceSportErgometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike ergometer'**
+  String get enduranceSportErgometer;
+
+  /// No description provided for @enduranceSportRower.
+  ///
+  /// In en, this message translates to:
+  /// **'Rower'**
+  String get enduranceSportRower;
+
+  /// No description provided for @enduranceSportSpinning.
+  ///
+  /// In en, this message translates to:
+  /// **'Spinning'**
+  String get enduranceSportSpinning;
+
+  /// No description provided for @enduranceSportCrosstrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Crosstrainer'**
+  String get enduranceSportCrosstrainer;
+
+  /// No description provided for @enduranceSportStairclimber.
+  ///
+  /// In en, this message translates to:
+  /// **'Stair climber'**
+  String get enduranceSportStairclimber;
+
+  /// No description provided for @enduranceSportStepper.
+  ///
+  /// In en, this message translates to:
+  /// **'Stepper'**
+  String get enduranceSportStepper;
+
+  /// No description provided for @enduranceSportJumpRope.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump rope'**
+  String get enduranceSportJumpRope;
+
+  /// No description provided for @enduranceSportSkiErgometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Ski ergometer'**
+  String get enduranceSportSkiErgometer;
+
+  /// No description provided for @enduranceSportArmErgometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Arm ergometer'**
+  String get enduranceSportArmErgometer;
+
+  /// No description provided for @enduranceSportAirBike.
+  ///
+  /// In en, this message translates to:
+  /// **'Air bike'**
+  String get enduranceSportAirBike;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

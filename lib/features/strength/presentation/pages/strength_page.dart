@@ -217,10 +217,13 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
       );
     }
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final panelColor = _panelSurfaceColor(context);
-    final panelBorderColor = Theme.of(
-      context,
-    ).dividerColor.withValues(alpha: 0.35);
+    final panelBorderColor = isDark
+        ? Colors.white.withValues(alpha: 0.70)
+        : theme.dividerColor.withValues(alpha: 0.35);
 
     // PATCH 5: jumpToPage komplett aus build() entfernt.
     // _currentPageIndex wird durch orderChanged bereits korrekt geclippt.
@@ -309,73 +312,87 @@ class _StrengthPageState extends ConsumerState<StrengthPage> {
     final controller = ref.read(strengthFlowControllerProvider.notifier);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.zero,
       children: [
-        SizedBox(
-          height: 64,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              controller.startEmptySession(todayEpochDay: _todayEpochDay());
-            },
-            icon: const Icon(Icons.add_circle_outline),
-            label: Text(l10n.strengthStartEmptyPlan),
+        const _StrengthPlanBanner(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+          child: SizedBox(
+            height: 64,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                controller.startEmptySession(todayEpochDay: _todayEpochDay());
+              },
+              icon: const Icon(Icons.add_circle_outline),
+              label: Text(l10n.strengthStartEmptyPlan),
+            ),
           ),
         ),
         const SizedBox(height: 16),
-        for (final plan in plans)
-          Card(
-            child: ListTile(
-              leading: Transform.translate(
-                offset: const Offset(-6, 0),
-                child: _PlanInitialsBadge(planName: plan.name),
-              ),
-              title: Text(
-                plan.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-              ),
-              onTap: () {
-                controller.loadPlan(
-                  planName: plan.name,
-                  todayEpochDay: _todayEpochDay(),
-                );
-              },
-              trailing: Transform.translate(
-                offset: const Offset(16, 0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      tooltip: l10n.strengthPlanInfoTooltip,
-                      icon: const Icon(Icons.info_outline),
-                      onPressed: () => _openPlanInfoSheet(context, plan.name),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              for (final plan in plans)
+                Card(
+                  child: ListTile(
+                    leading: Transform.translate(
+                      offset: const Offset(-6, 0),
+                      child: _PlanInitialsBadge(planName: plan.name),
                     ),
-                    IconButton(
-                      tooltip: l10n.strengthCommonShare,
-                      icon: const Icon(Icons.share_outlined),
-                      onPressed: () => _sharePlanFromOverview(context, plan.name),
+                    title: Text(
+                      plan.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w500),
                     ),
-                    IconButton(
-                      tooltip: l10n.strengthCommonDelete,
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        final confirm = await _confirmDeletePlan(
-                          context,
-                          plan.name,
-                        );
-                        if (confirm == true) {
-                          await controller.deletePlan(plan.name);
-                        }
-                      },
+                    onTap: () {
+                      controller.loadPlan(
+                        planName: plan.name,
+                        todayEpochDay: _todayEpochDay(),
+                      );
+                    },
+                    trailing: Transform.translate(
+                      offset: const Offset(16, 0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            tooltip: l10n.strengthPlanInfoTooltip,
+                            icon: const Icon(Icons.info_outline),
+                            onPressed: () =>
+                                _openPlanInfoSheet(context, plan.name),
+                          ),
+                          IconButton(
+                            tooltip: l10n.strengthCommonShare,
+                            icon: const Icon(Icons.share_outlined),
+                            onPressed: () =>
+                                _sharePlanFromOverview(context, plan.name),
+                          ),
+                          IconButton(
+                            tooltip: l10n.strengthCommonDelete,
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              final confirm = await _confirmDeletePlan(
+                                context,
+                                plan.name,
+                              );
+                              if (confirm == true) {
+                                await controller.deletePlan(plan.name);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
+        ),
       ],
     );
   }
@@ -2258,6 +2275,69 @@ enum _FinishSessionAction {
 
 const Color _planInitialBlue = Color(0xFF3B82F6);
 const Color _planInitialRed = Color(0xFFEF4444);
+
+class _StrengthPlanBanner extends StatelessWidget {
+  const _StrengthPlanBanner();
+
+  static const String _assetPath =
+      'assets/images/strength/strength_plan_banner.png';
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final overlayAlpha = isDark ? 0.07 : 0.0;
+
+    final topShadowColors = isDark
+        ? [
+      Colors.black.withValues(alpha: 0.58),
+      Colors.black.withValues(alpha: 0.30),
+      Colors.black.withValues(alpha: 0.10),
+      Colors.transparent,
+    ]
+        : [
+      Colors.black.withValues(alpha: 0.24),
+      Colors.black.withValues(alpha: 0.10),
+      Colors.black.withValues(alpha: 0.03),
+      Colors.transparent,
+    ];
+
+    return AspectRatio(
+      aspectRatio: 16 / 6.5,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ColoredBox(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              child: Image.asset(
+                _assetPath,
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                filterQuality: FilterQuality.medium,
+              ),
+            ),
+          ),
+          if (overlayAlpha > 0)
+            ColoredBox(
+              color: Colors.black.withValues(alpha: overlayAlpha),
+            ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: topShadowColors,
+                stops: const [0.0, 0.08, 0.20, 0.44],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _PlanInitialsBadge extends StatelessWidget {
   const _PlanInitialsBadge({required this.planName});

@@ -53,4 +53,6 @@ flutter:
     - assets/images/anatomy/skeleton_back.png
     - assets/images/anatomy/overlays/
     - assets/images/dashboard/
+    - assets/images/endurance/
     - assets/images/exercises/
+    - assets/images/strength/

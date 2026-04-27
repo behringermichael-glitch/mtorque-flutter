@@ -358,5 +358,35 @@
           "type": "int"
         }
       }
-    }
+    },
+    "enduranceSportPickerTitle": "Choose sport",
+    "enduranceOutdoorTitle": "Outdoor",
+    "enduranceIndoorTitle": "Indoor",
+    "enduranceSportComingSoon": "{sport} will be added in the next step.",
+    "@enduranceSportComingSoon": {
+      "placeholders": {
+        "sport": {
+          "type": "String"
+        }
+      }
+    },
+    "enduranceSportRun": "Running",
+    "enduranceSportMountainBike": "Mountain bike",
+    "enduranceSportRoadBike": "Road cycling",
+    "enduranceSportRowingOutdoor": "Rowing",
+    "enduranceSportWalking": "Walking",
+    "enduranceSportNordicWalking": "Nordic walking",
+    "enduranceSportInlineSkating": "Inline skating",
+    "enduranceSportTreadmill": "Treadmill",
+    "enduranceSportTreadmillWalking": "Treadmill walking",
+    "enduranceSportErgometer": "Bike ergometer",
+    "enduranceSportRower": "Rower",
+    "enduranceSportSpinning": "Spinning",
+    "enduranceSportCrosstrainer": "Crosstrainer",
+    "enduranceSportStairclimber": "Stair climber",
+    "enduranceSportStepper": "Stepper",
+    "enduranceSportJumpRope": "Jump rope",
+    "enduranceSportSkiErgometer": "Ski ergometer",
+    "enduranceSportArmErgometer": "Arm ergometer",
+    "enduranceSportAirBike": "Air bike"
 }

@@ -708,4 +708,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String strengthPlanEditorMultipleSelected(int count) {
     return '$count selected';
   }
+
+  @override
+  String get enduranceSportPickerTitle => 'Choose sport';
+
+  @override
+  String get enduranceOutdoorTitle => 'Outdoor';
+
+  @override
+  String get enduranceIndoorTitle => 'Indoor';
+
+  @override
+  String enduranceSportComingSoon(String sport) {
+    return '$sport will be added in the next step.';
+  }
+
+  @override
+  String get enduranceSportRun => 'Running';
+
+  @override
+  String get enduranceSportMountainBike => 'Mountain bike';
+
+  @override
+  String get enduranceSportRoadBike => 'Road cycling';
+
+  @override
+  String get enduranceSportRowingOutdoor => 'Rowing';
+
+  @override
+  String get enduranceSportWalking => 'Walking';
+
+  @override
+  String get enduranceSportNordicWalking => 'Nordic walking';
+
+  @override
+  String get enduranceSportInlineSkating => 'Inline skating';
+
+  @override
+  String get enduranceSportTreadmill => 'Treadmill';
+
+  @override
+  String get enduranceSportTreadmillWalking => 'Treadmill walking';
+
+  @override
+  String get enduranceSportErgometer => 'Bike ergometer';
+
+  @override
+  String get enduranceSportRower => 'Rower';
+
+  @override
+  String get enduranceSportSpinning => 'Spinning';
+
+  @override
+  String get enduranceSportCrosstrainer => 'Crosstrainer';
+
+  @override
+  String get enduranceSportStairclimber => 'Stair climber';
+
+  @override
+  String get enduranceSportStepper => 'Stepper';
+
+  @override
+  String get enduranceSportJumpRope => 'Jump rope';
+
+  @override
+  String get enduranceSportSkiErgometer => 'Ski ergometer';
+
+  @override
+  String get enduranceSportArmErgometer => 'Arm ergometer';
+
+  @override
+  String get enduranceSportAirBike => 'Air bike';
 }
