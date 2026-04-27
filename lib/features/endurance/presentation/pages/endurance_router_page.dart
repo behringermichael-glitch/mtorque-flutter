@@ -25,7 +25,11 @@ class EnduranceRouterPage extends ConsumerWidget {
 
         final sport = EnduranceSports.byCode(session.sport);
 
-        if (sport?.mode == EnduranceMode.indoor) {
+        if (sport == null) {
+          return const EndurancePage();
+        }
+
+        if (sport.mode == EnduranceMode.indoor) {
           return IndoorTrainingPage(
             sport: sport,
             sessionId: session.id,
@@ -51,8 +55,7 @@ class EnduranceRouterPage extends ConsumerWidget {
   }
 }
 
-final _activeEnduranceSessionProvider =
-FutureProvider.autoDispose((ref) async {
+final _activeEnduranceSessionProvider = FutureProvider.autoDispose((ref) async {
   final repository = ref.watch(enduranceRepositoryProvider);
   return repository.getActiveSession();
 });

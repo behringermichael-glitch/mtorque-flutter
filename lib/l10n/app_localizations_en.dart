@@ -788,4 +788,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enduranceActiveSessionRestored => 'Active endurance session restored.';
+
+  @override
+  String get enduranceStartSession => 'Start session';
+
+  @override
+  String get enduranceDiscardSession => 'Discard session';
+
+  @override
+  String get enduranceSessionActive => 'Session active';
+
+  @override
+  String get enduranceSessionNotStarted => 'Session not started';
+
+  @override
+  String get enduranceIndoorProtocolTitle => 'Indoor protocol';
+
+  @override
+  String get enduranceIndoorProtocolDuration => 'Duration';
+
+  @override
+  String enduranceIndoorProtocolPhaseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count phases',
+      one: '1 phase',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get enduranceAxisSpeed => 'Speed';
+
+  @override
+  String get enduranceAxisPower => 'Power';
+
+  @override
+  String get enduranceAxisLevel => 'Level';
+
+  @override
+  String get enduranceAxisIncline => 'Incline';
+
+  @override
+  String get enduranceAxisIntensity => 'Intensity';
+
+  @override
+  String get enduranceIndoorCompatibilityHint => 'Indoor sessions are stored in the Android-compatible run_session table. Interval settings are saved as indoor_settings_json.';
+
+  @override
+  String get enduranceOperationFailed => 'The operation could not be completed.';
 }

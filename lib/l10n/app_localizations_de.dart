@@ -788,4 +788,54 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get enduranceActiveSessionRestored => 'Aktive Ausdauereinheit wiederhergestellt.';
+
+  @override
+  String get enduranceStartSession => 'Einheit starten';
+
+  @override
+  String get enduranceDiscardSession => 'Einheit verwerfen';
+
+  @override
+  String get enduranceSessionActive => 'Einheit aktiv';
+
+  @override
+  String get enduranceSessionNotStarted => 'Einheit noch nicht gestartet';
+
+  @override
+  String get enduranceIndoorProtocolTitle => 'Indoor-Protokoll';
+
+  @override
+  String get enduranceIndoorProtocolDuration => 'Dauer';
+
+  @override
+  String enduranceIndoorProtocolPhaseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Phasen',
+      one: '1 Phase',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get enduranceAxisSpeed => 'Geschwindigkeit';
+
+  @override
+  String get enduranceAxisPower => 'Leistung';
+
+  @override
+  String get enduranceAxisLevel => 'Level';
+
+  @override
+  String get enduranceAxisIncline => 'Steigung';
+
+  @override
+  String get enduranceAxisIntensity => 'Intensität';
+
+  @override
+  String get enduranceIndoorCompatibilityHint => 'Indoor-Einheiten werden in der Android-kompatiblen Tabelle run_session gespeichert. Intervall-Einstellungen werden als indoor_settings_json gesichert.';
+
+  @override
+  String get enduranceOperationFailed => 'Der Vorgang konnte nicht abgeschlossen werden.';
 }

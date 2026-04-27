@@ -1588,6 +1588,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Active endurance session restored.'**
   String get enduranceActiveSessionRestored;
+
+  /// No description provided for @enduranceStartSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Start session'**
+  String get enduranceStartSession;
+
+  /// No description provided for @enduranceDiscardSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard session'**
+  String get enduranceDiscardSession;
+
+  /// No description provided for @enduranceSessionActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Session active'**
+  String get enduranceSessionActive;
+
+  /// No description provided for @enduranceSessionNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Session not started'**
+  String get enduranceSessionNotStarted;
+
+  /// No description provided for @enduranceIndoorProtocolTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor protocol'**
+  String get enduranceIndoorProtocolTitle;
+
+  /// No description provided for @enduranceIndoorProtocolDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get enduranceIndoorProtocolDuration;
+
+  /// No description provided for @enduranceIndoorProtocolPhaseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 phase} other{{count} phases}}'**
+  String enduranceIndoorProtocolPhaseCount(int count);
+
+  /// No description provided for @enduranceAxisSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get enduranceAxisSpeed;
+
+  /// No description provided for @enduranceAxisPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Power'**
+  String get enduranceAxisPower;
+
+  /// No description provided for @enduranceAxisLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get enduranceAxisLevel;
+
+  /// No description provided for @enduranceAxisIncline.
+  ///
+  /// In en, this message translates to:
+  /// **'Incline'**
+  String get enduranceAxisIncline;
+
+  /// No description provided for @enduranceAxisIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity'**
+  String get enduranceAxisIntensity;
+
+  /// No description provided for @enduranceIndoorCompatibilityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Indoor sessions are stored in the Android-compatible run_session table. Interval settings are saved as indoor_settings_json.'**
+  String get enduranceIndoorCompatibilityHint;
+
+  /// No description provided for @enduranceOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation could not be completed.'**
+  String get enduranceOperationFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

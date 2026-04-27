@@ -392,5 +392,27 @@
 
     "enduranceIndoorComingSoon": "Indoor endurance training will be added next. The database compatibility layer is already prepared.",
     "enduranceOutdoorComingSoon": "Outdoor tracking will be added next. The database compatibility layer is already prepared.",
-    "enduranceActiveSessionRestored": "Active endurance session restored."
+    "enduranceActiveSessionRestored": "Active endurance session restored.",
+
+    "enduranceStartSession": "Start session",
+    "enduranceDiscardSession": "Discard session",
+    "enduranceSessionActive": "Session active",
+    "enduranceSessionNotStarted": "Session not started",
+    "enduranceIndoorProtocolTitle": "Indoor protocol",
+    "enduranceIndoorProtocolDuration": "Duration",
+    "enduranceIndoorProtocolPhaseCount": "{count, plural, =1{1 phase} other{{count} phases}}",
+    "@enduranceIndoorProtocolPhaseCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "enduranceAxisSpeed": "Speed",
+    "enduranceAxisPower": "Power",
+    "enduranceAxisLevel": "Level",
+    "enduranceAxisIncline": "Incline",
+    "enduranceAxisIntensity": "Intensity",
+    "enduranceIndoorCompatibilityHint": "Indoor sessions are stored in the Android-compatible run_session table. Interval settings are saved as indoor_settings_json.",
+    "enduranceOperationFailed": "The operation could not be completed."
 }
