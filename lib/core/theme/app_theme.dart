@@ -10,6 +10,32 @@ final class AppTheme {
   static const Color strengthBlue = Color(0xFF3B82F6);
   static const Color enduranceRed = Color(0xFFEF4444);
   static const Color bothViolet = Color(0xFF8B5CF6);
+  // Endurance interval heat scale.
+  // Mirrors the original Android chart concept: low intensity blue/cyan,
+  // moderate intensity yellow/orange, high intensity red.
+  static const Color enduranceIntensityLow = Color(0xFF26C6DA);
+  static const Color enduranceIntensityMedium = Color(0xFFFFC107);
+  static const Color enduranceIntensityHigh = Color(0xFFEF4444);
+
+  static Color enduranceIntensityColor(double fraction) {
+    final t = fraction.clamp(0.0, 1.0);
+
+    if (t <= 0.5) {
+      return Color.lerp(
+        enduranceIntensityLow,
+        enduranceIntensityMedium,
+        t / 0.5,
+      ) ??
+          enduranceIntensityMedium;
+    }
+
+    return Color.lerp(
+      enduranceIntensityMedium,
+      enduranceIntensityHigh,
+      (t - 0.5) / 0.5,
+    ) ??
+        enduranceIntensityHigh;
+  }
   static const Color statsOrange = Color(0xFFFF9800);
   static const Color settingsGreen = Color(0xFF4CAF50);
 

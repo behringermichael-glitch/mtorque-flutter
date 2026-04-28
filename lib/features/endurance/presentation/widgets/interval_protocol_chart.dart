@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:mtorque_flutter/core/theme/app_theme.dart';
 
 import '../../domain/models/indoor_interval_phase.dart';
 
@@ -469,10 +470,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     required ColorScheme colorScheme,
     required double fraction,
   }) {
-    final low = colorScheme.primaryContainer;
-    final high = colorScheme.error;
-
-    return Color.lerp(low, high, fraction.clamp(0.0, 1.0)) ?? high;
+    return AppTheme.enduranceIntensityColor(fraction);
   }
 
   static void _drawDashedLine(
