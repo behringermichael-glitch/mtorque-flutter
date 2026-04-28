@@ -1607,11 +1607,29 @@ abstract class AppLocalizations {
   /// **'Session active'**
   String get enduranceSessionActive;
 
+  /// No description provided for @enduranceSessionPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Session paused'**
+  String get enduranceSessionPaused;
+
   /// No description provided for @enduranceSessionNotStarted.
   ///
   /// In en, this message translates to:
   /// **'Session not started'**
   String get enduranceSessionNotStarted;
+
+  /// No description provided for @endurancePauseSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get endurancePauseSession;
+
+  /// No description provided for @enduranceResumeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get enduranceResumeSession;
 
   /// No description provided for @enduranceIndoorProtocolTitle.
   ///

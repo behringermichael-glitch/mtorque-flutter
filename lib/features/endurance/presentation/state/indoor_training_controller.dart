@@ -40,6 +40,7 @@ class IndoorTrainingState {
     required this.elapsedMs,
     required this.isBusy,
     required this.selectedPhaseIndex,
+    required this.isPaused,
     this.session,
     this.errorMessage,
   });
@@ -49,10 +50,13 @@ class IndoorTrainingState {
   final int elapsedMs;
   final bool isBusy;
   final int selectedPhaseIndex;
+  final bool isPaused;
   final EnduranceSession? session;
   final String? errorMessage;
 
   bool get isActive => session != null;
+
+  bool get isRunning => isActive && !isPaused;
 
   int? get sessionId => session?.id;
 
@@ -61,6 +65,7 @@ class IndoorTrainingState {
     int? elapsedMs,
     bool? isBusy,
     int? selectedPhaseIndex,
+    bool? isPaused,
     EnduranceSession? session,
     bool clearSession = false,
     String? errorMessage,
@@ -72,6 +77,7 @@ class IndoorTrainingState {
       elapsedMs: elapsedMs ?? this.elapsedMs,
       isBusy: isBusy ?? this.isBusy,
       selectedPhaseIndex: selectedPhaseIndex ?? this.selectedPhaseIndex,
+      isPaused: isPaused ?? this.isPaused,
       session: clearSession ? null : session ?? this.session,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
@@ -84,6 +90,7 @@ class IndoorTrainingState {
       elapsedMs: 0,
       isBusy: false,
       selectedPhaseIndex: 0,
+      isPaused: false,
     );
   }
 }
@@ -102,6 +109,8 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
 
   Timer? _ticker;
   bool _restoreStarted = false;
+  int _pausedAccumulatedMs = 0;
+  int? _pauseStartedAtMs;
 
   @override
   IndoorTrainingState build() {
@@ -139,9 +148,13 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         state = state.copyWith(
           isBusy: false,
           clearSession: true,
+          isPaused: false,
         );
         return;
       }
+
+      _pausedAccumulatedMs = 0;
+      _pauseStartedAtMs = null;
 
       final restoredProtocol = _protocolFromSession(activeSession);
 
@@ -150,6 +163,7 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         protocol: restoredProtocol,
         elapsedMs: _elapsedFor(activeSession),
         isBusy: false,
+        isPaused: false,
         clearError: true,
       );
 
@@ -211,10 +225,14 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         hrZoneBoundsJson: null,
       );
 
+      _pausedAccumulatedMs = 0;
+      _pauseStartedAtMs = null;
+
       state = state.copyWith(
         session: session,
         elapsedMs: 0,
         isBusy: false,
+        isPaused: false,
         clearError: true,
       );
 
@@ -225,6 +243,46 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         errorMessage: error.toString(),
       );
     }
+  }
+
+  void pauseSession() {
+    if (!state.isActive || state.isPaused || state.isBusy) {
+      return;
+    }
+
+    _pauseStartedAtMs = DateTime.now().millisecondsSinceEpoch;
+    _stopTicker();
+
+    state = state.copyWith(
+      isPaused: true,
+      clearError: true,
+    );
+  }
+
+  void resumeSession() {
+    if (!state.isActive || !state.isPaused || state.isBusy) {
+      return;
+    }
+
+    final pauseStartedAtMs = _pauseStartedAtMs;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if (pauseStartedAtMs != null) {
+      _pausedAccumulatedMs +=
+          (now - pauseStartedAtMs).clamp(0, 1 << 53).toInt();
+    }
+
+    _pauseStartedAtMs = null;
+
+    final session = state.session;
+
+    state = state.copyWith(
+      elapsedMs: session == null ? state.elapsedMs : _elapsedFor(session),
+      isPaused: false,
+      clearError: true,
+    );
+
+    _startTicker();
   }
 
   Future<void> discardSession() async {
@@ -243,10 +301,13 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
       await repository.discardSession(sessionId);
 
       _stopTicker();
+      _pausedAccumulatedMs = 0;
+      _pauseStartedAtMs = null;
 
       state = state.copyWith(
         elapsedMs: 0,
         isBusy: false,
+        isPaused: false,
         clearSession: true,
         clearError: true,
       );
@@ -275,7 +336,7 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
     try {
       final repository = ref.read(enduranceRepositoryProvider);
       final now = DateTime.now().millisecondsSinceEpoch;
-      final durationMs = (now - session.startEpochMs).clamp(0, 1 << 53).toInt();
+      final durationMs = _elapsedFor(session);
 
       await repository.finalizeSession(
         sessionId: session.id,
@@ -301,10 +362,13 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
       );
 
       _stopTicker();
+      _pausedAccumulatedMs = 0;
+      _pauseStartedAtMs = null;
 
       state = state.copyWith(
         elapsedMs: durationMs,
         isBusy: false,
+        isPaused: false,
         clearSession: true,
         clearError: true,
       );
@@ -449,7 +513,17 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
 
   int _elapsedFor(EnduranceSession session) {
     final now = DateTime.now().millisecondsSinceEpoch;
-    return (now - session.startEpochMs).clamp(0, 1 << 53).toInt();
+    final pauseStartedAtMs = _pauseStartedAtMs;
+    final currentPauseMs = pauseStartedAtMs == null
+        ? 0
+        : (now - pauseStartedAtMs).clamp(0, 1 << 53).toInt();
+
+    return (now -
+        session.startEpochMs -
+        _pausedAccumulatedMs -
+        currentPauseMs)
+        .clamp(0, 1 << 53)
+        .toInt();
   }
 
   void _startTicker() {
@@ -457,7 +531,7 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
 
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       final session = state.session;
-      if (session == null) {
+      if (session == null || state.isPaused) {
         return;
       }
 

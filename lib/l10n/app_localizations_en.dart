@@ -799,7 +799,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enduranceSessionActive => 'Session active';
 
   @override
+  String get enduranceSessionPaused => 'Session paused';
+
+  @override
   String get enduranceSessionNotStarted => 'Session not started';
+
+  @override
+  String get endurancePauseSession => 'Pause';
+
+  @override
+  String get enduranceResumeSession => 'Resume';
 
   @override
   String get enduranceIndoorProtocolTitle => 'Indoor protocol';

@@ -83,6 +83,7 @@ class IndoorTrainingPage extends ConsumerWidget {
               sportLabel: sportLabel,
               elapsedText: _formatElapsed(state.elapsedMs),
               isActive: state.isActive,
+              isPaused: state.isPaused,
               isBusy: state.isBusy,
               phaseText: state.isActive
                   ? l10n.enduranceCurrentPhase(
@@ -121,30 +122,54 @@ class IndoorTrainingPage extends ConsumerWidget {
                 label: Text(l10n.enduranceStartSession),
               )
             else ...[
-              FilledButton.icon(
-                onPressed: state.isBusy
-                    ? null
-                    : () async {
-                  final result = await _showFinishIndoorSessionDialog(
-                    context: context,
-                    elapsedText: _formatElapsed(state.elapsedMs),
-                  );
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: state.isBusy
+                          ? null
+                          : state.isPaused
+                          ? controller.resumeSession
+                          : controller.pauseSession,
+                      icon: Icon(
+                        state.isPaused ? Icons.play_arrow : Icons.pause,
+                      ),
+                      label: Text(
+                        state.isPaused
+                            ? l10n.enduranceResumeSession
+                            : l10n.endurancePauseSession,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: state.isBusy
+                          ? null
+                          : () async {
+                        final result = await _showFinishIndoorSessionDialog(
+                          context: context,
+                          elapsedText: _formatElapsed(state.elapsedMs),
+                        );
 
-                  if (result == null) {
-                    return;
-                  }
+                        if (result == null) {
+                          return;
+                        }
 
-                  await controller.finishSession(
-                    rpe0to10: result.rpe0to10,
-                    notes: result.notes,
-                  );
+                        await controller.finishSession(
+                          rpe0to10: result.rpe0to10,
+                          notes: result.notes,
+                        );
 
-                  if (context.mounted) {
-                    Navigator.of(context).maybePop();
-                  }
-                },
-                icon: const Icon(Icons.stop),
-                label: Text(l10n.enduranceFinishSession),
+                        if (context.mounted) {
+                          Navigator.of(context).maybePop();
+                        }
+                      },
+                      icon: const Icon(Icons.stop),
+                      label: Text(l10n.enduranceFinishSession),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -233,6 +258,7 @@ class _StatusCard extends StatelessWidget {
     required this.sportLabel,
     required this.elapsedText,
     required this.isActive,
+    required this.isPaused,
     required this.isBusy,
     required this.phaseText,
     required this.phaseRemainingText,
@@ -242,6 +268,7 @@ class _StatusCard extends StatelessWidget {
   final String sportLabel;
   final String elapsedText;
   final bool isActive;
+  final bool isPaused;
   final bool isBusy;
   final String? phaseText;
   final String? phaseRemainingText;
@@ -251,6 +278,26 @@ class _StatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+
+    final statusText = !isActive
+        ? l10n.enduranceSessionNotStarted
+        : isPaused
+        ? l10n.enduranceSessionPaused
+        : protocolCompleted
+        ? l10n.enduranceProtocolCompleted
+        : l10n.enduranceSessionActive;
+
+    final statusIcon = !isActive
+        ? Icons.circle_outlined
+        : isPaused
+        ? Icons.pause_circle_outline
+        : Icons.radio_button_checked;
+
+    final statusColor = !isActive
+        ? theme.colorScheme.onSurfaceVariant
+        : isPaused
+        ? theme.colorScheme.tertiary
+        : theme.colorScheme.primary;
 
     return Card(
       child: Padding(
@@ -276,20 +323,14 @@ class _StatusCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  isActive ? Icons.radio_button_checked : Icons.circle_outlined,
+                  statusIcon,
                   size: 18,
-                  color: isActive
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurfaceVariant,
+                  color: statusColor,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    isActive
-                        ? protocolCompleted
-                        ? l10n.enduranceProtocolCompleted
-                        : l10n.enduranceSessionActive
-                        : l10n.enduranceSessionNotStarted,
+                    statusText,
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
