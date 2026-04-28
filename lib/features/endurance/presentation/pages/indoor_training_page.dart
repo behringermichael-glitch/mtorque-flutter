@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mtorque_flutter/l10n/app_localizations.dart';
@@ -8,6 +7,7 @@ import '../../domain/models/indoor_axis_spec.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
 import '../../domain/services/indoor_protocol_timeline.dart';
 import '../state/indoor_training_controller.dart';
+import '../widgets/indoor_training_value_control.dart';
 import '../widgets/interval_protocol_chart.dart';
 
 class IndoorTrainingPage extends ConsumerWidget {
@@ -567,9 +567,6 @@ class _PhaseEditorCard extends StatelessWidget {
     final theme = Theme.of(context);
     final phase = protocol.phases[selectedIndex];
 
-    final minutes = phase.durSec ~/ 60;
-    final seconds = phase.durSec % 60;
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
@@ -594,58 +591,46 @@ class _PhaseEditorCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _ValueStepper(
+            IndoorTrainingValueControl(
               label: _axisLabel(l10n, axis.key),
-              value: _formatValue(
-                phase.intensity,
-                axis.decimals,
-                _axisUnit(axis.key),
-              ),
-              currentValue: phase.intensity,
+              value: phase.intensity,
               min: axis.min,
               max: axis.max,
               step: axis.step,
               enabled: !isReadOnly,
               roundValue: axis.roundValue,
-              onValueChanged: (next) {
-                return onChanged(
-                  intensity: axis.roundValue(next),
+              formatValue: (value) {
+                return _formatValue(
+                  value,
+                  axis.decimals,
+                  _axisUnit(axis.key),
                 );
               },
-              onValueTap: () async {
-                final next = await _showAxisValueDial(
-                  context: context,
-                  label: _axisLabel(l10n, axis.key),
-                  axis: axis,
-                  value: phase.intensity,
-                );
-
-                if (next == null) {
-                  return;
-                }
-
-                await onChanged(
+              onChanged: (next) {
+                return onChanged(
                   intensity: axis.roundValue(next),
                 );
               },
             ),
             if (axis.extra != null) ...[
               const SizedBox(height: 12),
-              _ValueStepper(
+              IndoorTrainingValueControl(
                 label: _axisLabel(l10n, axis.extra!.key),
-                value: _formatValue(
-                  phase.extra[axis.extra!.key] ?? axis.extra!.defaultValue,
-                  axis.extra!.decimals,
-                  _axisUnit(axis.extra!.key),
-                ),
-                currentValue:
+                value:
                 phase.extra[axis.extra!.key] ?? axis.extra!.defaultValue,
                 min: axis.extra!.min,
                 max: axis.extra!.max,
                 step: axis.extra!.step,
                 enabled: !isReadOnly,
                 roundValue: axis.extra!.roundValue,
-                onValueChanged: (next) {
+                formatValue: (value) {
+                  return _formatValue(
+                    value,
+                    axis.extra!.decimals,
+                    _axisUnit(axis.extra!.key),
+                  );
+                },
+                onChanged: (next) {
                   return onChanged(
                     extra: {
                       ...phase.extra,
@@ -653,67 +638,51 @@ class _PhaseEditorCard extends StatelessWidget {
                     },
                   );
                 },
-                onValueTap: () async {
-                  final extraAxis = axis.extra!;
-                  final current =
-                      phase.extra[extraAxis.key] ?? extraAxis.defaultValue;
-
-                  final next = await _showAxisValueDial(
-                    context: context,
-                    label: _axisLabel(l10n, extraAxis.key),
-                    axis: extraAxis,
-                    value: current,
-                  );
-
-                  if (next == null) {
-                    return;
-                  }
-
-                  await onChanged(
-                    extra: {
-                      ...phase.extra,
-                      extraAxis.key: extraAxis.roundValue(next),
-                    },
-                  );
-                },
               ),
             ],
             const SizedBox(height: 12),
-            _ValueStepper(
+            IndoorTrainingValueControl(
               label: l10n.enduranceIndoorProtocolDuration,
-              value:
-              '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-              currentValue: phase.durSec.toDouble(),
+              value: phase.durSec.toDouble(),
               min: 30,
-              max: (24 * 3600).toDouble(),
+              max: (120 * 60).toDouble(),
               step: 30,
               enabled: !isReadOnly,
-              roundValue: (value) {
-                return ((value / 30).round() * 30)
-                    .clamp(30, 24 * 3600)
-                    .toDouble();
+              roundValue: _roundDurationSeconds,
+              formatValue: (value) {
+                return _formatDuration(value.round());
               },
-              onValueChanged: (next) {
-                return onChanged(durSec: next.round());
-              },
-              onValueTap: () async {
-                final next = await _showDurationDial(
-                  context: context,
-                  label: l10n.enduranceIndoorProtocolDuration,
-                  valueSec: phase.durSec,
+              onChanged: (next) {
+                return onChanged(
+                  durSec: _roundDurationSeconds(next).round(),
                 );
-
-                if (next == null) {
-                  return;
-                }
-
-                await onChanged(durSec: next);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  static double _roundDurationSeconds(double value) {
+    return ((value / 30).round() * 30)
+        .clamp(30, 120 * 60)
+        .toDouble();
+  }
+
+  static String _formatDuration(int totalSec) {
+    final hours = totalSec ~/ 3600;
+    final minutes = (totalSec % 3600) ~/ 60;
+    final seconds = totalSec % 60;
+
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+    }
+
+    return '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
   }
 
   static String _formatValue(
@@ -758,496 +727,6 @@ class _PhaseEditorCard extends StatelessWidget {
     }
   }
 }
-
-class _ValueStepper extends StatefulWidget {
-  const _ValueStepper({
-    required this.label,
-    required this.value,
-    required this.currentValue,
-    required this.min,
-    required this.max,
-    required this.step,
-    required this.enabled,
-    required this.roundValue,
-    required this.onValueChanged,
-    this.onValueTap,
-  });
-
-  final String label;
-  final String value;
-  final double currentValue;
-  final double min;
-  final double max;
-  final double step;
-  final bool enabled;
-  final double Function(double value) roundValue;
-  final Future<void> Function(double value) onValueChanged;
-  final Future<void> Function()? onValueTap;
-
-  @override
-  State<_ValueStepper> createState() => _ValueStepperState();
-}
-
-class _ValueStepperState extends State<_ValueStepper> {
-  Timer? _repeatTimer;
-  double? _draftValue;
-  double _dragOriginX = 0;
-  double _dragDistance = 0;
-  bool _isApplyingStep = false;
-
-  @override
-  void didUpdateWidget(covariant _ValueStepper oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    final current = widget.currentValue;
-    final draft = _draftValue;
-
-    if (draft == null) {
-      return;
-    }
-
-    if ((current - draft).abs() <= widget.step / 2) {
-      _draftValue = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    _stopRepeating();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final valueText = Text(
-      widget.value,
-      textAlign: TextAlign.center,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w800,
-      ),
-    );
-
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            widget.label,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        _StepGestureButton(
-          enabled: widget.enabled,
-          icon: Icons.remove,
-          direction: -1,
-          onTapStep: () => _applyStep(direction: -1),
-          onRepeatStart: _startRepeating,
-          onRepeatMove: _updateRepeatDrag,
-          onRepeatEnd: _stopRepeating,
-        ),
-        SizedBox(
-          width: 104,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: widget.enabled && widget.onValueTap != null
-                  ? widget.onValueTap
-                  : null,
-              onLongPress: widget.enabled
-                  ? () {
-                // Reserved for later: direct numeric input.
-              }
-                  : null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 8,
-                ),
-                child: valueText,
-              ),
-            ),
-          ),
-        ),
-        _StepGestureButton(
-          enabled: widget.enabled,
-          icon: Icons.add,
-          direction: 1,
-          onTapStep: () => _applyStep(direction: 1),
-          onRepeatStart: _startRepeating,
-          onRepeatMove: _updateRepeatDrag,
-          onRepeatEnd: _stopRepeating,
-        ),
-      ],
-    );
-  }
-
-  Future<void> _applyStep({
-    required int direction,
-    int multiplier = 1,
-  }) async {
-    if (!widget.enabled || _isApplyingStep) {
-      return;
-    }
-
-    _isApplyingStep = true;
-
-    try {
-      final base = _draftValue ?? widget.currentValue;
-      final rawNext = base + direction * widget.step * multiplier;
-      final next = widget.roundValue(
-        rawNext.clamp(widget.min, widget.max).toDouble(),
-      );
-
-      _draftValue = next;
-      await widget.onValueChanged(next);
-    } finally {
-      _isApplyingStep = false;
-    }
-  }
-
-  void _startRepeating({
-    required int direction,
-    required double globalX,
-  }) {
-    if (!widget.enabled) {
-      return;
-    }
-
-    _dragOriginX = globalX;
-    _dragDistance = 0;
-
-    _repeatTimer?.cancel();
-    _repeatTimer = Timer.periodic(
-      const Duration(milliseconds: 140),
-          (_) {
-        _applyStep(
-          direction: direction,
-          multiplier: _repeatMultiplier,
-        );
-      },
-    );
-  }
-
-  void _updateRepeatDrag({
-    required int direction,
-    required double globalX,
-  }) {
-    final distance = (globalX - _dragOriginX).abs();
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _dragDistance = distance;
-    });
-  }
-
-  int get _repeatMultiplier {
-    if (_dragDistance < 16) {
-      return 1;
-    }
-
-    if (_dragDistance < 32) {
-      return 3;
-    }
-
-    if (_dragDistance < 56) {
-      return 6;
-    }
-
-    if (_dragDistance < 88) {
-      return 12;
-    }
-
-    if (_dragDistance < 128) {
-      return 20;
-    }
-
-    return 30;
-  }
-
-  void _stopRepeating() {
-    _repeatTimer?.cancel();
-    _repeatTimer = null;
-    _dragDistance = 0;
-  }
-}
-
-class _StepGestureButton extends StatelessWidget {
-  const _StepGestureButton({
-    required this.enabled,
-    required this.icon,
-    required this.direction,
-    required this.onTapStep,
-    required this.onRepeatStart,
-    required this.onRepeatMove,
-    required this.onRepeatEnd,
-  });
-
-  final bool enabled;
-  final IconData icon;
-  final int direction;
-  final Future<void> Function() onTapStep;
-  final void Function({
-  required int direction,
-  required double globalX,
-  }) onRepeatStart;
-  final void Function({
-  required int direction,
-  required double globalX,
-  }) onRepeatMove;
-  final VoidCallback onRepeatEnd;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTapStep : null,
-      onLongPressStart: enabled
-          ? (details) {
-        onRepeatStart(
-          direction: direction,
-          globalX: details.globalPosition.dx,
-        );
-      }
-          : null,
-      onLongPressMoveUpdate: enabled
-          ? (details) {
-        onRepeatMove(
-          direction: direction,
-          globalX: details.globalPosition.dx,
-        );
-      }
-          : null,
-      onLongPressEnd: enabled ? (_) => onRepeatEnd() : null,
-      onLongPressCancel: enabled ? onRepeatEnd : null,
-      child: IconButton(
-        onPressed: null,
-        icon: Icon(icon),
-        color: enabled
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).disabledColor,
-      ),
-    );
-  }
-}
-
-Future<double?> _showAxisValueDial({
-  required BuildContext context,
-  required String label,
-  required IndoorAxisSpec axis,
-  required double value,
-}) {
-  var draft = axis.roundValue(
-    value.clamp(axis.min, axis.max).toDouble(),
-  );
-
-  final divisions = ((axis.max - axis.min) / axis.step).round();
-
-  return showModalBottomSheet<double>(
-    context: context,
-    showDragHandle: true,
-    builder: (context) {
-      final material = MaterialLocalizations.of(context);
-
-      return StatefulBuilder(
-        builder: (context, setState) {
-          final valueText = _formatAxisDialValue(
-            value: draft,
-            decimals: axis.decimals,
-            unit: _axisUnitForDial(axis.key),
-          );
-
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    valueText,
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Slider(
-                    value: draft,
-                    min: axis.min,
-                    max: axis.max,
-                    divisions:
-                    divisions > 0 && divisions <= 500 ? divisions : null,
-                    label: valueText,
-                    onChanged: (next) {
-                      setState(() {
-                        draft = axis.roundValue(next);
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(material.cancelButtonLabel),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(draft);
-                          },
-                          child: Text(material.okButtonLabel),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
-
-Future<int?> _showDurationDial({
-  required BuildContext context,
-  required String label,
-  required int valueSec,
-}) {
-  var draft = valueSec.clamp(30, 24 * 3600);
-
-  return showModalBottomSheet<int>(
-    context: context,
-    showDragHandle: true,
-    builder: (context) {
-      final material = MaterialLocalizations.of(context);
-
-      return StatefulBuilder(
-        builder: (context, setState) {
-          final valueText = _formatDurationForDial(draft);
-
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    valueText,
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Slider(
-                    value: draft.toDouble(),
-                    min: 30,
-                    max: (24 * 3600).toDouble(),
-                    divisions: ((24 * 3600 - 30) / 30).round(),
-                    label: valueText,
-                    onChanged: (next) {
-                      setState(() {
-                        draft = ((next / 30).round() * 30)
-                            .clamp(30, 24 * 3600);
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(material.cancelButtonLabel),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(draft);
-                          },
-                          child: Text(material.okButtonLabel),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
-
-String _formatAxisDialValue({
-  required double value,
-  required int decimals,
-  required String unit,
-}) {
-  final formatted =
-  decimals == 0 ? value.round().toString() : value.toStringAsFixed(decimals);
-
-  return unit.isEmpty ? formatted : '$formatted $unit';
-}
-
-String _axisUnitForDial(String key) {
-  switch (key) {
-    case 'speedKmh':
-      return 'km/h';
-    case 'powerW':
-      return 'W';
-    case 'inclinePct':
-      return '%';
-    default:
-      return '';
-  }
-}
-
-String _formatDurationForDial(int totalSec) {
-  final hours = totalSec ~/ 3600;
-  final minutes = (totalSec % 3600) ~/ 60;
-  final seconds = totalSec % 60;
-
-  if (hours > 0) {
-    return '${hours.toString().padLeft(2, '0')}:'
-        '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
-  }
-
-  return '${minutes.toString().padLeft(2, '0')}:'
-      '${seconds.toString().padLeft(2, '0')}';
-}
-
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
