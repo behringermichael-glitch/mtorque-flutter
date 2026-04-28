@@ -77,7 +77,7 @@ class IndoorTrainingPage extends ConsumerWidget {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
           children: [
             _StatusCard(
               sportLabel: sportLabel,
@@ -96,7 +96,7 @@ class IndoorTrainingPage extends ConsumerWidget {
                   : null,
               protocolCompleted: timeline.protocolCompleted,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _ProtocolCard(
               protocol: state.protocol,
               axis: axis,
@@ -105,7 +105,7 @@ class IndoorTrainingPage extends ConsumerWidget {
               onAddPhase: controller.addDefaultPhase,
               onPhaseSelected: controller.selectPhase,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _PhaseEditorCard(
               protocol: state.protocol,
               axis: axis,
@@ -114,7 +114,7 @@ class IndoorTrainingPage extends ConsumerWidget {
               onChanged: controller.updateSelectedPhase,
               onDelete: controller.deleteSelectedPhase,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             if (!state.isActive)
               FilledButton.icon(
                 onPressed: state.isBusy ? null : controller.startSession,
@@ -194,13 +194,15 @@ class IndoorTrainingPage extends ConsumerWidget {
                 label: Text(l10n.enduranceDiscardSession),
               ),
             ],
-            const SizedBox(height: 12),
-            Text(
-              l10n.enduranceIndoorCompatibilityHint,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+            if (!state.isActive) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.enduranceIndoorCompatibilityHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -301,55 +303,62 @@ class _StatusCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              sportLabel,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              elapsedText,
-              style: theme.textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFeatures: const [],
-              ),
-            ),
-            const SizedBox(height: 8),
             Row(
               children: [
+                Expanded(
+                  child: Text(
+                    sportLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Icon(
                   statusIcon,
                   size: 18,
                   color: statusColor,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    statusText,
-                    style: theme.textTheme.bodyMedium,
+                const SizedBox(width: 6),
+                Text(
+                  statusText,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (isBusy)
+                if (isBusy) ...[
+                  const SizedBox(width: 8),
                   const SizedBox(
-                    width: 18,
-                    height: 18,
+                    width: 16,
+                    height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
+                ],
               ],
             ),
+            const SizedBox(height: 6),
+            Text(
+              elapsedText,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                fontFeatures: const [],
+              ),
+            ),
             if (phaseText != null && phaseRemainingText != null) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       phaseText!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                      style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -358,8 +367,8 @@ class _StatusCard extends StatelessWidget {
                     protocolCompleted
                         ? l10n.enduranceProtocolTargetReached
                         : l10n.endurancePhaseRemaining(phaseRemainingText!),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -400,7 +409,7 @@ class _ProtocolCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -411,7 +420,7 @@ class _ProtocolCard extends StatelessWidget {
                 axis: axis,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             IntervalProtocolChart(
               phases: protocol.phases,
               axisLabel: _axisLabel(l10n, axis.key),
@@ -422,19 +431,27 @@ class _ProtocolCard extends StatelessWidget {
               onAddPhase: onAddPhase,
               onPhaseSelected: onPhaseSelected,
             ),
-            const SizedBox(height: 12),
-            _InfoRow(
-              label: l10n.enduranceIndoorProtocolDuration,
-              value: _formatDuration(protocol.totalSec),
-            ),
             const SizedBox(height: 8),
-            _InfoRow(
-              label: _axisLabel(l10n, axis.key),
-              value: _formatAxisValue(
-                value: intensityAverage,
-                decimals: axis.decimals,
-                unit: _axisUnit(axis.key),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: _InfoRow(
+                    label: l10n.enduranceIndoorProtocolDuration,
+                    value: _formatDuration(protocol.totalSec),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _InfoRow(
+                    label: _axisLabel(l10n, axis.key),
+                    value: _formatAxisValue(
+                      value: intensityAverage,
+                      decimals: axis.decimals,
+                      unit: _axisUnit(axis.key),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -539,17 +556,19 @@ class _ProtocolHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
               const SizedBox(height: 6),
               Divider(
                 height: 1,
@@ -561,12 +580,24 @@ class _ProtocolHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(
+            width: 36,
+            height: 36,
+          ),
           onPressed: null,
           icon: const Icon(Icons.volume_up_outlined),
         ),
         IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(
+            width: 36,
+            height: 36,
+          ),
           onPressed: null,
           icon: const Icon(Icons.more_vert),
         ),
@@ -610,7 +641,7 @@ class _PhaseEditorCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
         child: Column(
           children: [
             Row(
@@ -618,7 +649,7 @@ class _PhaseEditorCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     l10n.enduranceSelectedPhase,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -631,7 +662,7 @@ class _PhaseEditorCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             IndoorTrainingValueControl(
               label: _axisLabel(l10n, axis.key),
               value: phase.intensity,
@@ -654,7 +685,7 @@ class _PhaseEditorCard extends StatelessWidget {
               },
             ),
             if (axis.extra != null) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               IndoorTrainingValueControl(
                 label: _axisLabel(l10n, axis.extra!.key),
                 value:
@@ -681,7 +712,7 @@ class _PhaseEditorCard extends StatelessWidget {
                 },
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             IndoorTrainingValueControl(
               label: l10n.enduranceIndoorProtocolDuration,
               value: phase.durSec.toDouble(),
@@ -782,21 +813,24 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(height: 2),
         Text(
           value,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w700,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],

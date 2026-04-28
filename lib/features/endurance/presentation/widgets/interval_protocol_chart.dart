@@ -32,7 +32,7 @@ class IntervalProtocolChart extends StatelessWidget {
     final theme = Theme.of(context);
 
     return AspectRatio(
-      aspectRatio: 1.55,
+      aspectRatio: 2.05,
       child: LayoutBuilder(
         builder: (context, constraints) {
           return GestureDetector(
@@ -609,7 +609,7 @@ class _ChartLayout {
         required bool showAddButton,
       }) {
     const padLeft = 58.0;
-    const padRight = 56.0;
+    const padRight = 14.0;
     const padTop = 16.0;
     const padBottom = 38.0;
 
