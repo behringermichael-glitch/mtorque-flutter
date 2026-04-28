@@ -81,7 +81,9 @@ class IndoorTrainingPage extends ConsumerWidget {
           children: [
             _StatusCard(
               sportLabel: sportLabel,
+              sportAssetPath: sport.assetPath,
               elapsedText: _formatElapsed(state.elapsedMs),
+              heartRateText: l10n.enduranceHeartRatePlaceholder,
               isActive: state.isActive,
               isPaused: state.isPaused,
               isBusy: state.isBusy,
@@ -258,7 +260,9 @@ class IndoorTrainingPage extends ConsumerWidget {
 class _StatusCard extends StatelessWidget {
   const _StatusCard({
     required this.sportLabel,
+    required this.sportAssetPath,
     required this.elapsedText,
+    required this.heartRateText,
     required this.isActive,
     required this.isPaused,
     required this.isBusy,
@@ -268,7 +272,9 @@ class _StatusCard extends StatelessWidget {
   });
 
   final String sportLabel;
+  final String sportAssetPath;
   final String elapsedText;
+  final String heartRateText;
   final bool isActive;
   final bool isPaused;
   final bool isBusy;
@@ -301,79 +307,136 @@ class _StatusCard extends StatelessWidget {
         ? theme.colorScheme.tertiary
         : theme.colorScheme.primary;
 
+    final largeValueStyle = theme.textTheme.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w900,
+      fontFeatures: const [],
+    );
+
     return Card(
+      color: theme.colorScheme.surfaceContainerHighest,
+      clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        child: Column(
+        padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    sportLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  statusIcon,
-                  size: 18,
-                  color: statusColor,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  statusText,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (isBusy) ...[
-                  const SizedBox(width: 8),
-                  const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              elapsedText,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFeatures: const [],
-              ),
-            ),
-            if (phaseText != null && phaseRemainingText != null) ...[
-              const SizedBox(height: 6),
-              Row(
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      phaseText!,
+                  Text(
+                    elapsedText,
+                    style: largeValueStyle,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.favorite,
+                        size: 20,
+                        color: theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          heartRateText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: largeValueStyle,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(
+                        statusIcon,
+                        size: 17,
+                        color: statusColor,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          statusText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (isBusy) ...[
+                        const SizedBox(width: 8),
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (phaseText != null && phaseRemainingText != null) ...[
+                    const SizedBox(height: 5),
+                    Text(
+                      protocolCompleted
+                          ? l10n.enduranceProtocolTargetReached
+                          : '$phaseText · ${l10n.endurancePhaseRemaining(phaseRemainingText!)}',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  ),
-                  Text(
-                    protocolCompleted
-                        ? l10n.enduranceProtocolTargetReached
-                        : l10n.endurancePhaseRemaining(phaseRemainingText!),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  ],
                 ],
               ),
-            ],
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 118,
+              height: 108,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: theme.dividerColor.withValues(alpha: 0.25),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                        color: Colors.black.withValues(alpha: 0.08),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: 96,
+                    height: 96,
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Image.asset(
+                        sportAssetPath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.favorite_border,
+                            size: 56,
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.55),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

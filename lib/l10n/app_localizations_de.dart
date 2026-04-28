@@ -817,6 +817,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get enduranceIndoorProtocolDuration => 'Dauer';
 
   @override
+  String get enduranceHeartRateLabel => 'HF';
+
+  @override
+  String get enduranceHeartRatePlaceholder => '-- bpm';
+
+  @override
   String enduranceIndoorProtocolPhaseCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -401,6 +401,8 @@
     "endurancePauseSession": "Pause",
     "enduranceResumeSession": "Fortsetzen",
     "enduranceIndoorProtocolTitle": "Indoor-Protokoll",
+    "enduranceHeartRateLabel": "HF",
+    "enduranceHeartRatePlaceholder": "-- bpm",
     "enduranceIndoorProtocolDuration": "Dauer",
     "enduranceIndoorProtocolPhaseCount": "{count, plural, =1{1 Phase} other{{count} Phasen}}",
     "@enduranceIndoorProtocolPhaseCount": {

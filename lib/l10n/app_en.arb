@@ -403,6 +403,8 @@
     "enduranceResumeSession": "Resume",
     "enduranceIndoorProtocolTitle": "Indoor protocol",
     "enduranceIndoorProtocolDuration": "Duration",
+    "enduranceHeartRateLabel": "HR",
+    "enduranceHeartRatePlaceholder": "-- bpm",
     "enduranceIndoorProtocolPhaseCount": "{count, plural, =1{1 phase} other{{count} phases}}",
     "@enduranceIndoorProtocolPhaseCount": {
       "placeholders": {

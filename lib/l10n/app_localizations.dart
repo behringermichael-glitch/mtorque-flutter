@@ -1643,6 +1643,18 @@ abstract class AppLocalizations {
   /// **'Duration'**
   String get enduranceIndoorProtocolDuration;
 
+  /// No description provided for @enduranceHeartRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'HR'**
+  String get enduranceHeartRateLabel;
+
+  /// No description provided for @enduranceHeartRatePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'-- bpm'**
+  String get enduranceHeartRatePlaceholder;
+
   /// No description provided for @enduranceIndoorProtocolPhaseCount.
   ///
   /// In en, this message translates to:
