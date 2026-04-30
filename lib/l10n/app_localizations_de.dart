@@ -823,6 +823,44 @@ class AppLocalizationsDe extends AppLocalizations {
   String get enduranceHeartRatePlaceholder => '-- bpm';
 
   @override
+  String enduranceHeartRateValue(int bpm) {
+    return '$bpm bpm';
+  }
+
+  @override
+  String get enduranceHeartRateConnect => 'HF verbinden';
+
+  @override
+  String get enduranceHeartRateDisconnect => 'HF trennen';
+
+  @override
+  String get enduranceHeartRateRequestingPermissions => 'Bluetooth-Berechtigung wird angefragt…';
+
+  @override
+  String get enduranceHeartRateScanning => 'HF-Sensor wird gesucht…';
+
+  @override
+  String get enduranceHeartRateConnecting => 'HF-Sensor wird verbunden…';
+
+  @override
+  String get enduranceHeartRateConnected => 'HF-Sensor verbunden';
+
+  @override
+  String get enduranceHeartRateDisconnected => 'Kein HF-Sensor verbunden';
+
+  @override
+  String get enduranceHeartRateBluetoothOff => 'Bluetooth ist ausgeschaltet';
+
+  @override
+  String get enduranceHeartRatePermissionDenied => 'Bluetooth-Berechtigung verweigert';
+
+  @override
+  String get enduranceHeartRateUnsupported => 'Bluetooth LE ist auf diesem Gerät nicht verfügbar';
+
+  @override
+  String get enduranceHeartRateError => 'Herzfrequenz-Verbindung fehlgeschlagen';
+
+  @override
   String enduranceIndoorProtocolPhaseCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -823,6 +823,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enduranceHeartRatePlaceholder => '-- bpm';
 
   @override
+  String enduranceHeartRateValue(int bpm) {
+    return '$bpm bpm';
+  }
+
+  @override
+  String get enduranceHeartRateConnect => 'Connect HR';
+
+  @override
+  String get enduranceHeartRateDisconnect => 'Disconnect HR';
+
+  @override
+  String get enduranceHeartRateRequestingPermissions => 'Requesting Bluetooth permission…';
+
+  @override
+  String get enduranceHeartRateScanning => 'Searching for HR sensor…';
+
+  @override
+  String get enduranceHeartRateConnecting => 'Connecting HR sensor…';
+
+  @override
+  String get enduranceHeartRateConnected => 'HR sensor connected';
+
+  @override
+  String get enduranceHeartRateDisconnected => 'No HR sensor connected';
+
+  @override
+  String get enduranceHeartRateBluetoothOff => 'Bluetooth is turned off';
+
+  @override
+  String get enduranceHeartRatePermissionDenied => 'Bluetooth permission denied';
+
+  @override
+  String get enduranceHeartRateUnsupported => 'Bluetooth LE is not available on this device';
+
+  @override
+  String get enduranceHeartRateError => 'Heart-rate connection failed';
+
+  @override
   String enduranceIndoorProtocolPhaseCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

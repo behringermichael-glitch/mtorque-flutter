@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mtorque_flutter/l10n/app_localizations.dart';
 
 import '../../domain/models/endurance_sport.dart';
+import '../../domain/models/heart_rate_connection_status.dart';
 import '../../domain/models/indoor_axis_spec.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
 import '../../domain/services/indoor_protocol_timeline.dart';
+import '../state/heart_rate_controller.dart';
 import '../state/indoor_training_controller.dart';
 import '../widgets/indoor_training_value_control.dart';
 import '../widgets/interval_protocol_chart.dart';
@@ -31,6 +33,8 @@ class IndoorTrainingPage extends ConsumerWidget {
     final state = ref.watch(indoorTrainingControllerProvider(args));
     final controller = ref.read(indoorTrainingControllerProvider(args).notifier);
 
+    final heartRateState = ref.watch(heartRateControllerProvider);
+    final heartRateController = ref.read(heartRateControllerProvider.notifier);
     ref.listen(
       indoorTrainingControllerProvider(args),
           (previous, next) {
@@ -42,6 +46,21 @@ class IndoorTrainingPage extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.enduranceOperationFailed),
+          ),
+        );
+      },
+    );
+
+    ref.listen(
+      heartRateControllerProvider,
+          (previous, next) {
+        if (next.status != HeartRateConnectionStatus.error) {
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.enduranceHeartRateError),
           ),
         );
       },
@@ -83,7 +102,21 @@ class IndoorTrainingPage extends ConsumerWidget {
               sportLabel: sportLabel,
               sportAssetPath: sport.assetPath,
               elapsedText: _formatElapsed(state.elapsedMs),
-              heartRateText: l10n.enduranceHeartRatePlaceholder,
+              heartRateText: _heartRateText(
+                l10n: l10n,
+                bpm: heartRateState.bpm,
+              ),
+              heartRateStatusText: _heartRateStatusText(
+                l10n: l10n,
+                status: heartRateState.status,
+              ),
+              heartRateActionLabel: _heartRateActionLabel(
+                l10n: l10n,
+                status: heartRateState.status,
+              ),
+              isHeartRateBusy: heartRateState.isBusy,
+              isHeartRateConnected: heartRateState.isConnected,
+              onHeartRatePressed: heartRateController.toggleConnection,
               isActive: state.isActive,
               isPaused: state.isPaused,
               isBusy: state.isBusy,
@@ -211,6 +244,54 @@ class IndoorTrainingPage extends ConsumerWidget {
     );
   }
 
+  static String _heartRateText({
+    required AppLocalizations l10n,
+    required int? bpm,
+  }) {
+    if (bpm == null) {
+      return l10n.enduranceHeartRatePlaceholder;
+    }
+
+    return l10n.enduranceHeartRateValue(bpm);
+  }
+
+  static String _heartRateStatusText({
+    required AppLocalizations l10n,
+    required HeartRateConnectionStatus status,
+  }) {
+    switch (status) {
+      case HeartRateConnectionStatus.disconnected:
+        return l10n.enduranceHeartRateDisconnected;
+      case HeartRateConnectionStatus.requestingPermissions:
+        return l10n.enduranceHeartRateRequestingPermissions;
+      case HeartRateConnectionStatus.bluetoothOff:
+        return l10n.enduranceHeartRateBluetoothOff;
+      case HeartRateConnectionStatus.scanning:
+        return l10n.enduranceHeartRateScanning;
+      case HeartRateConnectionStatus.connecting:
+        return l10n.enduranceHeartRateConnecting;
+      case HeartRateConnectionStatus.connected:
+        return l10n.enduranceHeartRateConnected;
+      case HeartRateConnectionStatus.permissionDenied:
+        return l10n.enduranceHeartRatePermissionDenied;
+      case HeartRateConnectionStatus.unsupported:
+        return l10n.enduranceHeartRateUnsupported;
+      case HeartRateConnectionStatus.error:
+        return l10n.enduranceHeartRateError;
+    }
+  }
+
+  static String _heartRateActionLabel({
+    required AppLocalizations l10n,
+    required HeartRateConnectionStatus status,
+  }) {
+    if (status == HeartRateConnectionStatus.connected || status.isBusy) {
+      return l10n.enduranceHeartRateDisconnect;
+    }
+
+    return l10n.enduranceHeartRateConnect;
+  }
+
   static String _formatElapsed(int elapsedMs) {
     final totalSeconds = elapsedMs ~/ 1000;
     final hours = totalSeconds ~/ 3600;
@@ -263,6 +344,11 @@ class _StatusCard extends StatelessWidget {
     required this.sportAssetPath,
     required this.elapsedText,
     required this.heartRateText,
+    required this.heartRateStatusText,
+    required this.heartRateActionLabel,
+    required this.isHeartRateBusy,
+    required this.isHeartRateConnected,
+    required this.onHeartRatePressed,
     required this.isActive,
     required this.isPaused,
     required this.isBusy,
@@ -275,6 +361,11 @@ class _StatusCard extends StatelessWidget {
   final String sportAssetPath;
   final String elapsedText;
   final String heartRateText;
+  final String heartRateStatusText;
+  final String heartRateActionLabel;
+  final bool isHeartRateBusy;
+  final bool isHeartRateConnected;
+  final VoidCallback onHeartRatePressed;
   final bool isActive;
   final bool isPaused;
   final bool isBusy;
@@ -330,6 +421,7 @@ class _StatusCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.favorite,
@@ -345,7 +437,38 @@ class _StatusCard extends StatelessWidget {
                           style: largeValueStyle,
                         ),
                       ),
+                      const SizedBox(width: 6),
+                      Tooltip(
+                        message: heartRateActionLabel,
+                        child: IconButton.filledTonal(
+                          visualDensity: VisualDensity.compact,
+                          onPressed: onHeartRatePressed,
+                          icon: isHeartRateBusy
+                              ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                              : Icon(
+                            isHeartRateConnected
+                                ? Icons.bluetooth_connected
+                                : Icons.bluetooth,
+                          ),
+                        ),
+                      ),
                     ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    heartRateStatusText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Row(

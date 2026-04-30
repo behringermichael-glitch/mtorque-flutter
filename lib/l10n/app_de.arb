@@ -403,6 +403,35 @@
     "enduranceIndoorProtocolTitle": "Indoor-Protokoll",
     "enduranceHeartRateLabel": "HF",
     "enduranceHeartRatePlaceholder": "-- bpm",
+    "enduranceHeartRateValue": "{bpm} bpm",
+    "@enduranceHeartRateValue": {
+      "placeholders": {
+        "bpm": {
+          "type": "int"
+        }
+      }
+    },
+    "enduranceHeartRateConnect": "HF verbinden",
+    "enduranceHeartRateDisconnect": "HF trennen",
+    "enduranceHeartRateRequestingPermissions": "Bluetooth-Berechtigung wird angefragt…",
+    "enduranceHeartRateScanning": "HF-Sensor wird gesucht…",
+    "enduranceHeartRateConnecting": "HF-Sensor wird verbunden…",
+    "enduranceHeartRateConnected": "HF-Sensor verbunden",
+    "enduranceHeartRateDisconnected": "Kein HF-Sensor verbunden",
+    "enduranceHeartRateBluetoothOff": "Bluetooth ist ausgeschaltet",
+    "enduranceHeartRatePermissionDenied": "Bluetooth-Berechtigung verweigert",
+    "enduranceHeartRateUnsupported": "Bluetooth LE ist auf diesem Gerät nicht verfügbar",
+    "enduranceHeartRateError": "Herzfrequenz-Verbindung fehlgeschlagen",
+    "enduranceHeartRateConnect": "HF verbinden",
+    "enduranceHeartRateDisconnect": "HF trennen",
+    "enduranceHeartRateScanning": "HF-Sensor wird gesucht…",
+    "enduranceHeartRateConnecting": "HF-Sensor wird verbunden…",
+    "enduranceHeartRateConnected": "HF-Sensor verbunden",
+    "enduranceHeartRateDisconnected": "Kein HF-Sensor verbunden",
+    "enduranceHeartRateBluetoothOff": "Bluetooth ist ausgeschaltet",
+    "enduranceHeartRatePermissionDenied": "Bluetooth-Berechtigung verweigert",
+    "enduranceHeartRateUnsupported": "Bluetooth LE ist auf diesem Gerät nicht verfügbar",
+    "enduranceHeartRateError": "Herzfrequenz-Verbindung fehlgeschlagen",
     "enduranceIndoorProtocolDuration": "Dauer",
     "enduranceIndoorProtocolPhaseCount": "{count, plural, =1{1 Phase} other{{count} Phasen}}",
     "@enduranceIndoorProtocolPhaseCount": {

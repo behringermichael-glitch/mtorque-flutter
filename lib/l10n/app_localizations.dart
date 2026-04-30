@@ -1655,6 +1655,78 @@ abstract class AppLocalizations {
   /// **'-- bpm'**
   String get enduranceHeartRatePlaceholder;
 
+  /// No description provided for @enduranceHeartRateValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{bpm} bpm'**
+  String enduranceHeartRateValue(int bpm);
+
+  /// No description provided for @enduranceHeartRateConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect HR'**
+  String get enduranceHeartRateConnect;
+
+  /// No description provided for @enduranceHeartRateDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect HR'**
+  String get enduranceHeartRateDisconnect;
+
+  /// No description provided for @enduranceHeartRateRequestingPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting Bluetooth permission…'**
+  String get enduranceHeartRateRequestingPermissions;
+
+  /// No description provided for @enduranceHeartRateScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for HR sensor…'**
+  String get enduranceHeartRateScanning;
+
+  /// No description provided for @enduranceHeartRateConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting HR sensor…'**
+  String get enduranceHeartRateConnecting;
+
+  /// No description provided for @enduranceHeartRateConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'HR sensor connected'**
+  String get enduranceHeartRateConnected;
+
+  /// No description provided for @enduranceHeartRateDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'No HR sensor connected'**
+  String get enduranceHeartRateDisconnected;
+
+  /// No description provided for @enduranceHeartRateBluetoothOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is turned off'**
+  String get enduranceHeartRateBluetoothOff;
+
+  /// No description provided for @enduranceHeartRatePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth permission denied'**
+  String get enduranceHeartRatePermissionDenied;
+
+  /// No description provided for @enduranceHeartRateUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth LE is not available on this device'**
+  String get enduranceHeartRateUnsupported;
+
+  /// No description provided for @enduranceHeartRateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart-rate connection failed'**
+  String get enduranceHeartRateError;
+
   /// No description provided for @enduranceIndoorProtocolPhaseCount.
   ///
   /// In en, this message translates to:

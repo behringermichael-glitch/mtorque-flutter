@@ -405,6 +405,35 @@
     "enduranceIndoorProtocolDuration": "Duration",
     "enduranceHeartRateLabel": "HR",
     "enduranceHeartRatePlaceholder": "-- bpm",
+    "enduranceHeartRateValue": "{bpm} bpm",
+    "@enduranceHeartRateValue": {
+      "placeholders": {
+        "bpm": {
+          "type": "int"
+        }
+      }
+    },
+    "enduranceHeartRateConnect": "Connect HR",
+    "enduranceHeartRateDisconnect": "Disconnect HR",
+    "enduranceHeartRateRequestingPermissions": "Requesting Bluetooth permission…",
+    "enduranceHeartRateScanning": "Searching for HR sensor…",
+    "enduranceHeartRateConnecting": "Connecting HR sensor…",
+    "enduranceHeartRateConnected": "HR sensor connected",
+    "enduranceHeartRateDisconnected": "No HR sensor connected",
+    "enduranceHeartRateBluetoothOff": "Bluetooth is turned off",
+    "enduranceHeartRatePermissionDenied": "Bluetooth permission denied",
+    "enduranceHeartRateUnsupported": "Bluetooth LE is not available on this device",
+    "enduranceHeartRateError": "Heart-rate connection failed",
+    "enduranceHeartRateConnect": "Connect HR",
+    "enduranceHeartRateDisconnect": "Disconnect HR",
+    "enduranceHeartRateScanning": "Searching for HR sensor…",
+    "enduranceHeartRateConnecting": "Connecting HR sensor…",
+    "enduranceHeartRateConnected": "HR sensor connected",
+    "enduranceHeartRateDisconnected": "No HR sensor connected",
+    "enduranceHeartRateBluetoothOff": "Bluetooth is turned off",
+    "enduranceHeartRatePermissionDenied": "Bluetooth permission denied",
+    "enduranceHeartRateUnsupported": "Bluetooth LE is not available on this device",
+    "enduranceHeartRateError": "Heart-rate connection failed",
     "enduranceIndoorProtocolPhaseCount": "{count, plural, =1{1 phase} other{{count} phases}}",
     "@enduranceIndoorProtocolPhaseCount": {
       "placeholders": {
