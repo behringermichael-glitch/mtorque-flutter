@@ -442,6 +442,18 @@ class _StatusCard extends StatelessWidget {
                         message: heartRateActionLabel,
                         child: IconButton.filledTonal(
                           visualDensity: VisualDensity.compact,
+                          style: IconButton.styleFrom(
+                            foregroundColor: isHeartRateConnected
+                                ? null
+                                : theme.colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.55,
+                            ),
+                            backgroundColor: isHeartRateConnected
+                                ? null
+                                : theme.colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.12,
+                            ),
+                          ),
                           onPressed: onHeartRatePressed,
                           icon: isHeartRateBusy
                               ? const SizedBox(
