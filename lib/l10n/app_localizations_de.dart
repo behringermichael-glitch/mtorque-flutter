@@ -820,6 +820,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get enduranceHeartRateLabel => 'HF';
 
   @override
+  String get enduranceHeartRateAxisLabel => 'HF [bpm]';
+
+  @override
   String get enduranceHeartRatePlaceholder => '-- bpm';
 
   @override

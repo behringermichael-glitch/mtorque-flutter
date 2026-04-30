@@ -402,6 +402,7 @@
     "enduranceResumeSession": "Fortsetzen",
     "enduranceIndoorProtocolTitle": "Indoor-Protokoll",
     "enduranceHeartRateLabel": "HF",
+    "enduranceHeartRateAxisLabel": "HF [bpm]",
     "enduranceHeartRatePlaceholder": "-- bpm",
     "enduranceHeartRateValue": "{bpm} bpm",
     "@enduranceHeartRateValue": {

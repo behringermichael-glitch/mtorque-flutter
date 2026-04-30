@@ -648,6 +648,7 @@ class _ProtocolCard extends StatelessWidget {
               phases: protocol.phases,
               axisLabel: _axisLabel(l10n, axis.key),
               axisUnit: _axisUnit(axis.key),
+              heartRateAxisLabel: l10n.enduranceHeartRateAxisLabel,
               elapsedMs: elapsedMs,
               heartRateTrace: heartRateTrace,
               selectedIndex: selectedIndex,

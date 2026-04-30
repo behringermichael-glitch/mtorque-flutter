@@ -404,6 +404,7 @@
     "enduranceIndoorProtocolTitle": "Indoor protocol",
     "enduranceIndoorProtocolDuration": "Duration",
     "enduranceHeartRateLabel": "HR",
+    "enduranceHeartRateAxisLabel": "HR [bpm]",
     "enduranceHeartRatePlaceholder": "-- bpm",
     "enduranceHeartRateValue": "{bpm} bpm",
     "@enduranceHeartRateValue": {

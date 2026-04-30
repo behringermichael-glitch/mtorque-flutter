@@ -12,6 +12,7 @@ class IntervalProtocolChart extends StatelessWidget {
     required this.phases,
     required this.axisLabel,
     required this.axisUnit,
+    required this.heartRateAxisLabel,
     required this.elapsedMs,
     this.heartRateTrace = const <HeartRateTracePoint>[],
     required this.selectedIndex,
@@ -23,6 +24,7 @@ class IntervalProtocolChart extends StatelessWidget {
   final List<IndoorIntervalPhase> phases;
   final String axisLabel;
   final String axisUnit;
+  final String heartRateAxisLabel;
   final int elapsedMs;
   final List<HeartRateTracePoint> heartRateTrace;
   final int selectedIndex;
@@ -72,6 +74,7 @@ class IntervalProtocolChart extends StatelessWidget {
                 phases: phases,
                 axisLabel: axisLabel,
                 axisUnit: axisUnit,
+                heartRateAxisLabel: heartRateAxisLabel,
                 elapsedMs: elapsedMs,
                 heartRateTrace: heartRateTrace,
                 selectedIndex: selectedIndex,
@@ -163,6 +166,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     required this.phases,
     required this.axisLabel,
     required this.axisUnit,
+    required this.heartRateAxisLabel,
     required this.elapsedMs,
     required this.heartRateTrace,
     required this.selectedIndex,
@@ -173,6 +177,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
   final List<IndoorIntervalPhase> phases;
   final String axisLabel;
   final String axisUnit;
+  final String heartRateAxisLabel;
   final int elapsedMs;
   final List<HeartRateTracePoint> heartRateTrace;
   final int selectedIndex;
@@ -491,14 +496,18 @@ class _IntervalProtocolChartPainter extends CustomPainter {
       anchor: _TextAnchor.middleLeft,
     );
 
+    canvas.save();
+    canvas.translate(layout.plot.right + 42, layout.plot.center.dy);
+    canvas.rotate(math.pi / 2);
     _drawText(
       canvas,
-      text: 'bpm',
-      offset: Offset(layout.plot.right + 24, layout.plot.top - 7),
+      text: heartRateAxisLabel,
+      offset: Offset.zero,
       style: tickStyle,
       align: TextAlign.center,
       anchor: _TextAnchor.center,
     );
+    canvas.restore();
   }
 
   void _drawHeartRateTrace(
@@ -730,6 +739,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
         oldDelegate.phases != phases ||
         oldDelegate.axisLabel != axisLabel ||
         oldDelegate.axisUnit != axisUnit ||
+        oldDelegate.heartRateAxisLabel != heartRateAxisLabel ||
         oldDelegate.elapsedMs != elapsedMs ||
         oldDelegate.heartRateTrace != heartRateTrace ||
         oldDelegate.selectedIndex != selectedIndex ||
@@ -761,7 +771,7 @@ class _ChartLayout {
         bool showHeartRate = false,
       }) {
     const padLeft = 58.0;
-    final padRight = showHeartRate ? 54.0 : 14.0;
+    final padRight = showHeartRate ? 66.0 : 14.0;
     const padTop = 16.0;
     const padBottom = 38.0;
 

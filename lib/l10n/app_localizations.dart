@@ -1649,6 +1649,12 @@ abstract class AppLocalizations {
   /// **'HR'**
   String get enduranceHeartRateLabel;
 
+  /// No description provided for @enduranceHeartRateAxisLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'HR [bpm]'**
+  String get enduranceHeartRateAxisLabel;
+
   /// No description provided for @enduranceHeartRatePlaceholder.
   ///
   /// In en, this message translates to:
