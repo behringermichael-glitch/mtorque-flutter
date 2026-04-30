@@ -310,7 +310,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     _drawText(
       canvas,
       text: _formatIntensity(maxIntensity),
-      offset: Offset(layout.plot.left - 8, layout.plot.top),
+      offset: Offset(layout.plot.left - 6, layout.plot.top),
       style: tickStyle,
       align: TextAlign.right,
       anchor: _TextAnchor.middleRight,
@@ -319,7 +319,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     _drawText(
       canvas,
       text: _formatIntensity(maxIntensity * 0.5),
-      offset: Offset(layout.plot.left - 8, layout.plot.center.dy),
+      offset: Offset(layout.plot.left - 6, layout.plot.center.dy),
       style: tickStyle,
       align: TextAlign.right,
       anchor: _TextAnchor.middleRight,
@@ -327,8 +327,8 @@ class _IntervalProtocolChartPainter extends CustomPainter {
 
     _drawText(
       canvas,
-      text: '0.0',
-      offset: Offset(layout.plot.left - 8, layout.plot.bottom),
+      text: _formatIntensity(0),
+      offset: Offset(layout.plot.left - 3, layout.plot.bottom),
       style: tickStyle,
       align: TextAlign.right,
       anchor: _TextAnchor.middleRight,
@@ -338,7 +338,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     axisUnit.trim().isEmpty ? axisLabel : '$axisLabel [$axisUnit]';
 
     canvas.save();
-    canvas.translate(14, layout.plot.center.dy);
+    canvas.translate(7, layout.plot.center.dy);
     canvas.rotate(-math.pi / 2);
     _drawText(
       canvas,
@@ -472,7 +472,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     _drawText(
       canvas,
       text: '${range.max.round()}',
-      offset: Offset(layout.plot.right + 8, layout.plot.top),
+      offset: Offset(layout.plot.right + 6, layout.plot.top),
       style: tickStyle,
       align: TextAlign.left,
       anchor: _TextAnchor.middleLeft,
@@ -481,7 +481,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     _drawText(
       canvas,
       text: '${range.mid.round()}',
-      offset: Offset(layout.plot.right + 8, layout.plot.center.dy),
+      offset: Offset(layout.plot.right + 6, layout.plot.center.dy),
       style: tickStyle,
       align: TextAlign.left,
       anchor: _TextAnchor.middleLeft,
@@ -490,14 +490,14 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     _drawText(
       canvas,
       text: '${range.min.round()}',
-      offset: Offset(layout.plot.right + 8, layout.plot.bottom),
+      offset: Offset(layout.plot.right + 6, layout.plot.bottom),
       style: tickStyle,
       align: TextAlign.left,
       anchor: _TextAnchor.middleLeft,
     );
 
     canvas.save();
-    canvas.translate(layout.plot.right + 42, layout.plot.center.dy);
+    canvas.translate(layout.plot.right + 33, layout.plot.center.dy);
     canvas.rotate(math.pi / 2);
     _drawText(
       canvas,
@@ -682,9 +682,16 @@ class _IntervalProtocolChartPainter extends CustomPainter {
   }
 
   static String _formatIntensity(double value) {
+    final rounded = value.roundToDouble();
+
+    if ((value - rounded).abs() < 0.001) {
+      return rounded.round().toString();
+    }
+
     if (value.abs() >= 100) {
       return value.round().toString();
     }
+
     return value.toStringAsFixed(1);
   }
 
@@ -770,8 +777,8 @@ class _ChartLayout {
         required bool showAddButton,
         bool showHeartRate = false,
       }) {
-    const padLeft = 58.0;
-    final padRight = showHeartRate ? 66.0 : 14.0;
+    const padLeft = 44.0;
+    final padRight = showHeartRate ? 42.0 : 14.0;
     const padTop = 16.0;
     const padBottom = 38.0;
 
