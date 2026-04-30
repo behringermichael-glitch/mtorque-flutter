@@ -899,6 +899,45 @@ class AppLocalizationsDe extends AppLocalizations {
   String get enduranceLoadPlan => 'Plan laden';
 
   @override
+  String get enduranceVoiceCuesOn => 'Sprachansagen aktiv';
+
+  @override
+  String get enduranceVoiceCuesOff => 'Sprachansagen aus';
+
+  @override
+  String get enduranceVoiceCuesEnable => 'Sprachansagen einschalten';
+
+  @override
+  String get enduranceVoiceCuesDisable => 'Sprachansagen ausschalten';
+
+  @override
+  String get enduranceVoiceCueEndingIn => 'Ende in';
+
+  @override
+  String get enduranceVoiceCueCountdownThree => 'drei';
+
+  @override
+  String get enduranceVoiceCueCountdownTwo => 'zwei';
+
+  @override
+  String get enduranceVoiceCueCountdownOne => 'eins';
+
+  @override
+  String get enduranceVoiceCueWatts => 'Watt';
+
+  @override
+  String get enduranceVoiceCueKilometersPerHour => 'Kilometer pro Stunde';
+
+  @override
+  String get enduranceVoiceCuePercent => 'Prozent';
+
+  @override
+  String get enduranceVoiceCueLevel => 'Stufe';
+
+  @override
+  String get enduranceVoiceCueIntensity => 'Intensität';
+
+  @override
   String get enduranceSelectedPhase => 'Ausgewählte Phase';
 
   @override

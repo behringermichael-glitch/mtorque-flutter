@@ -1787,6 +1787,84 @@ abstract class AppLocalizations {
   /// **'Load plan'**
   String get enduranceLoadPlan;
 
+  /// No description provided for @enduranceVoiceCuesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice cues on'**
+  String get enduranceVoiceCuesOn;
+
+  /// No description provided for @enduranceVoiceCuesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice cues off'**
+  String get enduranceVoiceCuesOff;
+
+  /// No description provided for @enduranceVoiceCuesEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable voice cues'**
+  String get enduranceVoiceCuesEnable;
+
+  /// No description provided for @enduranceVoiceCuesDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable voice cues'**
+  String get enduranceVoiceCuesDisable;
+
+  /// No description provided for @enduranceVoiceCueEndingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ending in'**
+  String get enduranceVoiceCueEndingIn;
+
+  /// No description provided for @enduranceVoiceCueCountdownThree.
+  ///
+  /// In en, this message translates to:
+  /// **'three'**
+  String get enduranceVoiceCueCountdownThree;
+
+  /// No description provided for @enduranceVoiceCueCountdownTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'two'**
+  String get enduranceVoiceCueCountdownTwo;
+
+  /// No description provided for @enduranceVoiceCueCountdownOne.
+  ///
+  /// In en, this message translates to:
+  /// **'one'**
+  String get enduranceVoiceCueCountdownOne;
+
+  /// No description provided for @enduranceVoiceCueWatts.
+  ///
+  /// In en, this message translates to:
+  /// **'watts'**
+  String get enduranceVoiceCueWatts;
+
+  /// No description provided for @enduranceVoiceCueKilometersPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'kilometers per hour'**
+  String get enduranceVoiceCueKilometersPerHour;
+
+  /// No description provided for @enduranceVoiceCuePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'percent'**
+  String get enduranceVoiceCuePercent;
+
+  /// No description provided for @enduranceVoiceCueLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'level'**
+  String get enduranceVoiceCueLevel;
+
+  /// No description provided for @enduranceVoiceCueIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'intensity'**
+  String get enduranceVoiceCueIntensity;
+
   /// No description provided for @enduranceSelectedPhase.
   ///
   /// In en, this message translates to:

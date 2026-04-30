@@ -9,8 +9,8 @@ import '../../domain/models/indoor_axis_spec.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
 import '../../domain/services/indoor_protocol_timeline.dart';
 import '../state/heart_rate_controller.dart';
-import '../state/heart_rate_controller.dart';
 import '../state/indoor_training_controller.dart';
+import '../state/indoor_voice_cue_controller.dart';
 import '../widgets/indoor_training_value_control.dart';
 import '../widgets/interval_protocol_chart.dart';
 
@@ -37,6 +37,9 @@ class IndoorTrainingPage extends ConsumerWidget {
 
     final heartRateState = ref.watch(heartRateControllerProvider);
     final heartRateController = ref.read(heartRateControllerProvider.notifier);
+
+    final voiceCueState = ref.watch(indoorVoiceCueControllerProvider);
+    final voiceCueController = ref.read(indoorVoiceCueControllerProvider.notifier);
     ref.listen(
       indoorTrainingControllerProvider(args),
           (previous, next) {
@@ -85,6 +88,33 @@ class IndoorTrainingPage extends ConsumerWidget {
           elapsedMs: indoorState.elapsedMs,
           bpm: sample.bpm,
         );
+      },
+    );
+
+    ref.listen(
+      indoorTrainingControllerProvider(args),
+          (previous, next) {
+        final speech = IndoorVoiceCueSpeech(
+          languageTag: Localizations.localeOf(context).toLanguageTag(),
+          endingIn: l10n.enduranceVoiceCueEndingIn,
+          watts: l10n.enduranceVoiceCueWatts,
+          kilometersPerHour: l10n.enduranceVoiceCueKilometersPerHour,
+          percent: l10n.enduranceVoiceCuePercent,
+          level: l10n.enduranceVoiceCueLevel,
+          intensity: l10n.enduranceVoiceCueIntensity,
+          countdownThree: l10n.enduranceVoiceCueCountdownThree,
+          countdownTwo: l10n.enduranceVoiceCueCountdownTwo,
+          countdownOne: l10n.enduranceVoiceCueCountdownOne,
+        );
+
+        voiceCueController.onIndoorStateChanged(
+          indoorState: next,
+          speech: speech,
+        );
+
+        if (!next.isActive) {
+          voiceCueController.reset();
+        }
       },
     );
 
@@ -161,6 +191,11 @@ class IndoorTrainingPage extends ConsumerWidget {
               elapsedMs: state.elapsedMs,
               heartRateTrace: state.heartRateTrace,
               selectedIndex: effectivePhaseIndex,
+              voiceCuesEnabled: voiceCueState.enabled,
+              voiceCueActionLabel: voiceCueState.enabled
+                  ? l10n.enduranceVoiceCuesDisable
+                  : l10n.enduranceVoiceCuesEnable,
+              onVoiceCuePressed: voiceCueController.toggleEnabled,
               onAddPhase: controller.addDefaultPhase,
               onPhaseSelected: controller.selectPhase,
             ),
@@ -749,6 +784,9 @@ class _ProtocolCard extends StatelessWidget {
     required this.elapsedMs,
     required this.heartRateTrace,
     required this.selectedIndex,
+    required this.voiceCuesEnabled,
+    required this.voiceCueActionLabel,
+    required this.onVoiceCuePressed,
     required this.onAddPhase,
     required this.onPhaseSelected,
   });
@@ -758,6 +796,9 @@ class _ProtocolCard extends StatelessWidget {
   final int elapsedMs;
   final List<HeartRateTracePoint> heartRateTrace;
   final int selectedIndex;
+  final bool voiceCuesEnabled;
+  final String voiceCueActionLabel;
+  final VoidCallback onVoiceCuePressed;
   final VoidCallback onAddPhase;
   final ValueChanged<int> onPhaseSelected;
 
@@ -782,6 +823,9 @@ class _ProtocolCard extends StatelessWidget {
                 protocol: protocol,
                 axis: axis,
               ),
+              voiceCuesEnabled: voiceCuesEnabled,
+              voiceCueActionLabel: voiceCueActionLabel,
+              onVoiceCuePressed: onVoiceCuePressed,
             ),
             const SizedBox(height: 8),
             IntervalProtocolChart(
@@ -903,10 +947,16 @@ class _ProtocolHeader extends StatelessWidget {
   const _ProtocolHeader({
     required this.title,
     required this.subtitle,
+    required this.voiceCuesEnabled,
+    required this.voiceCueActionLabel,
+    required this.onVoiceCuePressed,
   });
 
   final String title;
   final String subtitle;
+  final bool voiceCuesEnabled;
+  final String voiceCueActionLabel;
+  final VoidCallback onVoiceCuePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -946,15 +996,25 @@ class _ProtocolHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        IconButton(
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(
-            width: 36,
-            height: 36,
+        Tooltip(
+          message: voiceCueActionLabel,
+          child: IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(
+              width: 36,
+              height: 36,
+            ),
+            onPressed: onVoiceCuePressed,
+            icon: Icon(
+              voiceCuesEnabled
+                  ? Icons.volume_up_outlined
+                  : Icons.volume_off_outlined,
+              color: voiceCuesEnabled
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.55),
+            ),
           ),
-          onPressed: null,
-          icon: const Icon(Icons.volume_up_outlined),
         ),
         IconButton(
           visualDensity: VisualDensity.compact,

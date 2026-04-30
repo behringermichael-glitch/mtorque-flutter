@@ -899,6 +899,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enduranceLoadPlan => 'Load plan';
 
   @override
+  String get enduranceVoiceCuesOn => 'Voice cues on';
+
+  @override
+  String get enduranceVoiceCuesOff => 'Voice cues off';
+
+  @override
+  String get enduranceVoiceCuesEnable => 'Enable voice cues';
+
+  @override
+  String get enduranceVoiceCuesDisable => 'Disable voice cues';
+
+  @override
+  String get enduranceVoiceCueEndingIn => 'Ending in';
+
+  @override
+  String get enduranceVoiceCueCountdownThree => 'three';
+
+  @override
+  String get enduranceVoiceCueCountdownTwo => 'two';
+
+  @override
+  String get enduranceVoiceCueCountdownOne => 'one';
+
+  @override
+  String get enduranceVoiceCueWatts => 'watts';
+
+  @override
+  String get enduranceVoiceCueKilometersPerHour => 'kilometers per hour';
+
+  @override
+  String get enduranceVoiceCuePercent => 'percent';
+
+  @override
+  String get enduranceVoiceCueLevel => 'level';
+
+  @override
+  String get enduranceVoiceCueIntensity => 'intensity';
+
+  @override
   String get enduranceSelectedPhase => 'Selected phase';
 
   @override
