@@ -128,6 +128,7 @@ class IndoorTrainingPage extends ConsumerWidget {
                 l10n: l10n,
                 bpm: heartRateState.bpm,
               ),
+              heartRateBpm: heartRateState.bpm,
               heartRateStatusText: _heartRateStatusText(
                 l10n: l10n,
                 status: heartRateState.status,
@@ -367,6 +368,7 @@ class _StatusCard extends StatelessWidget {
     required this.sportAssetPath,
     required this.elapsedText,
     required this.heartRateText,
+    required this.heartRateBpm,
     required this.heartRateStatusText,
     required this.heartRateActionLabel,
     required this.isHeartRateBusy,
@@ -384,6 +386,7 @@ class _StatusCard extends StatelessWidget {
   final String sportAssetPath;
   final String elapsedText;
   final String heartRateText;
+  final int? heartRateBpm;
   final String heartRateStatusText;
   final String heartRateActionLabel;
   final bool isHeartRateBusy;
@@ -446,10 +449,9 @@ class _StatusCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.favorite,
+                      _PulsingHeartIcon(
+                        bpm: heartRateBpm,
                         size: 20,
-                        color: theme.colorScheme.error,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -599,6 +601,139 @@ class _StatusCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+class _PulsingHeartIcon extends StatefulWidget {
+  const _PulsingHeartIcon({
+    required this.bpm,
+    required this.size,
+  });
+
+  final int? bpm;
+  final double size;
+
+  @override
+  State<_PulsingHeartIcon> createState() => _PulsingHeartIconState();
+}
+
+class _PulsingHeartIconState extends State<_PulsingHeartIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _colorAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: _durationForBpm(widget.bpm),
+    );
+
+    _scaleAnimation = TweenSequence<double>(
+      <TweenSequenceItem<double>>[
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 1.0, end: 1.22)
+              .chain(CurveTween(curve: Curves.easeOutCubic)),
+          weight: 35,
+        ),
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 1.22, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeInCubic)),
+          weight: 65,
+        ),
+      ],
+    ).animate(_controller);
+
+    _colorAnimation = TweenSequence<double>(
+      <TweenSequenceItem<double>>[
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 0.45, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeOutCubic)),
+          weight: 35,
+        ),
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 1.0, end: 0.45)
+              .chain(CurveTween(curve: Curves.easeInCubic)),
+          weight: 65,
+        ),
+      ],
+    ).animate(_controller);
+
+    _syncAnimation();
+  }
+
+  @override
+  void didUpdateWidget(covariant _PulsingHeartIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.bpm != widget.bpm) {
+      _controller.duration = _durationForBpm(widget.bpm);
+      _syncAnimation();
+    }
+  }
+
+  void _syncAnimation() {
+    final bpm = widget.bpm;
+
+    if (bpm == null || bpm <= 0) {
+      _controller
+        ..stop()
+        ..reset();
+      return;
+    }
+
+    if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
+
+  static Duration _durationForBpm(int? bpm) {
+    if (bpm == null || bpm <= 0) {
+      return const Duration(milliseconds: 1000);
+    }
+
+    final clampedBpm = bpm.clamp(35, 220);
+    final beatMs = (60000 / clampedBpm).round();
+
+    return Duration(milliseconds: beatMs);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasHeartRate = widget.bpm != null && widget.bpm! > 0;
+
+    if (!hasHeartRate) {
+      return Icon(
+        Icons.favorite,
+        size: widget.size,
+        color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
+      );
+    }
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: Icon(
+            Icons.favorite,
+            size: widget.size,
+            color: theme.colorScheme.error.withValues(
+              alpha: _colorAnimation.value,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
