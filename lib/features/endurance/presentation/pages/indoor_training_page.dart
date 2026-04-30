@@ -4,9 +4,11 @@ import 'package:mtorque_flutter/l10n/app_localizations.dart';
 
 import '../../domain/models/endurance_sport.dart';
 import '../../domain/models/heart_rate_connection_status.dart';
+import '../../domain/models/heart_rate_trace_point.dart';
 import '../../domain/models/indoor_axis_spec.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
 import '../../domain/services/indoor_protocol_timeline.dart';
+import '../state/heart_rate_controller.dart';
 import '../state/heart_rate_controller.dart';
 import '../state/indoor_training_controller.dart';
 import '../widgets/indoor_training_value_control.dart';
@@ -62,6 +64,26 @@ class IndoorTrainingPage extends ConsumerWidget {
           SnackBar(
             content: Text(l10n.enduranceHeartRateError),
           ),
+        );
+      },
+    );
+
+    ref.listen(
+      heartRateControllerProvider,
+          (previous, next) {
+        final sample = next.latestSample;
+        if (sample == null || identical(previous?.latestSample, sample)) {
+          return;
+        }
+
+        final indoorState = ref.read(indoorTrainingControllerProvider(args));
+        if (!indoorState.isRunning) {
+          return;
+        }
+
+        ref.read(indoorTrainingControllerProvider(args).notifier).addHeartRateSample(
+          elapsedMs: indoorState.elapsedMs,
+          bpm: sample.bpm,
         );
       },
     );
@@ -136,6 +158,7 @@ class IndoorTrainingPage extends ConsumerWidget {
               protocol: state.protocol,
               axis: axis,
               elapsedMs: state.elapsedMs,
+              heartRateTrace: state.heartRateTrace,
               selectedIndex: effectivePhaseIndex,
               onAddPhase: controller.addDefaultPhase,
               onPhaseSelected: controller.selectPhase,
@@ -584,6 +607,7 @@ class _ProtocolCard extends StatelessWidget {
     required this.protocol,
     required this.axis,
     required this.elapsedMs,
+    required this.heartRateTrace,
     required this.selectedIndex,
     required this.onAddPhase,
     required this.onPhaseSelected,
@@ -592,6 +616,7 @@ class _ProtocolCard extends StatelessWidget {
   final IndoorIntervalProtocol protocol;
   final IndoorAxisSpec axis;
   final int elapsedMs;
+  final List<HeartRateTracePoint> heartRateTrace;
   final int selectedIndex;
   final VoidCallback onAddPhase;
   final ValueChanged<int> onPhaseSelected;
@@ -624,6 +649,7 @@ class _ProtocolCard extends StatelessWidget {
               axisLabel: _axisLabel(l10n, axis.key),
               axisUnit: _axisUnit(axis.key),
               elapsedMs: elapsedMs,
+              heartRateTrace: heartRateTrace,
               selectedIndex: selectedIndex,
               showAddButton: true,
               onAddPhase: onAddPhase,

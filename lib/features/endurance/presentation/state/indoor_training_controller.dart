@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/endurance_session.dart';
 import '../../domain/models/endurance_sport.dart';
+import '../../domain/models/heart_rate_trace_point.dart';
 import '../../domain/models/indoor_interval_phase.dart';
 import '../../domain/models/indoor_interval_protocol.dart';
 import '../../domain/services/indoor_settings_codec.dart';
@@ -41,6 +42,7 @@ class IndoorTrainingState {
     required this.isBusy,
     required this.selectedPhaseIndex,
     required this.isPaused,
+    required this.heartRateTrace,
     this.session,
     this.errorMessage,
   });
@@ -51,6 +53,7 @@ class IndoorTrainingState {
   final bool isBusy;
   final int selectedPhaseIndex;
   final bool isPaused;
+  final List<HeartRateTracePoint> heartRateTrace;
   final EnduranceSession? session;
   final String? errorMessage;
 
@@ -66,6 +69,8 @@ class IndoorTrainingState {
     bool? isBusy,
     int? selectedPhaseIndex,
     bool? isPaused,
+    List<HeartRateTracePoint>? heartRateTrace,
+    bool clearHeartRateTrace = false,
     EnduranceSession? session,
     bool clearSession = false,
     String? errorMessage,
@@ -78,6 +83,9 @@ class IndoorTrainingState {
       isBusy: isBusy ?? this.isBusy,
       selectedPhaseIndex: selectedPhaseIndex ?? this.selectedPhaseIndex,
       isPaused: isPaused ?? this.isPaused,
+      heartRateTrace: clearHeartRateTrace
+          ? const <HeartRateTracePoint>[]
+          : heartRateTrace ?? this.heartRateTrace,
       session: clearSession ? null : session ?? this.session,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
@@ -91,6 +99,7 @@ class IndoorTrainingState {
       isBusy: false,
       selectedPhaseIndex: 0,
       isPaused: false,
+      heartRateTrace: const <HeartRateTracePoint>[],
     );
   }
 }
@@ -233,6 +242,7 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         elapsedMs: 0,
         isBusy: false,
         isPaused: false,
+        clearHeartRateTrace: true,
         clearError: true,
       );
 
@@ -309,6 +319,7 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         isBusy: false,
         isPaused: false,
         clearSession: true,
+        clearHeartRateTrace: true,
         clearError: true,
       );
     } catch (error) {
@@ -317,6 +328,44 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
         errorMessage: error.toString(),
       );
     }
+  }
+
+  void addHeartRateSample({
+    required int elapsedMs,
+    required int bpm,
+  }) {
+    if (!state.isRunning || bpm <= 0) {
+      return;
+    }
+
+    final normalizedElapsedMs = elapsedMs.clamp(0, 1 << 53).toInt();
+    final currentTrace = state.heartRateTrace;
+
+    if (currentTrace.isNotEmpty) {
+      final last = currentTrace.last;
+
+      if (last.elapsedMs == normalizedElapsedMs && last.bpm == bpm) {
+        return;
+      }
+    }
+
+    final nextTrace = <HeartRateTracePoint>[
+      ...currentTrace,
+      HeartRateTracePoint(
+        elapsedMs: normalizedElapsedMs,
+        bpm: bpm,
+      ),
+    ];
+
+    const maxTracePoints = 7200;
+    final trimmedTrace = nextTrace.length <= maxTracePoints
+        ? nextTrace
+        : nextTrace.sublist(nextTrace.length - maxTracePoints);
+
+    state = state.copyWith(
+      heartRateTrace: trimmedTrace,
+      clearError: true,
+    );
   }
 
   Future<void> finishSession({
@@ -337,14 +386,16 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
       final repository = ref.read(enduranceRepositoryProvider);
       final now = DateTime.now().millisecondsSinceEpoch;
       final durationMs = _elapsedFor(session);
+      final avgHr = _averageHeartRate(state.heartRateTrace);
+      final maxHr = _maxHeartRate(state.heartRateTrace);
 
       await repository.finalizeSession(
         sessionId: session.id,
         endEpochMs: now,
         durationMs: durationMs,
         distanceM: 0.0,
-        avgHr: null,
-        maxHr: null,
+        avgHr: avgHr,
+        maxHr: maxHr,
         elevationGainM: null,
       );
 
@@ -544,5 +595,33 @@ class IndoorTrainingController extends Notifier<IndoorTrainingState> {
   void _stopTicker() {
     _ticker?.cancel();
     _ticker = null;
+  }
+
+  static int? _averageHeartRate(List<HeartRateTracePoint> trace) {
+    if (trace.isEmpty) {
+      return null;
+    }
+
+    var sum = 0;
+    for (final point in trace) {
+      sum += point.bpm;
+    }
+
+    return (sum / trace.length).round();
+  }
+
+  static int? _maxHeartRate(List<HeartRateTracePoint> trace) {
+    if (trace.isEmpty) {
+      return null;
+    }
+
+    var maxValue = trace.first.bpm;
+    for (final point in trace) {
+      if (point.bpm > maxValue) {
+        maxValue = point.bpm;
+      }
+    }
+
+    return maxValue;
   }
 }

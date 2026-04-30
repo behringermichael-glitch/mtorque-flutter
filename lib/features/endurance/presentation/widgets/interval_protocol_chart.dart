@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:mtorque_flutter/core/theme/app_theme.dart';
 
+import '../../domain/models/heart_rate_trace_point.dart';
 import '../../domain/models/indoor_interval_phase.dart';
 
 class IntervalProtocolChart extends StatelessWidget {
@@ -12,6 +13,7 @@ class IntervalProtocolChart extends StatelessWidget {
     required this.axisLabel,
     required this.axisUnit,
     required this.elapsedMs,
+    this.heartRateTrace = const <HeartRateTracePoint>[],
     required this.selectedIndex,
     required this.showAddButton,
     this.onAddPhase,
@@ -22,6 +24,7 @@ class IntervalProtocolChart extends StatelessWidget {
   final String axisLabel;
   final String axisUnit;
   final int elapsedMs;
+  final List<HeartRateTracePoint> heartRateTrace;
   final int selectedIndex;
   final bool showAddButton;
   final VoidCallback? onAddPhase;
@@ -46,6 +49,7 @@ class IntervalProtocolChart extends StatelessWidget {
                 localPosition: details.localPosition,
                 phases: phases,
                 showAddButton: showAddButton,
+                showHeartRate: heartRateTrace.isNotEmpty,
               );
 
               switch (hit.type) {
@@ -69,6 +73,7 @@ class IntervalProtocolChart extends StatelessWidget {
                 axisLabel: axisLabel,
                 axisUnit: axisUnit,
                 elapsedMs: elapsedMs,
+                heartRateTrace: heartRateTrace,
                 selectedIndex: selectedIndex,
                 showAddButton: showAddButton,
               ),
@@ -102,11 +107,13 @@ abstract final class _ChartHitTest {
     required Offset localPosition,
     required List<IndoorIntervalPhase> phases,
     required bool showAddButton,
+    required bool showHeartRate,
   }) {
     final layout = _ChartLayout.fromSize(
       size,
       hasPhases: phases.isNotEmpty,
       showAddButton: showAddButton,
+      showHeartRate: showHeartRate,
     );
 
     if (showAddButton && layout.plusRect.contains(localPosition)) {
@@ -124,8 +131,8 @@ abstract final class _ChartHitTest {
       final phase = phases[i];
       final durSec = math.max(1, phase.durSec);
 
-      final left = layout.plot.left +
-          (accumulatedSec / totalSec) * layout.barsWidth;
+      final left =
+          layout.plot.left + (accumulatedSec / totalSec) * layout.barsWidth;
       final right = layout.plot.left +
           ((accumulatedSec + durSec) / totalSec) * layout.barsWidth;
 
@@ -157,6 +164,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     required this.axisLabel,
     required this.axisUnit,
     required this.elapsedMs,
+    required this.heartRateTrace,
     required this.selectedIndex,
     required this.showAddButton,
   });
@@ -166,6 +174,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
   final String axisLabel;
   final String axisUnit;
   final int elapsedMs;
+  final List<HeartRateTracePoint> heartRateTrace;
   final int selectedIndex;
   final bool showAddButton;
 
@@ -175,6 +184,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
       size,
       hasPhases: phases.isNotEmpty,
       showAddButton: showAddButton,
+      showHeartRate: heartRateTrace.isNotEmpty,
     );
 
     if (layout.plot.width <= 20 || layout.plot.height <= 20) {
@@ -223,6 +233,8 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     _drawAxes(canvas, layout.plot, axisPaint);
     _drawAxisLabels(canvas, layout, colorScheme);
     _drawBars(canvas, layout, barPaint, selectedPaint, colorScheme);
+    _drawHeartRateAxis(canvas, layout, colorScheme);
+    _drawHeartRateTrace(canvas, layout, colorScheme);
     _drawPlus(canvas, layout, plusPaint);
     _drawCursor(canvas, layout, cursorPaint);
   }
@@ -317,9 +329,8 @@ class _IntervalProtocolChartPainter extends CustomPainter {
       anchor: _TextAnchor.middleRight,
     );
 
-    final axisTitle = axisUnit.trim().isEmpty
-        ? axisLabel
-        : '$axisLabel [$axisUnit]';
+    final axisTitle =
+    axisUnit.trim().isEmpty ? axisLabel : '$axisLabel [$axisUnit]';
 
     canvas.save();
     canvas.translate(14, layout.plot.center.dy);
@@ -390,8 +401,8 @@ class _IntervalProtocolChartPainter extends CustomPainter {
       final phase = phases[i];
       final durSec = math.max(1, phase.durSec);
 
-      final left = layout.plot.left +
-          (accumulatedSec / totalSec) * layout.barsWidth;
+      final left =
+          layout.plot.left + (accumulatedSec / totalSec) * layout.barsWidth;
       final right = layout.plot.left +
           ((accumulatedSec + durSec) / totalSec) * layout.barsWidth;
 
@@ -418,6 +429,142 @@ class _IntervalProtocolChartPainter extends CustomPainter {
 
       accumulatedSec += durSec;
     }
+  }
+
+  void _drawHeartRateAxis(
+      Canvas canvas,
+      _ChartLayout layout,
+      ColorScheme colorScheme,
+      ) {
+    if (heartRateTrace.isEmpty) {
+      return;
+    }
+
+    final range = _HeartRateRange.fromTrace(heartRateTrace);
+
+    final axisPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.1
+      ..color = colorScheme.error.withValues(alpha: 0.70);
+
+    canvas.drawLine(
+      Offset(layout.plot.right, layout.plot.top),
+      Offset(layout.plot.right, layout.plot.bottom),
+      axisPaint,
+    );
+
+    final tickStyle = theme.textTheme.bodySmall?.copyWith(
+      color: colorScheme.error.withValues(alpha: 0.85),
+      fontWeight: FontWeight.w700,
+    ) ??
+        TextStyle(
+          color: colorScheme.error.withValues(alpha: 0.85),
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        );
+
+    _drawText(
+      canvas,
+      text: '${range.max.round()}',
+      offset: Offset(layout.plot.right + 8, layout.plot.top),
+      style: tickStyle,
+      align: TextAlign.left,
+      anchor: _TextAnchor.middleLeft,
+    );
+
+    _drawText(
+      canvas,
+      text: '${range.mid.round()}',
+      offset: Offset(layout.plot.right + 8, layout.plot.center.dy),
+      style: tickStyle,
+      align: TextAlign.left,
+      anchor: _TextAnchor.middleLeft,
+    );
+
+    _drawText(
+      canvas,
+      text: '${range.min.round()}',
+      offset: Offset(layout.plot.right + 8, layout.plot.bottom),
+      style: tickStyle,
+      align: TextAlign.left,
+      anchor: _TextAnchor.middleLeft,
+    );
+
+    _drawText(
+      canvas,
+      text: 'bpm',
+      offset: Offset(layout.plot.right + 24, layout.plot.top - 7),
+      style: tickStyle,
+      align: TextAlign.center,
+      anchor: _TextAnchor.center,
+    );
+  }
+
+  void _drawHeartRateTrace(
+      Canvas canvas,
+      _ChartLayout layout,
+      ColorScheme colorScheme,
+      ) {
+    if (heartRateTrace.length < 2 || phases.isEmpty) {
+      return;
+    }
+
+    final totalMs = _totalSec(phases) * 1000;
+    final range = _HeartRateRange.fromTrace(heartRateTrace);
+
+    final path = Path();
+    var hasStarted = false;
+
+    for (final point in heartRateTrace) {
+      final xFraction = (point.elapsedMs / totalMs).clamp(0.0, 1.0);
+      final yFraction = range.fractionFor(point.bpm);
+
+      final x = layout.plot.left + xFraction * layout.barsWidth;
+      final y = layout.plot.bottom - yFraction * layout.plot.height;
+
+      if (!hasStarted) {
+        path.moveTo(x, y);
+        hasStarted = true;
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    final shadowPaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = colorScheme.surface.withValues(alpha: 0.55);
+
+    final linePaint = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = colorScheme.error.withValues(alpha: 0.95);
+
+    canvas.drawPath(path, shadowPaint);
+    canvas.drawPath(path, linePaint);
+
+    final last = heartRateTrace.last;
+    final lastXFraction = (last.elapsedMs / totalMs).clamp(0.0, 1.0);
+    final lastYFraction = range.fractionFor(last.bpm);
+
+    canvas.drawCircle(
+      Offset(
+        layout.plot.left + lastXFraction * layout.barsWidth,
+        layout.plot.bottom - lastYFraction * layout.plot.height,
+      ),
+      3.5,
+      Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.fill
+        ..color = colorScheme.error,
+    );
   }
 
   void _drawPlus(
@@ -565,11 +712,13 @@ class _IntervalProtocolChartPainter extends CustomPainter {
     final dx = switch (anchor) {
       _TextAnchor.center => offset.dx - painter.width / 2,
       _TextAnchor.middleRight => offset.dx - painter.width,
+      _TextAnchor.middleLeft => offset.dx,
     };
 
     final dy = switch (anchor) {
       _TextAnchor.center => offset.dy - painter.height / 2,
       _TextAnchor.middleRight => offset.dy - painter.height / 2,
+      _TextAnchor.middleLeft => offset.dy - painter.height / 2,
     };
 
     painter.paint(canvas, Offset(dx, dy));
@@ -582,6 +731,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
         oldDelegate.axisLabel != axisLabel ||
         oldDelegate.axisUnit != axisUnit ||
         oldDelegate.elapsedMs != elapsedMs ||
+        oldDelegate.heartRateTrace != heartRateTrace ||
         oldDelegate.selectedIndex != selectedIndex ||
         oldDelegate.showAddButton != showAddButton;
   }
@@ -590,6 +740,7 @@ class _IntervalProtocolChartPainter extends CustomPainter {
 enum _TextAnchor {
   center,
   middleRight,
+  middleLeft,
 }
 
 class _ChartLayout {
@@ -607,9 +758,10 @@ class _ChartLayout {
       Size size, {
         required bool hasPhases,
         required bool showAddButton,
+        bool showHeartRate = false,
       }) {
     const padLeft = 58.0;
-    const padRight = 14.0;
+    final padRight = showHeartRate ? 54.0 : 14.0;
     const padTop = 16.0;
     const padBottom = 38.0;
 
@@ -645,6 +797,55 @@ class _ChartLayout {
       plot: plot,
       plusRect: plusRect,
       barsWidth: barsWidth,
+    );
+  }
+}
+
+class _HeartRateRange {
+  const _HeartRateRange({
+    required this.min,
+    required this.max,
+  });
+
+  final double min;
+  final double max;
+
+  double get mid => min + (max - min) * 0.5;
+
+  double fractionFor(int bpm) {
+    final span = max - min;
+    if (span <= 0) {
+      return 0.5;
+    }
+
+    return ((bpm - min) / span).clamp(0.0, 1.0);
+  }
+
+  static _HeartRateRange fromTrace(List<HeartRateTracePoint> trace) {
+    var minValue = trace.first.bpm.toDouble();
+    var maxValue = trace.first.bpm.toDouble();
+
+    for (final point in trace) {
+      if (point.bpm < minValue) {
+        minValue = point.bpm.toDouble();
+      }
+      if (point.bpm > maxValue) {
+        maxValue = point.bpm.toDouble();
+      }
+    }
+
+    minValue = math.max(30.0, minValue - 10.0);
+    maxValue = math.min(240.0, maxValue + 10.0);
+
+    if (maxValue - minValue < 20.0) {
+      final center = (maxValue + minValue) * 0.5;
+      minValue = math.max(30.0, center - 10.0);
+      maxValue = math.min(240.0, center + 10.0);
+    }
+
+    return _HeartRateRange(
+      min: minValue,
+      max: maxValue,
     );
   }
 }
