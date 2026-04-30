@@ -451,6 +451,7 @@ class _StatusCard extends StatelessWidget {
                     children: [
                       _PulsingHeartIcon(
                         bpm: heartRateBpm,
+                        isConnected: isHeartRateConnected,
                         size: 20,
                       ),
                       const SizedBox(width: 6),
@@ -606,10 +607,12 @@ class _StatusCard extends StatelessWidget {
 class _PulsingHeartIcon extends StatefulWidget {
   const _PulsingHeartIcon({
     required this.bpm,
+    required this.isConnected,
     required this.size,
   });
 
   final int? bpm;
+  final bool isConnected;
   final double size;
 
   @override
@@ -668,7 +671,8 @@ class _PulsingHeartIconState extends State<_PulsingHeartIcon>
   void didUpdateWidget(covariant _PulsingHeartIcon oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.bpm != widget.bpm) {
+    if (oldWidget.bpm != widget.bpm ||
+        oldWidget.isConnected != widget.isConnected) {
       _controller.duration = _durationForBpm(widget.bpm);
       _syncAnimation();
     }
@@ -677,7 +681,7 @@ class _PulsingHeartIconState extends State<_PulsingHeartIcon>
   void _syncAnimation() {
     final bpm = widget.bpm;
 
-    if (bpm == null || bpm <= 0) {
+    if (!widget.isConnected || bpm == null || bpm <= 0) {
       _controller
         ..stop()
         ..reset();
@@ -703,7 +707,8 @@ class _PulsingHeartIconState extends State<_PulsingHeartIcon>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hasHeartRate = widget.bpm != null && widget.bpm! > 0;
+    final hasHeartRate =
+        widget.isConnected && widget.bpm != null && widget.bpm! > 0;
 
     if (!hasHeartRate) {
       return Icon(
